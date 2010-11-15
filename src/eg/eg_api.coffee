@@ -27,11 +27,11 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 
 	ajaxOptions = {
 		# reverse-proxied to production
-	#	url: '/osrf-gateway-v1'
+		url: '/osrf-gateway-v1'
 		# reverse-proxied to coconut
-		url: '/osrf-gateway-v1-2'
+		#url: '/osrf-gateway-v1-2'
 		# reverse-proxied to devcatalog.kcls.org
-	#	url: '/osrf-gateway-v1-3'
+		#url: '/osrf-gateway-v1-3'
 		# reverse-proxied to catalog.kcls.org
 		#url: '/osrf-gateway-v1-4'
 		type: 'post'

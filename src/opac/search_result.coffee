@@ -19,8 +19,8 @@ module 'opac.search_result', imports(
 	tpl_summary_info = _.template '''
 	<div class="summary_info" id="title_id_<%= title_id %>">
 		<div class="info_line">
-			<span class="link title" title="View details and place a hold for this title" />
-			<span class="link author" title="Search other titles by this author" />
+			<a class="link title" title="View details and place a hold for this title" />
+			<a class="link author" title="Search other titles by this author" />
 			<span class="pub_date" />
 			<span class="resource_types" />
 		</div>
@@ -77,6 +77,8 @@ module 'opac.search_result', imports(
 		current_name = ''
 		current_depth = ''
 		current_type = ''
+
+		maxTab = 0
 
 		$result_list = @plugin('search_settings')
 		.data 'settings',
@@ -139,10 +141,16 @@ module 'opac.search_result', imports(
 
 				$summary_info = $result_list.find('div.summary_list')
 				ou_id = Number request.org_unit
+				n = 0
 				for title_id in x.result.ids
+
+					# Record the maximum tab index.
+					maxTab = n if maxTab < ++n
+
 					$summary_info.append tpl_summary_info { title_id: title_id }
-					((title_id) ->
+					((title_id, tabindex) ->
 						$x = $("#title_id_#{title_id}")
+						$('.title, .author', $x).attr 'tabindex', tabindex
 						$('.info_line', $x).openils 'title info', 'search.biblio.record.mods_slim.retrieve', title_id, show_info_line
 
 						$('.status_line', $x).openils 'title availability', 'search.biblio.record.copy_count',
@@ -155,7 +163,16 @@ module 'opac.search_result', imports(
 							org_id: ou_id
 							depth: request.depth
 						, (cns) -> show_callnumber.call @, cns, x.ou_tree
-					) title_id
+					) title_id, n
+				$first_title = $('.title:first', $summary_info).focus()
+				return
+
+		# Handle keyups for title or author links.
+		@delegate '.title, .author', 'keyup', (e) ->
+			switch e.keyCode
+				# Click the link if enter key was release.
+				when 13 then $(@).click()
+			return false
 
 		# Handle clicks to title or author links.
 		@click (e) ->

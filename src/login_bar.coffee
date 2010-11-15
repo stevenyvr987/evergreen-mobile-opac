@@ -6,12 +6,12 @@
 module 'login_bar', imports('template', 'plugin'), (_) ->
 
 	tpl_login = _.template '''
-	<span class="link login">Log in</span>
+	<a class="link login">Log in</a>
 	<span>to see account details</span>
 	'''
 
 	tpl_logout = _.template '''
-	<span class="link logout">Log out</span>
+	<a class="link logout">Log out</a>
 	<span>Currently logged in as</span>
 	<span class="username"><%= username %></span>
 	'''

@@ -280,17 +280,30 @@ module 'opac.edit_hold', imports(
 
 		@append(tpl_place_hold)
 
+		# Clicking submit button places a hold.
 		.delegate('[type=submit]', 'click', => place_hold.call @)
-#		.submit( => place_hold.call @)
+
+		# Clicking reset button hides the form.
 		.delegate('[type=reset]', 'click', => hide_form.call @)
 
 		# Keyboard shortcuts:
-		.delegate 'form', 'keypress', (e) =>
+		#
+		# Pressing esc key has same effect as clicking reset button.
+		.delegate 'form.place_hold', 'keyup', (e) =>
 			switch e.keyCode
-				# Pressing enter key has same effect as clicking submit button.
-				when 13 then place_hold.call @
-				# Pressing esc key has same effect as clicking reset button.
 				when 27 then hide_form.call @
+			return false
+
+		# Pressing enter key will have an effect if focussed on submit or reset button.
+		.delegate 'button', 'keyup', (e) =>
+			switch e.keyCode
+				when 27 then hide_form.call @
+			switch e.keyCode
+				when 13
+					$target = $(e.target)
+					switch $target
+						when $target.is '[type=reset]' then hide_form.call @
+						when $target.is '[type=submit]' then place_hold.call @
 			return false
 
 		# Build an ou selector to show pickup libraries.
