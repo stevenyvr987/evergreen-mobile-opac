@@ -51,8 +51,7 @@ Utility = \
 
 # Modules for searching public catalogue.
 Opac = \
-	$(dirSrc)/opac/search_bar_sitka.map \
-	$(dirSrc)/opac/search_bar_kcls.map \
+	$(dirSrc)/opac/search_bar.map \
 	$(dirSrc)/opac/search_result.map \
 	$(dirSrc)/opac/edit_hold.map \
 	$(dirSrc)/opac/ou_tree.map \
@@ -110,7 +109,7 @@ build :
 	$(Build) --exclude=dojo/ --include=.js  $(dirMin)/ $(dirBuild)/js
 	$(Build)                 --include=.css       css  $(dirBuild)
 	$(Build)                 --include=.gif    images  $(dirBuild)
-	$(Build)                             *.html *.ico  $(dirBuild)
+	$(Build)                                   *.html  $(dirBuild)
 	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
 
 # Remove compiled files in source/ and min/ and build/ directories.
@@ -139,3 +138,27 @@ clean-build :
 .PRECIOUS : %.js
 
 .PHONY : all build clean clean-source clean-min clean-build
+
+kcls : all
+	-rm index.html
+	ln -s index_kcls.html index.html
+	-rm src/mobile_opac.js
+	(cd src; ln -s mobile_opac_kcls.js mobile_opac.js)
+	-rm min/mobile_opac.js
+	(cd min; ln -s mobile_opac_kcls.js mobile_opac.js)
+	-rm src/dojo/fieldmapper/fmall.js
+	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
+	-rm min/dojo/fieldmapper/fmall.js
+	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
+
+sitka : all
+	-rm index.html
+	ln -s index_sitka.html index.html
+	-rm src/mobile_opac.js
+	(cd src; ln -s mobile_opac_sitka.js mobile_opac.js)
+	-rm min/mobile_opac.js
+	(cd min; ln -s mobile_opac_sitka.js mobile_opac.js)
+	-rm src/dojo/fieldmapper/fmall.js
+	(cd src/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
+	-rm min/dojo/fieldmapper/fmall.js
+	(cd min/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
