@@ -100,7 +100,7 @@ module 'opac.search_result', imports(
 		# Upon receiving a request on the channel, initiate a search.
 		@subscribe 'search', (request) ->
 
-			request = $.extend {}, $('.search_settings').data('settings'), request
+			#request = $.extend {}, $('.search_settings').data('settings'), request
 			#FIXME: the following object is empty and overrides default settings.
 			#{
 			#depth:    current_depth
@@ -109,16 +109,12 @@ module 'opac.search_result', imports(
 			#org_type: current_type
 			#}
 
-			# The new request has to be real,
-			return unless request
-			# contains a search term,
-			return unless request.term
-			# and differs from the old one.
+			# The new request has to differ from the old one.
 			return if JSON.stringify(request) is JSON.stringify($result_list.data 'request')
 
 			# Remember the search request.
 			# FIXME: as it turns out, $('.search_settings') and $result_list are the same DOM element.
-			$('.search_settings').data 'settings', request
+			#$('.search_settings').data 'settings', request
 			$result_list.data 'request', request
 
 			$result_list.html summary_list

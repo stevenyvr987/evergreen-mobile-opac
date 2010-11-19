@@ -48,7 +48,7 @@ module 'mobile_opac', imports(
 	'login_bar'
 ), ->
 
-	kcls_item_types =
+	kcls_search_bar_settings =
 		item_type:
 			'' : 'All Item Types'
 			'a': 'BOOK'
@@ -79,6 +79,34 @@ module 'mobile_opac', imports(
 			'z': 'MAP'
 			'2': 'CASSETTE + BOOK'
 			'5': 'CD + BOOK'
+		language:
+			'' : 'All Languages'
+			ara: 'Arabic'
+			arm: 'Armenian'
+			chi: 'Chinese'
+			scr: 'Croatian'
+			eng: 'English'
+			fre: 'French'
+			ger: 'German'
+			heb: 'Hebrew'
+			hin: 'Hindi'
+			ita: 'Italian'
+			jpn: 'Japanese'
+			khm: 'Khmer'
+			kor: 'Korean'
+			pan: 'Panjabi'
+			per: 'Persian'
+			pol: 'Polish'
+			por: 'Portuguese'
+			rus: 'Russian'
+			scc: 'Serbian'
+			som: 'Somali'
+			spa: 'Spanish'
+			tal: 'Tagalog'
+			tam: 'Tamil'
+			tha: 'Thai'
+			ukr: 'Ukranian'
+			vie: 'Vietnamese'
 
 	jQuery ($) ->
 
@@ -100,7 +128,7 @@ module 'mobile_opac', imports(
 
 		# Upon starting an OPAC search, dynamically load search bar and result summary plugins.
 		$('#opac_search').one 'click', ->
-			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar kcls_item_types
+			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar kcls_search_bar_settings
 			thunk imports('opac.search_result'), -> $('#result_summary').result_summary()
 			return # Allow click event to bubble up to accordion link.
 

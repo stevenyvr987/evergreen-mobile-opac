@@ -498,8 +498,54 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 		}
 		'search.biblio.multiclass.query': {
 			i: (o) ->
-				o.item_type = ['a', 't'] if o.item_type? is 'at'
-				[o, o.term, 1]
+				o.available = Number o.available if o.available
+
+				# Calculate item type, eg, 'at' becomes ['a', 't']
+				# FIXME needs to be recoded in a nicer way
+				if $.isArray o.item_type
+					o.item_type = $.map o.item_type, (x) -> x # flatten
+					(o.item_type[n] = v.split '' if v) for v, n in o.item_type
+				else
+					o.item_type = o.item_type.split '' if o.item_type
+				o.item_type = $.map o.item_type, (x) -> x # flatten
+
+				# Calculate publication date
+				if o.year_begin
+					switch x = o.pub_year_verb
+						when 'between' then o['between'] = [o.year_begin, o.year_end]
+						when 'is'      then o['between'] = [o.year_begin, o.year_begin]
+						else                o[x]         =  o.year_begin
+
+				# Calculate search phrase.
+				#
+				spaces = / +/
+				# Force singletons to lists.
+				(o[x] = [o[x]]) for x in ['term', 'search_term_verb', 'default_class'] when not $.isArray o[x]
+				# For each search term...
+				x = for v, n in o.term when v
+					# Trim and remove duplicate white space.
+					v = (av = ($.trim v).split spaces).join ' '
+					# Add search verb indicator.
+					v = switch o.search_term_verb[n]
+						when '=' then "\"#{v}\"" # 'matches exactly'
+						when '-' then (('-' + vv) for vv in av).join ' ' # 'does not contain'
+						else v # default is 'contains'
+					# Add search class prefix.
+					"#{o.default_class[n]}:#{v}"
+				# Join all search terms into search phrase.
+				term = x.join ' '
+
+				# Delete properties that do not belong in a bona fide search object.
+				delete o[x] for x in [
+					'default_class'
+					'pub_year_verb'
+					'search_term_verb'
+					'term'
+					'type'
+					'year_begin'
+					'year_end'
+				]
+				[o, term, 1]
 			o: (data) ->
 				x = data.payload[0]
 				# flatten the list of ids
