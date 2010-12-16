@@ -142,10 +142,14 @@ clean-build :
 kcls : all
 	-rm index.html
 	ln -s index_kcls.html index.html
+	-rm build/index.html
+	(cd build; ln -s index_kcls.html index.html)
 	-rm src/mobile_opac.js
 	(cd src; ln -s mobile_opac_kcls.js mobile_opac.js)
 	-rm min/mobile_opac.js
 	(cd min; ln -s mobile_opac_kcls.js mobile_opac.js)
+	-rm build/js/mobile_opac.js
+	(cd build/js; ln -s mobile_opac_kcls.js mobile_opac.js)
 	-rm src/dojo/fieldmapper/fmall.js
 	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
@@ -154,10 +158,14 @@ kcls : all
 sitka : all
 	-rm index.html
 	ln -s index_sitka.html index.html
+	-rm build/index.html
+	(cd build; ln -s index_sitka.html index.html)
 	-rm src/mobile_opac.js
 	(cd src; ln -s mobile_opac_sitka.js mobile_opac.js)
 	-rm min/mobile_opac.js
 	(cd min; ln -s mobile_opac_sitka.js mobile_opac.js)
+	-rm build/js/mobile_opac.js
+	(cd build/js; ln -s mobile_opac_sitka.js mobile_opac.js)
 	-rm src/dojo/fieldmapper/fmall.js
 	(cd src/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
