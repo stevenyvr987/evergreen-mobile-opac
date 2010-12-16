@@ -39,7 +39,7 @@ module 'account.holds', imports(
 			<span class="types" />
 		</span>
 		<div class="status_line">
-			<span class="hold_status" /> at <%= hold_pickup %> until <%= hold_expire %>
+			<span class="hold_status" /> <%= hold_pickup %> <%= hold_expire %>
 		</div>
 	</div>
 	'''
@@ -115,8 +115,8 @@ module 'account.holds', imports(
 					$list.prepend $hold_item = tpl_hold_item {
 						hold_id:       hold.id
 						hold_activity: if hold.frozen then 'inactive' else 'active'
-						hold_pickup:   "#{x.ouTree[hold.pickup_lib].name}"
-						hold_expire:   "#{hold.expire_time.slice 0, 10}"
+						hold_pickup:   if hold.pickup_lib then "at #{x.ouTree[hold.pickup_lib].name}" else ''
+						hold_expire:   if hold.expire_time then "until #{hold.expire_time.slice 0, 10}" else ''
 					}
 
 					# Show action buttons as necessary.
