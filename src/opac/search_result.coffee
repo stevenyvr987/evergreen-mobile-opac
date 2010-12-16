@@ -113,8 +113,6 @@ module 'opac.search_result', imports(
 			return if JSON.stringify(request) is JSON.stringify($result_list.data 'request')
 
 			# Remember the search request.
-			# FIXME: as it turns out, $('.search_settings') and $result_list are the same DOM element.
-			#$('.search_settings').data 'settings', request
 			$result_list.data 'request', request
 
 			$result_list.html summary_list
@@ -186,10 +184,11 @@ module 'opac.search_result', imports(
 					$plugin.publish 'hold_create', [id, search.org_unit, search.depth]
 
 			else if $link.hasClass('author') and x = $link.text()
-				$plugin.publish 'search', [$.extend {}, $plugin.data('settings'),
+				# Override recent search request with an author search term at zero offset.
+				$plugin.publish 'search', [$.extend {}, $plugin.data('request'),
 					default_class: 'author'
 					term: x
-					offset: 0
+					offset: '0'
 					type: 'advanced'
 				]
 			return false
