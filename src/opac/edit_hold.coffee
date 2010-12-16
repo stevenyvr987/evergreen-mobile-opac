@@ -267,13 +267,8 @@ module 'opac.edit_hold', imports(
 					else
 						hide_form.call @
 						@publish 'prompt', [
-							'The hold is not possible'
-							'''
-							The server doesn't say why.
-							It could be because the library you wanted to pick the item up from
-							is not part of the same system the item is from.
-							It could also be a number of other reasons.
-							'''
+							'This title is not eligible for a hold.'
+							'Please ask your friendly library staff for assistance.'
 						]
 
 			return false
