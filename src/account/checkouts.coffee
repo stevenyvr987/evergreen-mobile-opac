@@ -107,10 +107,11 @@ module 'account.checkouts', imports(
 							$('.status_line', $x).openils 'checkout status', 'circ.retrieve.authoritative', circ_id, (circ) ->
 								show_status_line.call @.parent(), circ
 								$('.info_line', $x).openils 'title info', 'search.biblio.mods_from_copy', circ.target_copy, show_info_line
-								# Disable checkout items with statuses that cannot be renewed.
+								# Deactivate items that are not checked out, primarily items overdued.
 								if type isnt 'out'
 									$x.addClass('inactive')
-								if type isnt 'out' or circ.renewal_remaining is 0
+								# Disable items that cannot be renewed.
+								if circ.renewal_remaining is 0
 									$x.find(':checkbox').attr 'disabled', true
 						) type, $("#circ_id_#{circ_id}")
 
