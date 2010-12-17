@@ -364,6 +364,11 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 			o: o3
 			login_required: true
 		}
+		'circ.retrieve.authoritative': {
+			i: i2
+			o: o3
+			login_required: true
+		}
 		'circ.renew': {
 			i: (copy) ->
 				[auth.session.id, {

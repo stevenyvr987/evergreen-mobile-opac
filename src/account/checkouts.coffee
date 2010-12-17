@@ -104,7 +104,7 @@ module 'account.checkouts', imports(
 								$renew_all.show()
 
 						((type, $x) ->
-							$('.status_line', $x).openils 'checkout status', 'circ.retrieve', circ_id, (circ) ->
+							$('.status_line', $x).openils 'checkout status', 'circ.retrieve.authoritative', circ_id, (circ) ->
 								show_status_line.call @.parent(), circ
 								$('.info_line', $x).openils 'title info', 'search.biblio.mods_from_copy', circ.target_copy, show_info_line
 								# Disable checkout items with statuses that cannot be renewed.
