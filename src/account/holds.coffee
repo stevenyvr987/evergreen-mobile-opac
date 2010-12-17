@@ -31,7 +31,7 @@ module 'account.holds', imports(
 	</form>
 	'''
 	tpl_hold_item = _.template '''
-	<div class="my_hold <%= hold_activity %>" id="hold_id_<%= hold_id %>">
+	<div class="my_hold" id="hold_id_<%= hold_id %>">
 		<input type="checkbox" name="hold_id" value="<%= hold_id %>" />
 		<span class="info_line">
 			<span class="title" />
@@ -39,14 +39,22 @@ module 'account.holds', imports(
 			<span class="types" />
 		</span>
 		<div class="status_line">
-			<span class="hold_status" /> <%= hold_pickup %> <%= hold_expire %>
+			<span class="hold_status" />
+			<span class="hold_pickup" />
+			<span class="hold_expire" />
 		</div>
 	</div>
 	'''
-	show_info_line = (mvr) ->
-		$('.title', @).text mvr.title if mvr.title
-		$('.author', @).text "/ #{mvr.author}" if mvr.author
-		$('.types', @).text "/ #{(mvr.types_of_resource).join ', '}" if mvr.types_of_resource
+	tpl_info_line = _.template '''
+	<span class="title"> <%= title %> </span>
+	<span class="author"> <%= author %> </span>
+	<span class="types"> <%= types %> </span>
+	'''
+	tpl_status_line = _.template '''
+	<span class="hold_status"> <%= status %> </span>
+	<span class="hold_pickup"> <%= pickup %> </span>
+	<span class="hold_expire"> <%= expire %> </span>
+	'''
 
 
 	$.fn.holds = ->
@@ -96,6 +104,7 @@ module 'account.holds', imports(
 
 		.refresh ->
 			@empty().append $list = $ tpl_hold_form
+
 			# Hide action buttons until they are needed.
 			$cancel_some = $('.cancel[name="some"]', @).hide()
 			$cancel_all = $('.cancel[name="all"]', @).hide()
@@ -104,57 +113,43 @@ module 'account.holds', imports(
 			$resume_some = $('.resume[name="some"]', @).hide()
 			$resume_all = $('.resume[name="all"]', @).hide()
 
-			$list.parallel 'holds details',
-				holds:  eg.openils 'circ.holds.retrieve'
+			$list.parallel 'holds list',
+				ids: eg.openils 'circ.holds.id_list.retrieve.authoritative'
 				ouTree: eg.openils 'actor.org_tree.retrieve'
 			, (x) =>
+				for id in x.ids
+					$list.prepend $hold_item = tpl_hold_item { hold_id: id }
+					$("#hold_id_#{id}").openils 'holds details', 'circ.hold.details.retrieve.authoritative', id, (o) ->
 
-				holds = x.holds # FIXME: need to do this to pass value to click handlers.
-				@publish 'holds', [x.holds]
-				for hold in x.holds
-					$list.prepend $hold_item = tpl_hold_item {
-						hold_id:       hold.id
-						hold_activity: if hold.frozen then 'inactive' else 'active'
-						hold_pickup:   if hold.pickup_lib then "at #{x.ouTree[hold.pickup_lib].name}" else ''
-						hold_expire:   if hold.expire_time then "until #{hold.expire_time.slice 0, 10}" else ''
-					}
+						# Accumulate holds object in a list.
+						# Useful for updating as the updated object needs to be returned to the server.
+						holds.push o.hold
 
-					# Show action buttons as necessary.
-					if $cancel_all.is ':visible'
-						$cancel_some.show()
-					else
-						$cancel_all.show()
-					if hold.frozen
-						if $resume_all.is ':visible'
-							$resume_some.show()
+						$('.info_line', @).append tpl_info_line
+							title: o.mvr.title if o.mvr.title
+							author: "/ #{o.mvr.author}" if o.mvr.author
+							types: "/ #{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+						$('.status_line', @).append tpl_status_line
+							status: o.status if o.status
+							pickup: "at #{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+							expire: if o.hold.expire_time then "until #{o.hold.expire_time.slice 0, 10}" else ''
+						@addClass if o.hold.frozen then 'inactive' else 'active'
+
+						# Show action buttons as necessary.
+						if $cancel_all.is ':visible'
+							$cancel_some.show()
 						else
-							$resume_all.show()
-					else
-						if $suspend_all.is ':visible'
-							$suspend_some.show()
+							$cancel_all.show()
+						if o.hold.frozen
+							if $resume_all.is ':visible'
+								$resume_some.show()
+							else
+								$resume_all.show()
 						else
-							$suspend_all.show()
-
-					( (hold) ->
-						$x = $("#hold_id_#{hold.id}")
-						$('.hold_status', $x).openils 'hold status', 'circ.hold.status.retrieve', hold.id, (status) ->
-							@text status[1]
-
-						$il = $('.info_line', $x)
-						switch hold.hold_type
-							when 'M'
-								$il.openils 'title_info', "search.biblio.metarecord.mods_slim.retrieve", hold.target, show_info_line
-							when 'T'
-								$il.openils 'title info', "search.biblio.record.mods_slim.retrieve", hold.target, show_info_line
-							when 'V'
-								$il.openils 'callnumber info', "search.asset.call_number.retrieve", hold.target, (cn) ->
-									@openils 'title info', "search.biblio.record.mods_slim.retrieve", cn.record, show_info_line
-							when 'C'
-								$il.openils 'copy info', "search.asset.copy.retrieve", hold.target, (copy) ->
-									@openils 'callnumber info', "search.asset.call_number.retrieve", copy.call_number, (cn) ->
-										@openils 'title info', "search.biblio.record.mods_slim.retrieve", cn.record, show_info_line
-					) hold
-
+							if $suspend_all.is ':visible'
+								$suspend_some.show()
+							else
+								$suspend_all.show()
 			.error (e) ->
 				#console.error e
 				alert JSON.stringify e, null, '  '

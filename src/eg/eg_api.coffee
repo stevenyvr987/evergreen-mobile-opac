@@ -309,6 +309,21 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 			o: o3
 			login_required: true
 		}
+		'circ.hold.details.retrieve.authoritative': {
+			i: i3
+			o: (o) ->
+				o = o1 o
+				o.mvr = fm.fieldmap o.mvr
+				o.hold = fm.fieldmap o.hold
+				o.status = switch Number o.status
+					when 1 then 'Waiting for copy to become available'
+					when 2 then 'Waiting for copy capture'
+					when 3 then 'In transit'
+					when 4 then 'Arrived'
+					else 'Error'
+				o
+			login_required: true
+		}
 		'circ.hold.status.retrieve': {
 			i: i2
 			o: (data) ->
