@@ -41,14 +41,12 @@ module 'account.summary', imports(
 		return false
 
 	tpl_holds_summary = _.template '''
-	<%= nh %> items on hold,
-	<%= ns %> holds suspended
+	<%= nh %> items on hold
 	'''
 	refresh_holds_summary = ->
-		$('#holds_summary').openils 'holds summary', 'circ.holds.retrieve', (o) ->
+		$('#holds_summary').openils 'holds summary', 'circ.holds.id_list.retrieve.authoritative', (o) ->
 			@text tpl_holds_summary {
 				nh:  nh = o.length
-				ns:  (x for x in o when x.frozen).length
 			}
 		return false
 

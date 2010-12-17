@@ -299,6 +299,11 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 		}
 
 		'circ.open_non_cataloged_circulation.user': { i: i3 }
+		'circ.holds.id_list.retrieve.authoritative': {
+			i: i3
+			o: o1
+			login_required: true
+		}
 		'circ.holds.retrieve': {
 			i: i3
 			o: o3
