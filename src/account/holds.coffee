@@ -26,8 +26,8 @@ module 'account.holds', imports(
 		<input type="submit" class="cancel" name="all" value="Cancel all" />
 		<input type="submit" class="suspend" name="some" value="Suspend selected holds" />
 		<input type="submit" class="suspend" name="all" value="Suspend all" />
-		<input type="submit" class="resume" name="some" value="Resume selected holds" />
-		<input type="submit" class="resume" name="all" value="Resume all" />
+		<input type="submit" class="resume" name="some" value="Activate selected holds" />
+		<input type="submit" class="resume" name="all" value="Activate all" />
 	</form>
 	'''
 	tpl_hold_item = _.template '''
@@ -208,7 +208,7 @@ module 'account.holds', imports(
 						break
 				refresh()
 			else
-				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to resume.']
+				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to activate.']
 			return false
 
 		@delegate '.resume[name=some]', 'click', update_some
