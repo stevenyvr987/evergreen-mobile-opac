@@ -95,14 +95,6 @@ module 'account.checkouts', imports(
 							circ_type: type
 						}
 
-						# Show action buttons as necessary.
-						# FIXME: should consider circ.renewal_remaining.
-						if type is 'out'
-							if $renew_all.is ':visible'
-								$renew_some.show()
-							else
-								$renew_all.show()
-
 						((type, $x) ->
 							$('.status_line', $x).openils 'checkout status', 'circ.retrieve.authoritative', circ_id, (circ) ->
 								show_status_line.call @.parent(), circ
@@ -113,6 +105,9 @@ module 'account.checkouts', imports(
 								# Disable items that cannot be renewed.
 								if circ.renewal_remaining is 0
 									$x.find(':checkbox').attr 'disabled', true
+								# Show relevant action buttons.
+								if type is 'out' and circ.renewal_remaining > 0
+									if $renew_all.is ':visible' then $renew_some.show() else $renew_all.show()
 						) type, $("#circ_id_#{circ_id}")
 
 			return false
