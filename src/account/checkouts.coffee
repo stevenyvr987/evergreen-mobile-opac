@@ -92,7 +92,7 @@ module 'account.checkouts', imports(
 
 						$list.prepend tpl_co_item {
 							circ_id: circ_id
-							circ_type: type
+							circ_type: if type is 'out' then '' else type
 						}
 
 						((type, $x) ->
