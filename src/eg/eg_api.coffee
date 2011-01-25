@@ -160,10 +160,19 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 		'actor.user.checked_out.count': {
 			i: i3
 			login_required: true
+			# Ensure that response has a zero total property.
+			o: (data) ->
+				o = o1 data
+				o.total = 0 unless o.total?
+				o
 		}
 		'actor.user.checked_out.count.authoritative': {
 			i: i3
 			login_required: true
+			o: (data) ->
+				o = o1 data
+				o.total = 0 unless o.total?
+				o
 		}
 		'actor.user.email.update': {
 			i: i2
