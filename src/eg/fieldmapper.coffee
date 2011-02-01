@@ -56,18 +56,22 @@ module 'eg.fieldmapper', ->
 	}
 
 
-	# It might be more "correct" to use Date objects to represent dates in
-	# the app. For the most part though, these dates are simply displayed
-	# to the user (as strings), possibly modified by the user (as strings),
-	# and then sent back to the server (again, as strings). So the lifetime
-	# for a Date object is incredibly short and I'm not sure it's worth it
-	# to convert them.
 	typemap = {
 		'':        identity
 		'fm':      guard_null (x) => if typeof x is 'object' then @fieldmap x else x
 		'number':  guard_null Number
 		'string':  guard_null String
-		'date':    guard_null String
+
+		# Use Date objects to represent dates in the app.
+		# For the most part though,
+		# dates are displayed to the user as strings,
+		# and possibly modified by the user as strings
+		# and then sent back to the server as strings.
+		'date': (x) ->
+			return x unless x?
+			[yr, mon, day, hh, mm, ss, tz] = ((String x).replace /\D/g, ' ').split ' '
+			new Date yr, --mon, day, hh, mm, ss
+
 		'boolean': (x) ->
 			switch x
 				when 't', '1' then true
