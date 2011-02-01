@@ -43,8 +43,12 @@ module 'account.checkouts', imports(
 		$('.author', @).text "/ #{mvr.author}" if mvr.author
 		$('.types', @).text "/ #{(mvr.types_of_resource).join ', '}" if mvr.types_of_resource
 
+	pad = (x) -> if x < 10 then '0' + x else x
+	datestamp = (x) ->
+		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
+
 	show_status_line = (circ) ->
-		$('.due_date', @).text circ.due_date.slice 0, 10
+		$('.due_date', @).text datestamp circ.due_date
 		$('.remaining_renewals', @).text circ.renewal_remaining
 		$('input:checkbox', @).val circ.target_copy
 

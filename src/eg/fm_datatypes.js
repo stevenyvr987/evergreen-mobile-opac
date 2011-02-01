@@ -151,7 +151,7 @@ var fm_datatypes = {
 		"capture_time": "",
 		"current_copy": "",
 		"email_notify": "boolean",
-		"expire_time": "",
+		"expire_time": "date",
 		"fulfillment_lib": "",
 		"fulfillment_staff": "",
 		"fulfillment_time": "",
@@ -366,5 +366,21 @@ var fm_datatypes = {
 		"owner": "number",
 		"stat_cat": "fm",
 		"value": "string"
+	},
+	"mbts": {
+		"balance_owed": 'string',
+		"id": 'number',
+		"last_billing_note": 'string',
+		"last_billing_ts": 'date',
+		"last_billing_type": 'string',
+		"last_payment_note": 'string',
+		"last_payment_ts": 'date',
+		"last_payment_type": 'string',
+		"total_owed": 'string',
+		"total_paid": 'string',
+		"usr": 'number',
+		"xact_finish": 'date',
+		"xact_start": 'date',
+		"xact_type": 'string'
 	}
 };

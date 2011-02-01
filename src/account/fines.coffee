@@ -21,18 +21,20 @@ module 'account.fines', imports(
 		<span>$<%= owed %></span>
 		<span><%= type %></span>
 		<span><%= date %></span>
-		<span><%= time %></span>
 		<span><%= note %></span>
 	</div>
 	'''
+
+	pad = (x) -> if x < 10 then '0' + x else x
+	datestamp = (x) ->
+		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
 
 	show_info_line = (mbts) ->
 		@append tpl_info_line {
 			fine_id: x.id
 			owed: x.balance_owed
 			type: x.last_billing_type
-			date: x.last_billing_ts.slice 0, 10
-			time: x.last_billing_ts.slice 11, 16
+			date: datestamp x.last_billing_ts
 			note: x.last_billing_note
 		} for x in mbts
 		return

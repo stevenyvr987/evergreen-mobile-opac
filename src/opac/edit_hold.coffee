@@ -155,11 +155,15 @@ module 'opac.edit_hold', imports(
 		tpl_due_date = _.template '''
 			<span id="<%= barcode %>"> / Due date <%= duedate %></span>
 		'''
+		pad = (x) -> if x < 10 then '0' + x else x
+		datestamp = (x) ->
+			"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
 		show_due_date = (x) ->
 			@append tpl_due_date {
 				barcode: x.barcode
-				duedate: x.circulations?[0].due_date.slice 0, 10
-			}
+				#duedate: x.circulations?[0].due_date.slice 0, 10
+				duedate: datestamp x.circulations[0].due_date
+			} if x.circulations?
 
 		@loading 'holding details'
 		eg.openils 'search.biblio.copy_location_counts.summary.retrieve',

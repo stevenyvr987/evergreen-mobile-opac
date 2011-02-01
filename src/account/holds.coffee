@@ -56,6 +56,9 @@ module 'account.holds', imports(
 	<span class="hold_expire"> <%= expire %> </span>
 	'''
 
+	pad = (x) -> if x < 10 then '0' + x else x
+	datestamp = (x) ->
+		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
 
 	$.fn.holds = ->
 
@@ -132,7 +135,7 @@ module 'account.holds', imports(
 						$('.status_line', @).append tpl_status_line
 							status: o.status if o.status
 							pickup: "at #{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
-							expire: if o.hold.expire_time then "until #{o.hold.expire_time.slice 0, 10}" else ''
+							expire: if o.hold.expire_time then "until #{datestamp o.hold.expire_time}" else ''
 						@addClass if o.hold.frozen then 'inactive' else 'active'
 
 						# Show action buttons as necessary.
