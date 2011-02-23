@@ -18,23 +18,40 @@ module 'opac.search_result', imports(
 
 	tpl_summary_info = _.template '''
 	<div class="summary_info" id="title_id_<%= title_id %>">
-		<div class="info_line">
-			<a class="link title" title="View details and place a hold for this title" />
-			<a class="link author" title="Search other titles by this author" />
-			<span class="pub_date" />
-			<span class="resource_types" />
+		<div class="art_box">
+			<img class="cover_art" title="View details and place a hold for this title" />
 		</div>
-		<div class="status_line">
-			<span class="counts_avail" /> of <span class="counts_total" /> available.
-			<span class="callnumber" title="Location and call number of this title" />
+		<div class="info_box">
+			<div class="info_line">
+				<a class="link title" title="View details and place a hold for this title" />
+				<a class="link author" title="Search other titles by this author" />
+				<span class="pub_date" />
+				<span class="resource_types" />
+			</div>
+			<div class="status_line">
+				<span class="counts_avail" /> of <span class="counts_total" /> available.
+				<span class="callnumber" title="Location and call number of this title" />
+			</div>
 		</div>
 	</div>
 	'''
-	show_info_line = (mvr) ->
+	show_summary_info = (mvr) ->
 		$('.title', @).text          mvr.title
 		$('.author', @).text         mvr.author
 		$('.pub_date', @).text       mvr.pubdate
 		$('.resource_types', @).text mvr.types_of_resource.join ', '
+
+		# ISBN string may be empty, or may contain annotations or multiple values.
+		# We pick the first ISBN value, if there is one,
+		# and build an image element using the corresponding image.
+		# If we get back a 1x1 pixel image, we do not use it.
+		$img = $('img', @)
+		if isbn = /^(\d+)\D/.exec mvr.isbn
+			img = $img.attr('src', "/opac/extras/ac/jacket/small/#{isbn[1]}").get(0)
+			# FIXME: natural dimensions are not available until image is retrieved
+			$img.remove() if img.naturalHeight is 1 and img.naturalWidth is 1
+		else
+			$img.remove()
 
 	show_status_line = (nc, depth) ->
 		counts = (v for n, v of nc when Number(v.depth) is depth)[0]
@@ -143,10 +160,8 @@ module 'opac.search_result', imports(
 
 					$summary_info.append tpl_summary_info { title_id: title_id }
 					((title_id, tabindex) ->
-						$x = $("#title_id_#{title_id}")
+						$x = $("#title_id_#{title_id}").openils 'title info', 'search.biblio.record.mods_slim.retrieve', title_id, show_summary_info
 						$('.title, .author', $x).attr 'tabindex', tabindex
-						$('.info_line', $x).openils 'title info', 'search.biblio.record.mods_slim.retrieve', title_id, show_info_line
-
 						$('.status_line', $x).openils 'title availability', 'search.biblio.record.copy_count',
 							id: title_id
 							location: ou_id
@@ -174,16 +189,17 @@ module 'opac.search_result', imports(
 			$link = $(e.target)
 			id = get_id $link
 			$plugin = $(e.currentTarget)
+			$img = $("#title_id_#{id} img", $plugin).clone()
 			search = $plugin.data 'request'
 
-			if $link.hasClass('title') and id and search
+			if $link.is('.title, .cover_art') and id and search
 				thunk imports('login_window', 'opac.edit_hold'), ->
 					# FIXME: these plugins should not be aware of element identifiers.
 					$('#edit_hold').edit_hold() unless $('#edit_hold').plugin()
 					$('#login_window').login_window() unless $('#login_window').plugin()
-					$plugin.publish 'hold_create', [id, search.org_unit, search.depth]
+					$plugin.publish 'hold_create', [id, search.org_unit, search.depth, $img]
 
-			else if $link.hasClass('author') and x = $link.text()
+			else if $link.is('.author') and x = $link.text()
 				# Override recent search request with an author search term at zero offset.
 				$plugin.publish 'search', [$.extend {}, $plugin.data('request'),
 					default_class: 'author'

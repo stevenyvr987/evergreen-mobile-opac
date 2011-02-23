@@ -765,7 +765,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 					dataType: 'html'
 					success: (data) -> d.call data
 					type: 'GET'
-					url: "/opac/extras/ac/#{request.type}/html/#{request.isbn}"
+					url: "/opac/extras/ac/#{request.type}/small/#{request.isbn}"
 				}
 		}
 		'': {} # terminates the object

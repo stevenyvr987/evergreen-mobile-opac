@@ -20,20 +20,24 @@ module 'opac.edit_hold', imports(
 
 
 	# Plugin to show title details for a hold target.
-	$.fn.title_details = ->
+	$.fn.title_details = ($img) ->
 
 		tpl_title_details = _.template '''
-			<div>Title:                <span class="value"><%= b.title            %></span></div>
-			<div>Author:               <span class="value"><%= b.author           %></span></div>
-			<div>Publisher:            <span class="value"><%= b.publisher        %></span></div>
-			<div>Call Number:          <span class="value"><%= b.callnumber       %></span></div>
-			<div>ISBN:                 <span class="value"><%= b.isbn             %></span></div>
-			<div>ISSN:                 <span class="value"><%= b.issn             %></span></div>
-			<div>UPC:                  <span class="value"><%= b.upc              %></span></div>
-			<div>Publisher Number:     <span class="value"><%= b.publisher_number %></span></div>
-			<div>Physical Description: <span class="value"><%= b.phy_descr        %></span></div>
-			<div>Edition:              <span class="value"><%= b.edition          %></span></div>
-			<div>Frequency:            <span class="value"><%= b.frequency        %></span></div>
+			<div class="art_box" />
+			<div class="info_box">
+				<div>Title:                <span class="value"><%= b.title            %></span></div>
+				<div>Author:               <span class="value"><%= b.author           %></span></div>
+				<div>Publisher:            <span class="value"><%= b.publisher        %></span></div>
+				<div>Call Number:          <span class="value"><%= b.callnumber       %></span></div>
+				<div>ISBN:                 <span class="value"><%= b.isbn             %></span></div>
+				<div>ISSN:                 <span class="value"><%= b.issn             %></span></div>
+				<div>UPC:                  <span class="value"><%= b.upc              %></span></div>
+				<div>Publisher Number:     <span class="value"><%= b.publisher_number %></span></div>
+				<div>Physical Description: <span class="value"><%= b.phy_descr        %></span></div>
+				<div>Edition:              <span class="value"><%= b.edition          %></span></div>
+				<div>Frequency:            <span class="value"><%= b.frequency        %></span></div>
+			</div>
+			<div class="clear" />
 		'''
 		tags2text =
 			title:            { '245':'abchp' }
@@ -89,10 +93,14 @@ module 'opac.edit_hold', imports(
 				b: marc_text htmlmarc # Convert MARC HTML to MARC object.
 				target_id: hold.target
 				hold_id: hold.id or 0
-			}).find('.value').each ->
+			})
+			.find('.value').each ->
 				# Remove empty values.
 				# FIXME: removal is not perfect, leaves empty divs behind.
 				$(@).parent().empty() unless $(@).text()
+
+			$('.art_box', @).append $img.attr('title', '').width 100
+			return
 
 
 	# Plugin to show holding details for a hold target.
@@ -328,7 +336,7 @@ module 'opac.edit_hold', imports(
 		<div class="holding_details" />
 		'''
 
-		show_form = (hold, search_ou, search_depth) ->
+		show_form = (hold, search_ou, search_depth, $img) ->
 
 			# Persist the hold data object.
 			# Build details pane.
@@ -353,7 +361,7 @@ module 'opac.edit_hold', imports(
 				.data('ou_types', x.ouTypes)
 				.data('status_names', x.copy_status_map)
 
-				$('.title_details', @).title_details()
+				$('.title_details', @).title_details $img
 				$('.holding_details', @).holding_details()
 				$('.hold_details', @).hold_details()
 				return
@@ -366,14 +374,14 @@ module 'opac.edit_hold', imports(
 		@plugin('edit_hold').empty().hide()
 
 		# Set default pickup_lib to user's home ou if defined (implies user has logged in)
-		.subscribe 'hold_create', (id, search_ou, search_depth) =>
+		.subscribe 'hold_create', (id, search_ou, search_depth, $img) =>
 			hold =
 				target: id # version 1.6 software
 				titleid: id # version 2.0 software
 				hold_type: 'T' # default type
 				selection_depth: 0
 				pickup_lib: Number eg.auth.session.user.home_ou
-			show_form.call @, hold, search_ou, search_depth
+			show_form.call @, hold, search_ou, search_depth, $img
 			return false
 
 		.subscribe 'hold_update', (hold) =>
