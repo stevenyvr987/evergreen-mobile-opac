@@ -1,3 +1,6 @@
+button {
+	margin-right: 5px;
+}
 dd {
 	margin-left: 0;
 }
@@ -38,6 +41,7 @@ dd {
 #footer_bar {
 	color: gray;
 	font-size: smaller;
+	clear: left;
 }
 #footer_bar a {
 	color: gray;
@@ -115,4 +119,19 @@ dd {
 	background: #000;
 	-webkit-border-radius: 10px;
 	-moz-border-radius:	 10px;
+}
+
+.cover_art {
+	width: 40px;
+	height: auto;
+	margin-right: 10px;
+}
+.art_box {
+	float: left;
+}
+.summary_info {
+	clear: left;
+}
+.clear {
+	clear: left;
 }

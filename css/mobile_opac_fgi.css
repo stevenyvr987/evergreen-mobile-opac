@@ -1,0 +1,226 @@
+body {
+   padding: 0;
+   margin: 0 0 0 5px;
+   font-family: Arial,Helvetica,sans-serif;
+   font-size: 12px;
+   color: #333333;
+}
+
+/* Styles for links
+ */
+.link, a {
+   color: inherit;
+   text-decoration: underline;
+   cursor: pointer;
+}
+.link:hover, a:hover {
+	text-decoration: underline;
+}
+.summary_bar .link {
+	text-decoration: none;
+}
+
+#full {
+   width: 320px;
+}
+
+#logo {
+   background-color: #333333;
+   padding: 11px 17px;
+}
+
+#footer_bar {
+   background-color: #e8e8e8;
+   border-top: 1px #d1d1d1 solid;
+   border-bottom: 1px #d1d1d1 solid;
+   font-size: 10px;
+   padding: 7px 17px;
+}
+#footer_bar a {
+	text-decoration: none;
+}
+
+#login_bar {
+   padding: 7px 17px;
+   background-color: #464646;
+   color: #ffcc33;
+}
+.logout {
+	margin-right: 10px;
+}
+
+#search_link {
+   background-color: #9ad0f1;
+   color: #074079;
+   padding: 7px 17px;
+}
+
+#search_bar {
+   padding: 7px 17px;
+}
+
+#pane_search {
+   margin-top: 10px;
+   margin-bottom: 10px;
+}
+#account_summary {
+   margin-top: 10px;
+   margin-bottom: 10px;
+}
+
+button { margin-right: 5px; }
+
+input[type=text] {
+   width: 176px;
+   border: 1px e9ebf3 solid;
+   padding: 0 0 0px 4px;
+   height: 20px;
+   margin: 0 10px 5px 0;
+}
+
+select {
+   width: auto /*182px*/;
+   border: 1px e9ebf3 solid;
+   padding: 2px 0px 2px 3px;
+   margin: 0 10px 5px 0;
+}
+
+select.slim {
+   width: auto /*89px*/;
+   margin: 0;
+}
+
+/* Original styles */
+dd {
+	margin-left: 0;
+}
+dd > form {
+	margin: 0 0 5px 0;
+}
+#loading {
+	position: fixed;
+	top: 10%;
+	right: 50%;
+	z-index: 9999;
+}
+.edit_hold hr {
+	width: 80%;
+}
+
+.active {
+	color: black;
+}
+.inactive {
+	color: silver;
+}
+.loading {
+	background: silver;
+	color: white;
+}
+.failed {
+	background: gray;
+	color: white;
+}
+
+/* Styles for the footer bar.
+ */
+#footer_bar {
+	color: gray;
+	font-size: smaller;
+	clear: left;
+}
+#footer_bar a {
+	color: gray;
+/*	text-decoration: none; */
+}
+#footer_bar span {
+	padding-right: 10px;
+}
+#engine img {
+	border: none;
+	width: 94px;
+	height: 16px;
+}
+
+/* Styles for jQuery.blockUI
+ */
+.blockUI {
+	width: 80%;
+	top: 0%;
+	left: 0%;
+	border:	3px solid #aaa;
+	text-align:	left;
+	color: #000;
+	background: #fff;
+	cursor:	default;
+	padding-top: 10px;
+	padding-left: 5px;
+	padding-bottom: 15px;
+	padding-right: 10px;
+	margin-top: 1%;
+	margin-left: 10%;
+	margin-right: 10%;
+}
+
+/* Styles for the jQuery.blockUI overlay.
+ */
+.blockOverlay {
+	background: #000;
+	opacity:	0.6;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+	filter:		alpha(opacity=60);
+	cursor:		default;
+}
+
+/* Styles applied when using jQuery.growlUI.
+ */
+.growlUI {
+	width:  	350px;
+	top:		10px;
+	left:   	0px;
+	right:  	10px;
+	border: 	none;
+	padding:	5px;
+	opacity:	0.6;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+	filter:		alpha(opacity=60);
+	cursor: 	default;
+	color:		#fff;
+	background: #000;
+	-webkit-border-radius: 10px;
+	-moz-border-radius:	 10px;
+}
+.promptUI {
+	width:  	350px;
+	top:		10px;
+	left:   	0px;
+	right:  	10px;
+	border: 	none;
+	padding:	5px;
+	opacity:	0.9;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+	filter:		alpha(opacity=90);
+	cursor: 	default;
+	color:		#fff;
+	background: #000;
+	-webkit-border-radius: 10px;
+	-moz-border-radius:	 10px;
+}
+
+/* Styles for cover art
+ */
+.cover_art {
+	width: 40px;
+	height: auto;
+	margin-right: 10px;
+}
+.art_box {
+	float: left;
+}
+.summary_info {
+	clear: left;
+	margin: 5px 0 0 0;
+}
+.clear {
+	clear: left;
+}
