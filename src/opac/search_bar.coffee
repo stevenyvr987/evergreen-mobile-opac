@@ -74,7 +74,7 @@ module 'opac.search_bar', imports(
 			<span class="advanced search org_unit_available"><input type="checkbox" name="available" value="1">Limit to Available</input></span>
 		</div>
 		<div>
-			<select name="item_type" title="Filter by item type"/>
+			<select name="facets" title="Filter by item type"/>
 			<select multiple size="4" class="advanced search" name="language" title="Filter by language"/>
 		</div>
 		<div class="advanced search publication year">
@@ -131,7 +131,7 @@ module 'opac.search_bar', imports(
 		.find('select').each -> build_options.call @
 		$x.fadeIn 1000
 		$('.search.advanced', @).fadeIn 1000
-		$('select:[name=item_type]', @).hide().attr
+		$('select:[name=facets]', @).hide().attr
 			multiple: true
 			size: 4
 		.fadeIn 1000
@@ -146,7 +146,7 @@ module 'opac.search_bar', imports(
 		.find('select').each -> build_options.call @
 		$x.fadeIn 1000
 		$('.search.advanced', @).fadeOut 1000
-		$('select:[name=item_type]', @).hide().attr
+		$('select:[name=facets]', @).hide().attr
 			multiple: false
 			size: 1
 		.fadeIn 1000

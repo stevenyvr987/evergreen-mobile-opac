@@ -49,7 +49,7 @@ module 'mobile_opac', imports(
 ), ->
 
 	kcls_search_bar_settings =
-		item_type:
+		facets:
 			'' : 'All Item Types'
 			'a': 'BOOK'
 			'b': 'MAGAZINE'

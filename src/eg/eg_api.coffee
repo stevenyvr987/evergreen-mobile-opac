@@ -536,12 +536,13 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 
 				# Calculate item type, eg, 'at' becomes ['a', 't']
 				# FIXME needs to be recoded in a nicer way
-				if $.isArray o.item_type
+				if o.item_type
+					if $.isArray o.item_type
+						o.item_type = $.map o.item_type, (x) -> x # flatten
+						(o.item_type[n] = v.split '' if v) for v, n in o.item_type
+					else
+						o.item_type = o.item_type.split '' if o.item_type
 					o.item_type = $.map o.item_type, (x) -> x # flatten
-					(o.item_type[n] = v.split '' if v) for v, n in o.item_type
-				else
-					o.item_type = o.item_type.split '' if o.item_type
-				o.item_type = $.map o.item_type, (x) -> x # flatten
 
 				# Calculate publication date
 				if o.year_begin
