@@ -328,7 +328,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 					when 1 then 'Waiting for copy to become available'
 					when 2 then 'Waiting for copy capture'
 					when 3 then 'In transit'
-					when 4 then 'Arrived'
+					when 4 then 'Ready for Pickup'
 					else 'Error'
 				o
 			login_required: true
@@ -340,7 +340,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 					when 1 then [1, 'Waiting for copy to become available']
 					when 2 then [2, 'Waiting for copy capture']
 					when 3 then [3, 'In transit']
-					when 4 then [4, 'Arrived']
+					when 4 then [4, 'Ready for Pickup']
 					else ['-1', 'Error']
 			login_required: true
 		}

@@ -22,6 +22,7 @@ module 'account.holds', imports(
 
 	tpl_hold_form = '''
 	<form>
+		<div class="hold_list" />
 		<input type="submit" class="cancel" name="some" value="Cancel selected holds" />
 		<input type="submit" class="cancel" name="all" value="Cancel all" />
 		<input type="submit" class="suspend" name="some" value="Suspend selected holds" />
@@ -33,16 +34,8 @@ module 'account.holds', imports(
 	tpl_hold_item = _.template '''
 	<div class="my_hold" id="hold_id_<%= hold_id %>">
 		<input type="checkbox" name="hold_id" value="<%= hold_id %>" />
-		<span class="info_line">
-			<span class="title" />
-			<span class="author" />
-			<span class="types" />
-		</span>
-		<div class="status_line">
-			<span class="hold_status" />
-			<span class="hold_pickup" />
-			<span class="hold_expire" />
-		</div>
+		<span class="info_line" />
+		<div class="status_line" />
 	</div>
 	'''
 	tpl_info_line = _.template '''
@@ -50,11 +43,22 @@ module 'account.holds', imports(
 	<span class="author"> <%= author %> </span>
 	<span class="types"> <%= types %> </span>
 	'''
-	tpl_status_line = _.template '''
-	<span class="hold_status"> <%= status %> </span>
-	<span class="hold_pickup"> <%= pickup %> </span>
-	<span class="hold_expire"> <%= expire %> </span>
-	'''
+	tpl_status_line = (status) ->
+		switch status
+			when 'Ready for Pickup'
+				_.template '''
+				<span>
+					<strong><%= status %></strong> at <%= pickup %>
+					| Expires on <strong><%= shelf %></strong>
+				</span>
+				'''
+			else
+				_.template '''
+				<span class="hold_position">Position <%= posn %> of <%= total %></span>
+				<span class="hold_available">| <%= avail %> Copies available</span>
+				<span class="hold_pickup">| Pick up at <%= pickup %></span>
+				<span class="hold_expire">| Expires on <%= expire %></span>
+				'''
 
 	pad = (x) -> if x < 10 then '0' + x else x
 	datestamp = (x) ->
@@ -106,7 +110,8 @@ module 'account.holds', imports(
 			return false
 
 		.refresh ->
-			@empty().append $list = $ tpl_hold_form
+			@empty().append $ tpl_hold_form
+			$list = $('.hold_list', @)
 
 			# Hide action buttons until they are needed.
 			$cancel_some = $('.cancel[name="some"]', @).hide()
@@ -121,7 +126,7 @@ module 'account.holds', imports(
 				ouTree: eg.openils 'actor.org_tree.retrieve'
 			, (x) =>
 				for id in x.ids
-					$list.prepend $hold_item = tpl_hold_item { hold_id: id }
+					$list.append $hold_item = tpl_hold_item { hold_id: id }
 					$("#hold_id_#{id}").openils 'holds details', 'circ.hold.details.retrieve.authoritative', id, (o) ->
 
 						# Accumulate holds object in a list.
@@ -130,12 +135,18 @@ module 'account.holds', imports(
 
 						$('.info_line', @).append tpl_info_line
 							title: o.mvr.title if o.mvr.title
-							author: "/ #{o.mvr.author}" if o.mvr.author
-							types: "/ #{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
-						$('.status_line', @).append tpl_status_line
+							author: "| #{o.mvr.author}" if o.mvr.author
+							types: "| #{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+
+						$('.status_line', @).append (tpl_status_line o.status)
 							status: o.status if o.status
-							pickup: "at #{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
-							expire: if o.hold.expire_time then "until #{datestamp o.hold.expire_time}" else ''
+							posn:	o.queue_position
+							total:	o.total_holds
+							avail:	o.potential_copies
+							pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+							expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
+							shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
+
 						@addClass if o.hold.frozen then 'inactive' else 'active'
 
 						# Show action buttons as necessary.

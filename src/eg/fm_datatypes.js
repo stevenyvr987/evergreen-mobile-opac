@@ -176,8 +176,13 @@ var fm_datatypes = {
 		"eligible_copies": "",
 		"frozen": "boolean",
 		"thaw_date": "date",
+		"shelf_time": "date",
 		"cancel_cause": "",
-		"cancel_note": ""
+		"cancel_note": "",
+		"cut_in_line": "",
+		"mint_condition": "boolean",
+		"shelf_expire_time": "date",
+		"notes": ""
 	},
 	"asc": {
 		"entries": "",
