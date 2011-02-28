@@ -25,8 +25,8 @@ module 'opac.search_result', imports(
 			<div class="info_line">
 				<a class="link title" title="View details and place a hold for this title" />
 				<a class="link author" title="Search other titles by this author" />
-				<span class="pub_date" />
-				<span class="resource_types" />
+				<span class="pub_date" title="Publication date" />
+				<span class="resource_types" title="Format" />
 			</div>
 			<div class="status_line">
 				<span class="counts_avail" /> of <span class="counts_total" /> available.
