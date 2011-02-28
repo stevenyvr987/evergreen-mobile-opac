@@ -553,7 +553,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 
 				# Calculate search phrase.
 				#
-				spaces = / +/
+				spaces = /\ +/
 				# Force singletons to lists.
 				(o[x] = [o[x]]) for x in ['term', 'search_term_verb', 'default_class'] when not $.isArray o[x]
 				# For each search term...

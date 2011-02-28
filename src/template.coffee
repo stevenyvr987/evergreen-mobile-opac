@@ -31,7 +31,7 @@ module 'template', ->
 			.split(c.start).join("');")
 			.split(c.end).join("p.push('")
 
-		x = "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('$x');}return p.join('');"
+		x = "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('#{x}');}return p.join('');"
 		fn = new Function 'obj', x
 		if data then fn data else fn
 

@@ -25,7 +25,7 @@ dirDoc = doc
 dirDocs = docs
 
 # Compile coffeescript to javascript using the coffee compiler.
-CStoJS = coffee -c --no-wrap
+CStoJS = coffee -c -b
 # Minify javascript using Google closure compiler.
 #JStoMAP = java -jar ~/Downloads/compiler-latest/compiler.jar
 JStoMAP = java -jar /Software/compiler-latest/compiler.jar
