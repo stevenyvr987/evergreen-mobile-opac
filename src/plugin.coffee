@@ -17,15 +17,15 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 
 		subscriptions[channel] ?= []
 		subscriptions[channel].push {
-			'plugin': @
+			'subscriber': @
 			'cb': cb
 		}
 		return @
 
 	# Go through all subscriptions on a data channel,
-	# and call the callback functions with the data supplied.
-	# If the callback does not return false, trigger a refresh event on the plugin.
-	# FIXME: do not callback if publisher is subscriber.
+	# and run the callback with the data supplied.
+	# If the callback does not return false, also refresh the subscriber plugin.
+	# FIXME: Skip callback if publisher is subscriber.
 	pubHistory = [] # For debugging.
 	$.fn.publish = (channel, data) ->
 
@@ -35,13 +35,15 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 #			sub = subscriptions[channel][n]
 #			return unless sub.plugin
 
-		for sub in subscriptions[channel] when sub.plugin
-			unless $.contains document, sub.plugin.get(0)
-				sub.plugin = null
-				return
-			ret = if data? then sub.cb.apply sub.plugin, data else sub.cb.apply sub.plugin
-			sub.plugin.trigger '_', [ret] if ret isnt false
-			#pubHistory.push "${@attr('id')} > $channel > ${sub.plugin.attr('id')}"
+		for sub in subscriptions[channel] when sub.subscriber
+			unless $.contains document, sub.subscriber.get(0)
+				sub.subscriber = null
+				continue # was return
+			# If publisher is also subscriber, skip processing this channel's data.
+			continue if sub.subscriber.attr('id') is @.attr('id')
+			ret = if data? then sub.cb.apply sub.subscriber, data else sub.cb.apply sub.subscriber
+			sub.subscriber.trigger '_', [ret] if ret isnt false
+			#pubHistory.push "${@attr('id')} > $channel > ${sub.subscriber.attr('id')}"
 
 		return @
 
