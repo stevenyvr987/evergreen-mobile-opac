@@ -267,21 +267,23 @@ module 'opac.edit_hold', imports(
 				eg.openils 'circ.title_hold.is_possible', hold, (possible) =>
 					if possible?.success
 						eg.openils 'circ.holds.create', hold, (result) =>
+							hide_form.call @
 							if ok = typeof result isnt 'object'
-								hide_form.call @
 								# Publish notice of successful hold creation to user
 								@publish 'notice', ['Hold created']
 								# and to other plugins.
 								@publish 'holds_summary', [hold]
 							else
-								hide_form.call @
 								@publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
 					else
 						hide_form.call @
-						@publish 'prompt', [
-							'This title is not eligible for a hold.'
-							'Please ask your friendly library staff for assistance.'
-						]
+						if possible?.last_event?.desc
+							@publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
+						else
+							@publish 'prompt', [
+								'This title is not eligible for a hold.'
+								'Please ask your friendly library staff for assistance.'
+							]
 
 			return false
 
