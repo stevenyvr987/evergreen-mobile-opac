@@ -117,10 +117,13 @@ clean : clean-source clean-min clean-build
 # Remove source map files in source/.
 # Ignore errors in the process.
 clean-source :
-	-rm $(dirSrc)/*.map
-	-rm $(dirSrc)/opac/*.map
-	-rm $(dirSrc)/account/*.map
+	-rm $(dirSrc)/*.js
+	-rm $(dirSrc)/opac/*.js
+	-rm $(dirSrc)/account/*.js
 	-rm $(dirSrc)/eg/*.map
+	-rm $(dirSrc)/eg/date.js
+	-rm $(dirSrc)/eg/eg_api.js
+	-rm $(dirSrc)/eg/fieldmapper.js
 	-rm $(dirSrc)/lib/*.map
 # Remove the minified javascript files in min/.
 # Ignore errors in the process.
