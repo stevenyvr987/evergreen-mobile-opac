@@ -256,12 +256,8 @@ module 'opac.search_bar', imports(
 			return false
 
 
-		# FIXME: If there are other plugins publishing on the same channel,
+		# If there are other plugins publishing on the same channel,
 		# subscribing to the channel will update this search object.
-		# But the plugin will also trigger on its own publishing event,
-		# which is unnecessary.
-
-		### commented out
 		@subscribe 'search', (o) ->
 
 			$(':input', @).each ->
@@ -271,5 +267,4 @@ module 'opac.search_bar', imports(
 				$(@).val o[@name] if o[@name]
 
 			$('.sort select', @).change() # FIXME: pokes into sort chooser`
-			return false
-		###
+			return
