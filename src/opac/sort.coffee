@@ -10,10 +10,10 @@ module 'opac.sort', imports('plugin'), ->
 	# parameter names and values of an Evergreen search query.
 	defaults = {
 		sort: {
+			'':      'Sort by relevance'
 			pubdate: 'Sort by publication date'
 			title:   'Sort by title'
 			author:  'Sort by author'
-			'':      'Sort by relevance'
 		}
 		sort_dir: {
 			desc: 'c, b, a / 3, 2, 1'
