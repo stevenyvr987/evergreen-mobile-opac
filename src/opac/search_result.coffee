@@ -173,7 +173,9 @@ module 'opac.search_result', imports(
 							depth: request.depth
 						, (cns) -> show_callnumber.call @, cns, x.ou_tree
 					) title_id, n
-				$first_title = $('.title:first', $summary_info).focus()
+
+				# Focus on the first title in the result list.
+				$('.title:first', $summary_info).focus()
 				return
 
 		# Handle keyups for title or author links.
