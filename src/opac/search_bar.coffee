@@ -158,6 +158,8 @@ module 'opac.search_bar', imports(
 		$('input[type=checkbox]', @).attr 'checked', false
 		$('select', @).val ''
 		$('.sort select', @).change() # FIXME: pokes into sort chooser`
+		# We also publish a reset event to other plugins.
+		$(@).publish 'clear_data'
 		return false
 
 	# Define search bar plugin.

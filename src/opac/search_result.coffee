@@ -11,10 +11,48 @@ module 'opac.search_result', imports(
 	'plugin'
 ), (fm, eg, _) ->
 
-	summary_list = '''
+	result_list = '''
 	<div class="summary_bar"></div>
-	<div class="summary_list"></div>
+	<div class="result_list"></div>
+	<div class="summary_bar"></div>
 	'''
+	tpl_zero_hits = _.template '''
+	<div class="zero_hits">
+		<strong>Sorry, no entries were found for "<%= query %>"</strong>
+	</div>
+	'''
+	search_tips = '''
+	<div class="search_tips">
+		<p>
+			<strong>Still not finding what you are looking for?</strong>
+			<br>Request that KCLS purchase the material you are looking for by making a
+			<a href="http://www.kcls.org/usingthelibrary/request/">Purchase Request</a>
+			<br><strong>Note:</strong>
+			You must be logged in to make a Purchase Request
+		</p><p>
+			<strong>Keyword Search Tips</strong>
+			<br>Change to <strong>Advanced Keyword Search.</strong>
+		</p><p>
+			<strong>Adjacency</strong>
+			<br>Multiple words are not searched together as a phrase.
+			They will be found in various parts of the record.
+			To search for a phrase,
+			enclose your search terms in quotation marks.
+			<br>(example: <strong>"garcia marquez"</strong>)
+		</p><p>
+			<strong>Truncation</strong><br>
+			Words may be right-hand truncated using an asterisk.
+			Use a single asterisk * to truncate from 1-5 characters.
+			Use a double asterisk ** for open-ended truncation.
+			<br>(example: <strong>environment* agency</strong>)
+		</p><p>
+			<strong>Wildcards</strong>
+			<br>You may use a question mark to replace a single character anywhere within a word.
+			<br>(example: <strong>wom?</strong>)
+		</p>
+	</div>
+	'''
+
 
 	tpl_summary_info = _.template '''
 	<div class="summary_info" id="title_id_<%= title_id %>">
@@ -112,10 +150,7 @@ module 'opac.search_result', imports(
 		#org_type: 1
 		#org_name: 'Sitka'
 
-
-		# Subscribe to the search channel.
-		# Upon receiving a request on the channel, initiate a search.
-		@subscribe 'search', (request) ->
+		doSearch = (request) ->
 
 			#request = $.extend {}, $('.search_settings').data('settings'), request
 			#FIXME: the following object is empty and overrides default settings.
@@ -127,30 +162,37 @@ module 'opac.search_result', imports(
 			#}
 
 			# The new request has to differ from the old one.
-			return if JSON.stringify(request) is JSON.stringify($result_list.data 'request')
+			return if $result_list.length and JSON.stringify(request) is JSON.stringify($result_list.data 'request')
 
 			# Remember the search request.
 			$result_list.data 'request', request
 
-			$result_list.html summary_list
+			$result_list.html result_list
 
 			# Make a search request and bind handler for result list.
-			$result_list.find('div.summary_bar').parallel 'search results',
+			$result_list.parallel 'search results',
 				ou_tree: eg.openils 'actor.org_tree.retrieve'
 				result: eg.openils('search', request)
 			, (x) ->
-
-				@summary_bar {
-					request: request
-					result:  x.result
-				}
 
 				# Remember the search result for myself.
 				# Publish search result for others.
 				$result_list.data 'result', x.result
 				$result_list.publish 'search_results', [x.result]
 
-				$summary_info = $result_list.find('div.summary_list')
+				if x.result.count is 0
+					@append tpl_zero_hits query: x.result.query
+					@append search_tips
+					return
+
+				# Build summary bar(s).
+				$('.summary_bar', @).summary_bar {
+					request: request
+					result:  x.result
+				}
+
+				# Build the result list.
+				$summary_info = $('.result_list', @)
 				ou_id = Number request.org_unit
 				n = 0
 				for title_id in x.result.ids
@@ -192,26 +234,31 @@ module 'opac.search_result', imports(
 			id = get_id $link
 			$plugin = $(e.currentTarget)
 			$img = $("#title_id_#{id} img", $plugin).clone()
-			search = $plugin.data 'request'
+			request = $plugin.data 'request'
 
-			if $link.is('.title, .cover_art') and id and search
+			if $link.is('.title, .cover_art') and id and request
 				thunk imports('login_window', 'opac.edit_hold'), ->
 					# FIXME: these plugins should not be aware of element identifiers.
 					$('#edit_hold').edit_hold() unless $('#edit_hold').plugin()
 					$('#login_window').login_window() unless $('#login_window').plugin()
-					$plugin.publish 'hold_create', [id, search.org_unit, search.depth, $img]
+					$plugin.publish 'hold_create', [id, request.org_unit, request.depth, $img]
 
 			else if $link.is('.author') and x = $link.text()
 				# Override recent search request with an author search term at zero offset.
-				$plugin.publish 'search', [$.extend {}, $plugin.data('request'),
+				request = $.extend {}, request,
 					default_class: 'author'
 					term: x
 					offset: '0'
 					type: 'advanced'
-				]
+
+				$plugin.publish 'search', [request]
+				doSearch request
 			return false
 
-		# Subscribe to the ou channel to get a change notice in search scope.
+		# Subscription to get a new search request
+		@subscribe 'search', doSearch
+
+		# Subscription to get a change notice in search scope.
 		@subscribe 'ou', (ou) ->
 
 			# Upon notification, remember the new scope parameters.
@@ -236,13 +283,10 @@ module 'opac.search_result', imports(
 
 			return false
 
-		# FIXME: is this needed?
-		@subscribe 'clear_data', ->
-			$result_list.removeData 'request'
-			return false
+		# Empty the plugin's content.
+		@subscribe 'clear_data', -> @empty()
 
-		@refresh ->
-			return false
+		@refresh -> return false
 
 
 module 'opac.summary_bar', imports('template'), (_) ->
@@ -258,7 +302,6 @@ module 'opac.summary_bar', imports('template'), (_) ->
 	<% if (total <= 0) { %>
 		<span>No titles were found.</span>
 	<% } else if (pgtotal === 1 && actual === 1) { %>
-		<span><%= actual %> title was found.</span>
 	<% } else if (pgtotal === 1) { %>
 		<span><%= actual %> titles were found.</span>
 	<% } else if (actual <= 0) { %>
