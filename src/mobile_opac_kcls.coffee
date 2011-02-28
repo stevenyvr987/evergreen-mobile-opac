@@ -50,7 +50,7 @@ module 'mobile_opac', imports(
 
 	kcls_search_bar_settings =
 		facets:
-			'' : 'All Item Types'
+			'' : 'All Formats'
 			'identifier|mattype[a]': 'Book'
 			'identifier|mattype[i]': 'Book on cassette'
 			'identifier|mattype[n]': 'Book on CD'

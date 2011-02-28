@@ -74,7 +74,7 @@ module 'opac.search_bar', imports(
 			<span class="advanced search org_unit_available"><input type="checkbox" name="available" value="1">Limit to Available</input></span>
 		</div>
 		<div>
-			<select name="facets" title="Filter by item type"/>
+			<select name="facets" title="Filter by formats"/>
 			<select multiple size="4" class="advanced search" name="language" title="Filter by language"/>
 		</div>
 		<div class="advanced search publication year">
