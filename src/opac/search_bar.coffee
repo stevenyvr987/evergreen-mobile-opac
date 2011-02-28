@@ -223,11 +223,15 @@ module 'opac.search_bar', imports(
 				when 27 then $('button[type=reset]', @).click()
 			return false
 
-		# Upon reset, nullify all input and select values.
-		@delegate 'button[type=reset]', 'click', => reset_search_form.call @
+		# Upon reset, we nullify all input and select values.
+		@delegate 'button[type=reset]', 'click', =>
+			reset_search_form.call @
+			return false
 
-		# Handle click of submit button.
+		# Handle submission events
 		@submit ->
+
+			$this = $(@)
 
 			# A valid submission needs at least one input terms to contain non-whitespace.
 			ok = false
@@ -240,7 +244,7 @@ module 'opac.search_bar', imports(
 			# Build request object from input and select values of search form.
 			# Multiple values for a property name are cast into an array, eg, name:[1, 2]
 			o = {}
-			for x in $(@).children('form').serializeArray()
+			for x in $this.children('form').serializeArray()
 				unless o[x.name]?
 					o[x.name] = x.value
 				else
@@ -249,10 +253,10 @@ module 'opac.search_bar', imports(
 					o[x.name].push x.value
 
 			# Calculate search depth from indentation of selected ou name.
-			o.depth = $('select[name=org_unit]', $(@)).find(':selected').text().match(/\_ /g)?.length or 0
+			o.depth = $('select[name=org_unit]', @).find(':selected').text().match(/\_ /g)?.length or 0
 
 			# Publish the search form content on the search data channel.
-			$(@).publish 'search', [o]
+			$this.publish 'search', [o]
 			return false
 
 
