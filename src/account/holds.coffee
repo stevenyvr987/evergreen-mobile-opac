@@ -43,22 +43,32 @@ module 'account.holds', imports(
 	<span class="author"> <%= author %> </span>
 	<span class="types"> <%= types %> </span>
 	'''
-	tpl_status_line = (status) ->
-		switch status
-			when 'Ready for Pickup'
-				_.template '''
-				<span>
-					<strong><%= status %></strong> at <%= pickup %>
-					| Expires on <strong><%= shelf %></strong>
-				</span>
+	tpl_status_line = (o) ->
+		a = if o.status is 'Ready for Pickup'
+			'''
+			<span><strong><%= status %></strong> at <%= pickup %></span>
+			<span>Expires on <strong><%= shelf %></strong></span>
+			</span>
+			'''
+		else
+			b = if o.queue_position and o.potential_copies
+					'''
+					<span>Position <%= posn %> of <%= total %></span>
+					'''
+				else
+					''
+			c = if o.total_holds
+					'''
+					<span><%= avail %> Copies available</span>
+					'''
+				else
+					''
+			d = '''
+				<span>Pick up at <%= pickup %></span>
+				<span>Expires on <%= expire %></span>
 				'''
-			else
-				_.template '''
-				<span class="hold_position">Position <%= posn %> of <%= total %></span>
-				<span class="hold_available">| <%= avail %> Copies available</span>
-				<span class="hold_pickup">| Pick up at <%= pickup %></span>
-				<span class="hold_expire">| Expires on <%= expire %></span>
-				'''
+			b + c + d
+		_.template a
 
 	pad = (x) -> if x < 10 then '0' + x else x
 	datestamp = (x) ->
@@ -138,7 +148,7 @@ module 'account.holds', imports(
 							author: "| #{o.mvr.author}" if o.mvr.author
 							types: "| #{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
 
-						$('.status_line', @).append (tpl_status_line o.status)
+						$('.status_line', @).append (tpl_status_line o)
 							status: o.status if o.status
 							posn:	o.queue_position
 							total:	o.total_holds
