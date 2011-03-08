@@ -23,21 +23,40 @@ module 'account.checkouts', imports(
 	</form>
 	'''
 	# FIXME: improve display of copy_status.
-	tpl_co_item = _.template '''
-	<div class="my_checkout" id="circ_id_<%= circ_id %>">
-		<input type="checkbox" name="copy_id" />
-		<span class="info_line">
-			<span class="title" />
-			<span class="author" />
-			<span class="types" />
-		</span>
-		<div class="status_line">
-			<span class="copy_status"><%= circ_type %></span>
-			Due date <span class="due_date" />
-			Renewal used <span class="remaining_renewals" />
-		</div>
-	</div>
-	'''
+	tpl_co_item = (type) ->
+		x = if type is 'out'
+			'''
+			<div class="my_checkout" id="circ_id_<%= circ_id %>">
+				<input type="checkbox" name="copy_id" />
+				<span class="info_line">
+					<span class="title" />
+					<span class="author" />
+					<span class="types" />
+				</span>
+				<div class="status_line">
+					Due date <span class="due_date" />
+					Renewal used <span class="remaining_renewals" />
+				</div>
+			</div>
+			'''
+		else
+			'''
+			<div class="my_checkout" id="circ_id_<%= circ_id %>">
+				<input type="checkbox" name="copy_id" />
+				<span class="info_line">
+					<span class="title" />
+					<span class="author" />
+					<span class="types" />
+				</span>
+				<div class="status_line">
+					<span class="copy_status"><%= circ_type %></span>
+					Due date <span class="due_date" />
+					Renewal used <span class="remaining_renewals" />
+				</div>
+			</div>
+			'''
+		_.template x
+
 	show_info_line = (mvr) ->
 		$('.title', @).text mvr.title if mvr.title
 		$('.author', @).text "/ #{mvr.author}" if mvr.author
@@ -94,10 +113,9 @@ module 'account.checkouts', imports(
 				for type, checkouts of co
 					for circ_id in checkouts
 
-						$list.prepend tpl_co_item {
+						$list.prepend (tpl_co_item type)
 							circ_id: circ_id
-							circ_type: if type is 'out' then '' else type
-						}
+							circ_type: type
 
 						((type, $x) ->
 							$('.status_line', $x).openils 'checkout status', 'circ.retrieve.authoritative', circ_id, (circ) ->
