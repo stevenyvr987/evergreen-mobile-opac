@@ -244,3 +244,9 @@ dd > form {
 .hold_list {
 	padding: 0 0 10px 0;
 }
+.status_line span {
+	padding: 0 12px 0 0;
+}
+.my_fine span {
+	padding: 0 12px 0 0;
+}
