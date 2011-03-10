@@ -157,7 +157,7 @@ module 'opac.edit_hold', imports(
 				on_order:       copy['On order']
 			}).find('.value').each ->
 				# Remove empty values of Holdings Details section.
-				$(@).parent().empty() unless $(@).text()
+				$(@).parent().remove() unless $(@).text()
 
 		# The following element is appended to each div.holding, one elem for each checked out circ.
 		tpl_due_date = _.template '''
