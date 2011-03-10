@@ -145,8 +145,8 @@ module 'account.holds', imports(
 
 						$('.info_line', @).append tpl_info_line
 							title: o.mvr.title if o.mvr.title
-							author: "| #{o.mvr.author}" if o.mvr.author
-							types: "| #{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+							author: "#{o.mvr.author}" if o.mvr.author
+							types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
 
 						$('.status_line', @).append (tpl_status_line o)
 							status: o.status if o.status

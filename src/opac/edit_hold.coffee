@@ -116,33 +116,46 @@ module 'opac.edit_hold', imports(
 
 		# The following element is appended to div.holding_details, one for each holding.
 		tpl_holding_details = _.template '''
-		<div class="holding" id="<%= holding_id %>">
-			<span>   <span title="Circulating branch or library" class="value"><%= h.org_name %></span></span>
-			<span> / <span title="Name of collection" class="value"><%= h.copylocation %></span></span>
-			<span> / <span title="Call number" class="value"><%= h.callnumber %></span></span>
+		<div class="holding status_line" id="<%= holding_id %>">
+			<span>
+				<span><span title="Circulating branch or library" class="value"><%= h.org_name %></span></span>
+				<span> / <span title="Name of collection" class="value"><%= h.copylocation %></span></span>
+				<span> / <span title="Call number" class="value"><%= h.callnumber %></span></span>
+			</span>
 
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Available %></span> available</span>
+				<span class="value"><%= h.Available %></span> available
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Lost %></span> lost</span>
+				<span class="value"><%= h.Lost %></span> lost
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Missing %></span> missing</span>
+				<span class="value"><%= h.Missing %></span> missing
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Cleaning %></span> cleaning</span>
+				<span class="value"><%= h.Cleaning %></span> cleaning
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Mending %></span> mending</span>
+				<span class="value"><%= h.Mending %></span> mending
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= h.Reshelving %></span> reshelving</span>
+				<span class="value"><%= h.Reshelving %></span> reshelving
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= in_process %></span> in process</span>
+				<span class="value"><%= in_process %></span> in process
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= in_transit %></span> in transit</span>
+				<span class="value"><%= in_transit %></span> in transit
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= on_holds_shelf %></span> on holds shelf</span>
+				<span class="value"><%= on_holds_shelf %></span> on holds shelf
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= on_order %></span> on order</span>
+				<span class="value"><%= on_order %></span> on order
+			</span>
 			<span title="Copy status" class="copy_status">
-				/ <span class="value"><%= checked_out %></span> checked out</span>
+				<span class="value"><%= checked_out %></span> checked out
+			</span>
 		</div>
 		'''
 		show_holding = (holding_id, copy) ->
@@ -161,7 +174,7 @@ module 'opac.edit_hold', imports(
 
 		# The following element is appended to each div.holding, one elem for each checked out circ.
 		tpl_due_date = _.template '''
-			<span id="<%= barcode %>"> / Due date <%= duedate %></span>
+			<span id="<%= barcode %>">Due date <%= duedate %></span>
 		'''
 		pad = (x) -> if x < 10 then '0' + x else x
 		datestamp = (x) ->

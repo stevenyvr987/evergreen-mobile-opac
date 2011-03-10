@@ -67,7 +67,7 @@ module 'opac.search_result', imports(
 				<span class="resource_types" title="Format" />
 			</div>
 			<div class="status_line">
-				<span class="counts_avail" /> of <span class="counts_total" /> available.
+				<span><span class="counts_avail" /> of <span class="counts_total" /> available</span>
 				<span class="callnumber" title="Location and call number of this title" />
 			</div>
 		</div>

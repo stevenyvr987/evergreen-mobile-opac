@@ -228,25 +228,23 @@ dd > form {
 	clear: left;
 }
 
-.summary_info .info_line > span {
-	padding: 0 5px 0 5px;
-}
-.summary_info .info_line > .author {
-	padding: 0 5px 0 10px;
+.zero_hits {
+	padding: 10px 0 10px 0;
 }
 .search_tips {
 	background: #CCCCCC;
 	padding: 10px;
 }
-.zero_hits {
-	padding: 10px 0 10px 0;
-}
+
 .hold_list {
 	padding: 0 0 10px 0;
 }
-.status_line span {
+
+/* Styles for horizontal spacing of components in status and info lines
+ */
+.status_line > span {
 	padding: 0 12px 0 0;
 }
-.my_fine span {
+.info_line > span, a {
 	padding: 0 12px 0 0;
 }

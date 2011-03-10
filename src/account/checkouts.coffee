@@ -59,8 +59,8 @@ module 'account.checkouts', imports(
 
 	show_info_line = (mvr) ->
 		$('.title', @).text mvr.title if mvr.title
-		$('.author', @).text "/ #{mvr.author}" if mvr.author
-		$('.types', @).text "/ #{(mvr.types_of_resource).join ', '}" if mvr.types_of_resource
+		$('.author', @).text "#{mvr.author}" if mvr.author
+		$('.types', @).text "#{(mvr.types_of_resource).join ', '}" if mvr.types_of_resource
 
 	pad = (x) -> if x < 10 then '0' + x else x
 	datestamp = (x) ->

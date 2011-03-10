@@ -17,7 +17,7 @@ module 'account.fines', imports(
 ), (eg, _) ->
 
 	tpl_info_line = _.template '''
-	<div class="my_fine" id=fine_id_"<%= fine_id %>">
+	<div class="status_line" id=fine_id_"<%= fine_id %>">
 		<span>$<%= owed %></span>
 		<span><%= type %></span>
 		<span><%= date %></span>
