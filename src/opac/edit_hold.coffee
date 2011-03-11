@@ -182,9 +182,9 @@ module 'opac.edit_hold', imports(
 		show_due_date = (x) ->
 			@append tpl_due_date {
 				barcode: x.barcode
-				#duedate: x.circulations?[0].due_date.slice 0, 10
 				duedate: datestamp x.circulations[0].due_date
 			} if x.circulations?
+			return
 
 		@loading 'holding details'
 		eg.openils 'search.biblio.copy_location_counts.summary.retrieve',
@@ -208,7 +208,7 @@ module 'opac.edit_hold', imports(
 					copy[status_names[id].name] = n
 
 				# Calculate a unique identifier for a title's holdings for an ou.
-				holding_id = ("#{copy.org_id} #{hold.target} #{copy.callnumber}").replace /\s+/g, '_'
+				holding_id = ("#{copy.org_id} #{hold.target} #{copy.callnumber}").replace /\s+|\.+/g, '_'
 				show_holding.call @, holding_id, copy
 
 				# For checked out copies, fill in data from circs asynchronously.
