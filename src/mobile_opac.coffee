@@ -68,7 +68,7 @@ module 'mobile_opac', imports(
 
 		# Upon starting an OPAC search, dynamically load search bar and result summary plugins.
 		$('#opac_search').one 'click', ->
-			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar()
+			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar window.settings
 			thunk imports('opac.search_result'), -> $('#result_summary').result_summary()
 			return # Allow click event to bubble up to accordion link.
 

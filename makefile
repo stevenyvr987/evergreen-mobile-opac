@@ -37,8 +37,9 @@ TXTtoHTML = asciidoc
 
 # Main modules.
 Main = \
-	$(dirSrc)/mobile_opac_sitka.map \
-	$(dirSrc)/mobile_opac_kcls.map
+	$(dirSrc)/settings_sitka.map \
+	$(dirSrc)/settings_kcls.map \
+	$(dirSrc)/mobile_opac.map
 
 # Utility modules.
 Utility = \
@@ -147,12 +148,6 @@ kcls : all
 	ln -s index_kcls.html index.html
 	-rm build/index.html
 	(cd build; ln -s index_kcls.html index.html)
-	-rm src/mobile_opac.js
-	(cd src; ln -s mobile_opac_kcls.js mobile_opac.js)
-	-rm min/mobile_opac.js
-	(cd min; ln -s mobile_opac_kcls.js mobile_opac.js)
-	-rm build/js/mobile_opac.js
-	(cd build/js; ln -s mobile_opac_kcls.js mobile_opac.js)
 	-rm src/dojo/fieldmapper/fmall.js
 	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
@@ -163,12 +158,6 @@ sitka : all
 	ln -s index_sitka.html index.html
 	-rm build/index.html
 	(cd build; ln -s index_sitka.html index.html)
-	-rm src/mobile_opac.js
-	(cd src; ln -s mobile_opac_sitka.js mobile_opac.js)
-	-rm min/mobile_opac.js
-	(cd min; ln -s mobile_opac_sitka.js mobile_opac.js)
-	-rm build/js/mobile_opac.js
-	(cd build/js; ln -s mobile_opac_sitka.js mobile_opac.js)
 	-rm src/dojo/fieldmapper/fmall.js
 	(cd src/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js

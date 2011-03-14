@@ -21,38 +21,6 @@ module 'opac.search_result', imports(
 		<strong>Sorry, no entries were found for "<%= query %>"</strong>
 	</div>
 	'''
-	search_tips = '''
-	<div class="search_tips">
-		<p>
-			<strong>Still not finding what you are looking for?</strong>
-			<br>Request that KCLS purchase the material you are looking for by making a
-			<a href="http://www.kcls.org/usingthelibrary/request/">Purchase Request</a>
-			<br><strong>Note:</strong>
-			You must be logged in to make a Purchase Request
-		</p><p>
-			<strong>Keyword Search Tips</strong>
-			<br>Change to <strong>Advanced Keyword Search.</strong>
-		</p><p>
-			<strong>Adjacency</strong>
-			<br>Multiple words are not searched together as a phrase.
-			They will be found in various parts of the record.
-			To search for a phrase,
-			enclose your search terms in quotation marks.
-			<br>(example: <strong>"garcia marquez"</strong>)
-		</p><p>
-			<strong>Truncation</strong><br>
-			Words may be right-hand truncated using an asterisk.
-			Use a single asterisk * to truncate from 1-5 characters.
-			Use a double asterisk ** for open-ended truncation.
-			<br>(example: <strong>environment* agency</strong>)
-		</p><p>
-			<strong>Wildcards</strong>
-			<br>You may use a question mark to replace a single character anywhere within a word.
-			<br>(example: <strong>wom?</strong>)
-		</p>
-	</div>
-	'''
-
 
 	tpl_summary_info = _.template '''
 	<div class="summary_info" id="title_id_<%= title_id %>">
@@ -182,7 +150,7 @@ module 'opac.search_result', imports(
 
 				if x.result.count is 0
 					@append tpl_zero_hits query: x.result.query
-					@append search_tips
+					@append window.search_tips if window.search_tips
 					return
 
 				# Build summary bar(s).

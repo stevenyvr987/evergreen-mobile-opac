@@ -27,35 +27,6 @@ module 'opac.search_bar', imports(
 			'-': 'Does not contain'
 			'=': 'Matches exactly'
 
-		item_type:
-			'': 'All Item Types'
-			at: 'Books'
-			i:  'Audiobooks'
-			g:  'Video Recordings'
-			j:  'Music'
-			m:  'Electronic Resources'
-
-		language:
-			'' : 'All Languages'
-			eng: 'English'
-			spa: 'Spanish'
-			fre: 'French'
-			ger: 'German'
-			ita: 'Italian'
-			chi: 'Chinese'
-			jpn: 'Japanese'
-			kor: 'Korean'
-			dut: 'Dutch'
-			gre: 'Greek, Modern (1453- )'
-			lat: 'Latin'
-			vie: 'Vietnamese'
-			rus: 'Russian'
-			nor: 'Norwegian'
-			wel: 'Welsh'
-			pau: 'Palauan'
-			swe: 'Swedish'
-			nav: 'Navajo'
-
 		pub_year_verb:
 			'is': 'Is'
 			before: 'Before'
@@ -71,13 +42,14 @@ module 'opac.search_bar', imports(
 		<div class="search term" />
 		<div>
 			<span class="org_unit_selector" />
-			<span class="advanced search org_unit_available"><input type="checkbox" name="available" value="1">Limit to Available</input></span>
+			<span class="advanced org_unit_available"><input type="checkbox" name="available" value="1">Limit to Available</input></span>
 		</div>
-		<div>
+		<div class="search filters">
 			<select name="facets" title="Filter by formats"/>
-			<select multiple size="4" class="advanced search" name="language" title="Filter by language"/>
+			<select name="item_type" title="Filter by formats"/>
+			<select multiple size="4" class="advanced" name="language" title="Filter by language"/>
 		</div>
-		<div class="advanced search publication year">
+		<div class="advanced publication year">
 			<span>Publication Year</span>
 			<select name="pub_year_verb" />
 			<input type="text" name="year_begin" maxlength="4" size="4"/>
@@ -112,14 +84,18 @@ module 'opac.search_bar', imports(
 	</div>
 	'''
 
-	# Build select options based on plugin options and default settings.
+	# A select element that does not have a list of options defined already
+	# is either dynamically supplied with an option list
+	# or removed from the DOM.
 	build_options = ->
-		return unless o = settings[ $(@).attr 'name' ]
-		return if $(@).find('option').length
-		for v, n of o
+		return if $('option', @).length
+		$select = $(@)
+		for v, n of settings[ $select.attr 'name' ]
 			$option = $("<option value=\"#{v}\">#{n}</option>")
 			$option.attr 'selected', 'selected' unless v
-			$(@).append $option
+			$select.append $option
+		$select.remove() unless $('option', @).length
+		return
 
 	# Switch search form from simple to advanced format.
 	show_advanced = ->
@@ -130,11 +106,13 @@ module 'opac.search_bar', imports(
 		.append(search_row)
 		.find('select').each -> build_options.call @
 		$x.fadeIn 1000
-		$('.search.advanced', @).fadeIn 1000
-		$('select:[name=facets]', @).hide().attr
+
+		$('.search.filters select', @).hide().attr
 			multiple: true
 			size: 4
 		.fadeIn 1000
+
+		$('.advanced', @).fadeIn 1000
 		$('input[name=term]', @).first().focus()
 		return false
 
@@ -145,11 +123,13 @@ module 'opac.search_bar', imports(
 		.append(search_row_simple)
 		.find('select').each -> build_options.call @
 		$x.fadeIn 1000
-		$('.search.advanced', @).fadeOut 1000
-		$('select:[name=facets]', @).hide().attr
+
+		$('.search.filters select', @).hide().attr
 			multiple: false
 			size: 1
 		.fadeIn 1000
+
+		$('.advanced', @).hide()
 		$('input[name=term]', @).first().focus()
 		return false
 
