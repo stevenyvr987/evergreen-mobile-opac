@@ -242,9 +242,6 @@ dd > form {
 
 /* Styles for horizontal spacing of components in status and info lines
  */
-.status_line > span {
-	padding: 0 12px 0 0;
-}
-.info_line > span, a {
+.status_line > span, .info_line > span, .info_line > a {
 	padding: 0 12px 0 0;
 }
