@@ -55,6 +55,18 @@ module 'account.holds', imports(
 				else
 					''
 			b + c
+		else if o.status is 'In transit'
+			b = '''
+			<span><%= status %></span>
+			<span>Pick up at <%= pickup %></span>
+			'''
+			c = if o.hold.shelf_time
+					'''
+					<span>Expires on <strong><%= shelf %></strong></span>
+					'''
+				else
+					''
+			b + c
 		else
 			b = if o.queue_position and o.potential_copies
 					'''
