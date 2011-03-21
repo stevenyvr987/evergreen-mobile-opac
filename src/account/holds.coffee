@@ -57,9 +57,13 @@ module 'account.holds', imports(
 					'''
 				else
 					''
-			c = if o.total_holds
+			c = if o.potential_copies is 1
 					'''
-					<span><%= avail %> Copies available</span>
+					<span><%= avail %> copy available</span>
+					'''
+				else if o.potential_copies > 1
+					'''
+					<span><%= avail %> copies available</span>
 					'''
 				else
 					''
