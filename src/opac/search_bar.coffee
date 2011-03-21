@@ -249,7 +249,7 @@ module 'opac.search_bar', imports(
 			$(':input', @).each ->
 				switch @name
 					when 'search', 'offset', 'visibility_limit' then return
-					when 'item_type' then o.item_type = o.item_type.join ''
+					when 'item_type' then o.item_type ?= o.item_type.join ''
 				$(@).val o[@name] if o[@name]
 
 			$('.sort select', @).change() # FIXME: pokes into sort chooser`
