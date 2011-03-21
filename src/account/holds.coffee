@@ -45,11 +45,16 @@ module 'account.holds', imports(
 	'''
 	tpl_status_line = (o) ->
 		a = if o.status is 'Ready for Pickup'
-			'''
+			b = '''
 			<span><strong><%= status %></strong> at <%= pickup %></span>
-			<span>Expires on <strong><%= shelf %></strong></span>
-			</span>
 			'''
+			c = if o.hold.shelf_time
+					'''
+					<span>Expires on <strong><%= shelf %></strong></span>
+					'''
+				else
+					''
+			b + c
 		else
 			b = if o.queue_position and o.potential_copies
 					'''
@@ -134,53 +139,93 @@ module 'account.holds', imports(
 			$suspend_all = $('.suspend[name="all"]', @).hide()
 			$resume_some = $('.resume[name="some"]', @).hide()
 			$resume_all = $('.resume[name="all"]', @).hide()
+			# Show action buttons as necessary.
+			show_buttons = (frozen) ->
+				if $cancel_all.is ':visible'
+					$cancel_some.show()
+				else
+					$cancel_all.show()
+				if frozen
+					if $resume_all.is ':visible'
+						$resume_some.show()
+					else
+						$resume_all.show()
+				else
+					if $suspend_all.is ':visible'
+						$suspend_some.show()
+					else
+						$suspend_all.show()
+				return
 
-			$list.parallel 'holds list',
-				ids: eg.openils 'circ.holds.id_list.retrieve.authoritative'
-				ouTree: eg.openils 'actor.org_tree.retrieve'
-			, (x) =>
-				for id in x.ids
-					$list.append $hold_item = tpl_hold_item { hold_id: id }
-					$("#hold_id_#{id}").openils 'holds details', 'circ.hold.details.retrieve.authoritative', id, (o) ->
+			eg.openils 'circ.hold.details.retrieve.authoritative', 0, (o) =>
+				if o.ilsevent? and o.ilsevent is '5000'
 
-						# Accumulate holds object in a list.
-						# Useful for updating as the updated object needs to be returned to the server.
-						holds.push o.hold
+					# Same sequence as full OPAC for open-ils v1.6.
+					# However, suffers from database replication error.
+					$list.parallel 'holds list',
+						ahrs: eg.openils 'circ.holds.retrieve'
+						ouTree: eg.openils 'actor.org_tree.retrieve'
+					, (x) =>
+						for hold in x.ahrs
+							((hold) ->
+								id = hold.id
+								$list.append tpl_hold_item { hold_id: id }
+								$("#hold_id_#{id}").parallel 'holds details',
+									mvr: eg.openils 'search.biblio.record.mods_slim.retrieve', hold.target
+									hqs: eg.openils 'circ.hold.queue_stats.retrieve', id
+								, (o) ->
+									o.hold = hold
+									o.status = o.hqs.status
+									o.queue_position = o.hqs.queue_position
+									o.total_holds = o.hqs.total_holds
+									o.potential_copies = o.hqs.potential_copies
 
-						$('.info_line', @).append tpl_info_line
-							title: o.mvr.title if o.mvr.title
-							author: "#{o.mvr.author}" if o.mvr.author
-							types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+									holds.push o.hold
+									$('.info_line', @).append tpl_info_line
+										title: o.mvr.title if o.mvr.title
+										author: "#{o.mvr.author}" if o.mvr.author
+										types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+									$('.status_line', @).append (tpl_status_line o)
+										status: o.status if o.status
+										posn:	o.queue_position
+										total:	o.total_holds
+										avail:	o.potential_copies
+										pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+										expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
+										shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
+									@addClass if o.hold.frozen then 'inactive' else 'active'
+									show_buttons o.hold.frozen
+								)(hold)
+				else
 
-						$('.status_line', @).append (tpl_status_line o)
-							status: o.status if o.status
-							posn:	o.queue_position
-							total:	o.total_holds
-							avail:	o.potential_copies
-							pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
-							expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
-							shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
+					# A good sequence for open-ils v2.0
+					# which does not show the database replication error.
+					$list.parallel 'holds list',
+						ids: eg.openils 'circ.holds.id_list.retrieve.authoritative'
+						ouTree: eg.openils 'actor.org_tree.retrieve'
+					, (x) =>
+						for id in x.ids
+							$list.append tpl_hold_item { hold_id: id }
+							$("#hold_id_#{id}").openils 'holds details', 'circ.hold.details.retrieve.authoritative', id, (o) ->
 
-						@addClass if o.hold.frozen then 'inactive' else 'active'
+								# Accumulate holds object in a list.
+								# Useful for updating as the updated object needs to be returned to the server.
+								holds.push o.hold
 
-						# Show action buttons as necessary.
-						if $cancel_all.is ':visible'
-							$cancel_some.show()
-						else
-							$cancel_all.show()
-						if o.hold.frozen
-							if $resume_all.is ':visible'
-								$resume_some.show()
-							else
-								$resume_all.show()
-						else
-							if $suspend_all.is ':visible'
-								$suspend_some.show()
-							else
-								$suspend_all.show()
-			.error (e) ->
-				#console.error e
-				alert JSON.stringify e, null, '  '
+								$('.info_line', @).append tpl_info_line
+									title: o.mvr.title if o.mvr.title
+									author: "#{o.mvr.author}" if o.mvr.author
+									types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+								$('.status_line', @).append (tpl_status_line o)
+									status: o.status if o.status
+									posn:	o.queue_position
+									total:	o.total_holds
+									avail:	o.potential_copies
+									pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+									expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
+									shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
+								@addClass if o.hold.frozen then 'inactive' else 'active'
+								show_buttons o.hold.frozen
 
 			return false
 

@@ -333,6 +333,19 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 				o
 			login_required: true
 		}
+		'circ.hold.queue_stats.retrieve': {
+			i: i2
+			o: (o) ->
+				o = o1 o
+				o.status = switch Number o.status
+					when 1 then 'Waiting for copy to become available'
+					when 2 then 'Waiting for copy capture'
+					when 3 then 'In transit'
+					when 4 then 'Ready for Pickup'
+					else 'Error'
+				o
+			login_required: true
+		}
 		'circ.hold.status.retrieve': {
 			i: i2
 			o: (data) ->
@@ -859,7 +872,14 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 				      if data.payload[0].ilsevent isnt undefined
 				        if data.payload[0].ilsevent isnt 0
 				          if data.payload[0].ilsevent isnt "0"
-				            $().publish 'prompt', ['Server error', data.payload[0]]
+
+						  	# FIXME This is a hack to easily prevent EG 1.6 from
+							# displaying a server error when there is a permission problem
+							# for showing holds list.
+							# This should be removed in a more finalized version.
+				            if data.payload[0].ilsevent isnt "5000"
+				              $().publish 'prompt', ['Server error', data.payload[0]]
+
 				            d.call data.payload[0]
 				            reset_timeout()
 				            return
