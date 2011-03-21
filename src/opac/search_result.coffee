@@ -12,9 +12,9 @@ module 'opac.search_result', imports(
 ), (fm, eg, _) ->
 
 	result_list = '''
-	<div class="summary_bar"></div>
+	<div class="nav_bar"></div>
 	<div class="result_list"></div>
-	<div class="summary_bar"></div>
+	<div class="nav_bar"></div>
 	'''
 	tpl_zero_hits = _.template '''
 	<div class="zero_hits">
@@ -153,8 +153,8 @@ module 'opac.search_result', imports(
 					@append window.search_tips if window.search_tips
 					return
 
-				# Build summary bar(s).
-				$('.summary_bar', @).summary_bar {
+				# Build navigation bar(s).
+				$('.nav_bar', @).nav_bar {
 					request: request
 					result:  x.result
 				}
@@ -257,7 +257,7 @@ module 'opac.search_result', imports(
 		@refresh -> return false
 
 
-module 'opac.summary_bar', imports('template'), (_) ->
+module 'opac.nav_bar', imports('template'), (_) ->
 
 	nav_start = '<span class="link start" title="Go to first page">    |<<  </span>'
 	nav_prev =  '<span class="link prev"  title="Go to previous page">  <<  </span>'
@@ -279,7 +279,7 @@ module 'opac.summary_bar', imports('template'), (_) ->
 	<% } %>
 	'''
 
-	$.fn.summary_bar = (x) ->
+	$.fn.nav_bar = (x) ->
 
 		total =  x.result.count
 		# Problem: total count does not always equal actual number of search results.

@@ -16,7 +16,7 @@ body {
 .link:hover, a:hover {
 	text-decoration: underline;
 }
-.summary_bar .link {
+.nav_bar .link {
 	text-decoration: none;
 }
 
@@ -224,7 +224,7 @@ dd > form {
 .clear {
 	clear: left;
 }
-.summary_bar {
+.nav_bar {
 	clear: left;
 }
 
