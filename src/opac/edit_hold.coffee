@@ -231,7 +231,7 @@ module 'opac.edit_hold', imports(
 	# FIXME: would be good to mark these circ_ou's in the ou selection list.
 	$.fn.hold_details = ->
 
-		hold = @parent().data 'hold'
+		hold = @parent().closest('.plugin').data('hold')
 
 		tpl_place_hold = '''
 		<form class="place_hold">
@@ -253,14 +253,21 @@ module 'opac.edit_hold', imports(
 
 			# Prepare the hold request based on
 			# data read from the hold screen
-			#ou_tree = @parent().data 'ou_tree'
-			#ou_types = @parent().data 'ou_types'
 			# and data read from the place hold form.
 			o = {}
 			for x in $('form.place_hold', @).serializeArray()
 				o[x.name] = x.value
 			$.extend hold, o
-			#$.extend hold, o, { selection_depth: ou_types[ ou_tree[Number o.pickup_lib].ou_type ].depth }
+
+			# Calculate the selection depth for hold targeting
+			if window.query?.ol?
+				$plugin = @closest '.plugin'
+				ou_tree = $plugin.data 'ou_tree'
+				ou_types = $plugin.data 'ou_types'
+				ol = window.query.ol.toUpperCase()
+				for id, ou of ou_tree when ou.shortname is ol
+					hold.selection_depth = ou_types[ou.ou_type].depth
+					break
 
 			# Request to update or create a hold.
 			# FIXME: need better success message.
