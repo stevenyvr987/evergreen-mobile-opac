@@ -23,17 +23,21 @@ dirBuild = build
 dirDoc = doc
 # Directory containing source code documents.
 dirDocs = docs
+# Directory containing locally installed development tools
+dirDev = dev
+
 
 # Compile coffeescript to javascript using the coffee compiler.
-CStoJS = coffee -c -b
+CStoJS = $(dirDev)/node_modules/coffee-script/bin/coffee -c -b
 # Minify javascript using Google closure compiler.
-#JStoMAP = java -jar ~/Downloads/compiler-latest/compiler.jar
-JStoMAP = java -jar /Software/compiler-latest/compiler.jar
+JStoMAP = java -jar $(dirDev)/closure/compiler.jar
 # Prepare build directory containing minified javascript and other files using rsync.
 Build = rsync -av --del --delete --exclude=zzz/ --exclude=*~ --exclude=.DS_Store
 # Generate HTML documentation.
-JStoHTML = docco
-TXTtoHTML = asciidoc
+CStoHTML = $(dirDev)/node_modules/docco/bin/docco
+CStoHTML = docco
+TXTtoHTML = $(dirDev)/asciidoc/asciidoc.py
+
 
 # Main modules.
 Main = \
