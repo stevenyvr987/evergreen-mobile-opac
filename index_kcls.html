@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+<!DOCTYPE html PUBLIC
+"-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-		<title>KCLS Mobile Catalog version 0.8.10</title>
-		<meta name="version" content="0.8.10" />
-		<meta name="date" content="20110421" />
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta http-equiv="Content-Style-Type" content="text/css" />
-		<meta http-equiv="Content-Script-Type" content="text/javascript; version=1.5" />
-		<link href="css/mobile_opac.css" rel="stylesheet" />
+		<title>KCLS Mobile Catalog v0.9.0</title>
+		<meta name="version" content="0.9.0"></meta>
+		<meta name="date" content="20110601"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+		<meta http-equiv="Content-Style-Type" content="text/css"></meta>
+		<meta http-equiv="Content-Script-Type" content="text/javascript; version=1.5"></meta>
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" ></link>
+		<!--link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" ></link-->
+		<!--link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.css" ></link-->
+		<!--link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css"></link-->
+		<link rel="stylesheet" href="css/mobile_opac.css"></link>
 		<script type="text/javascript">
 		 var _gaq = _gaq || [];
 		 _gaq.push(['_setAccount', 'UA-3018520-11']);
@@ -25,75 +30,98 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	</head>
 
 	<body>
-		<!-- Accordion panes -->
-		<div id="main">
+		<!-- Main page -->
+		<div id="main" data-role="page">
 
-			<div id="login_bar"></div>
+			<div id="login_bar" data-role="header"></div>
 
-			<dl id="account_summary">
-				<dt class="accordion"> <span class="link" id="fines_summary"></span> </dt>
-				<dd id="account_fines"></dd>
+			<div data-role="content">
+				<div data-role="collapsible-set">
+					<div id="account_summary">
+						<div data-role="collapsible" data-collapsed="true" class="account_summary">
+							<h3 id="fines_summary"><span class="summary_line"></span></h3>
+							<p id="account_fines"></p>
+						</div>
 
-				<dt class="accordion"> <span class="link" id="checkouts_summary"></span> </dt>
-				<dd id="account_checkouts"></dd>
+						<div data-role="collapsible" data-collapsed="true" class="account_summary">
+							<h3 id="checkouts_summary"><span class="summary_line"></span></h3>
+							<p id="account_checkouts"></p>
+						</div>
 
-				<dt class="accordion"> <span class="link" id="holds_summary"></span> </dt>
-				<dd id="account_holds"></dd>
+						<div data-role="collapsible" data-collapsed="true" class="account_summary">
+							<h3 id="holds_summary"><span class="summary_line"></span></h3>
+							<p id="account_holds"></p>
+						</div>
+					</div>
 
-				<!-- Omitted; bookbags details not yet developed.
-				<dt class="accordion"> <span class="link" id="bookbags_summary" /> </dt>
-				<dd id="account_bookbags" />
-				-->
-			</dl>
+					<div data-role="collapsible" data-collapsed="true">
+						<h3 id="opac_search">Search catalogue</h3>
+						<div>
+							<div id="result_summary"></div>
+							<div id="search_bar"></div>
+						</div>
+					</div>
 
-			<dl class="mobile_search" id="pane_search">
-				<dt class="accordion">
-					<span class="link" id="opac_search">Search catalog</span>
-				</dt>
-				<dd>
-					<div id="result_summary"></div>
-					<div id="search_bar"></div>
-				</dd>
-			</dl>
+				</div>
+			</div>
 
-			<div id="footer_bar">
+			<div id="footer_bar" data-role="footer">
 				<span id="privacy">
 					<a href="http://catalog.kcls.org" target="_blank">Full KCLS Catalog</a>
 				</span>
-				Copyright &copy;
-				<span id="copyright">
-					<a href="http://sitka.bclibraries.ca" target="_blank">SITKA</a>
-					&
-					<a href="http://kcls.org" target="_blank">KCLS</a>
+				<span>
+					Copyright &copy;
+					<span id="copyright">
+						<a href="http://sitka.bclibraries.ca" target="_blank">SITKA</a>
+						&
+						<a href="http://kcls.org" target="_blank">KCLS</a>
+					</span>
 				</span>
-				<!--span id="engine">
-					<a href="http://open-ils.org" target="_blank">Powered by <img src="images/eg_tiny_logo.jpg"></a>
-				</span-->
 			</div>
 		</div>
 
-		<!-- Popup panes-->
-		<div id="edit_hold"></div>
-		<div id="messages"></div>
-		<div id="loading"></div>
-		<div id="login_window"></div>
+
+		<!-- Secondary pages -->
+
+		<!--div id="edit_hold" data-role="dialog"-->
+		<div id="edit_hold" data-role="dialog">
+			<div data-role="header" class="nav_bar"></div>
+			<div data-role="content" class="content"></div>
+		</div>
+
+		<div id="messages" data-role="page"></div>
+
+		<div id="loading" data-role="page"></div>
+
+
+		<!-- Popup dialogs-->
+
+		<div id="login_window" data-role="dialog">
+			<div data-role="header"><h3>Log in</h3></div>
+			<div data-role="content" class="content"></div>
+		</div>
+
+		<div id="cover_art" data-role="dialog">
+			<div data-role="header"><h3>Cover Art</h3></div>
+			<div data-role="content" class="content"></div>
+		</div>
 	</body>
 
-
 	<!-- jQuery core and plugins -->
-	<!-- Uncomment below to get jQuery core from Google's Content Distribution Network
-	-->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
-	<!-- Uncomment below to get jQuery from local file system
-	<script src="js/lib/jquery-1.4.2.js"></script>
-	-->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<!--script src="js/lib/jquery-1.5.2.min.js"></script-->
+	<!--script src="js/lib/jquery-1.6.min.js"></script-->
+	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+	<!--script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script-->
+	<!--script src="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.js"></script-->
+	<!--script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script-->
 	<script src="js/lib/jquery.blockUI.js"></script>
-	<!--<script src="js/lib/jquery.impromptu-3.0.js"></script>-->
 
 	<!-- External libraries -->
 	<script src="js/lib/jmod.js"></script>
 	<script src="js/lib/jsdeferred.js"></script>
-	<script src="js/lib/json2.js"></script>
+	<!--script src="js/lib/json2.js"></script-->
+	<script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
 
 	<!-- Application -->
 	<script src="js/settings_kcls.js"></script>
