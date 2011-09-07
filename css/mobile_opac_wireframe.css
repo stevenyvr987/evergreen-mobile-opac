@@ -13,11 +13,13 @@ dd {
 .edit_hold hr {
 	width: 80%;
 }
+/*
 .link {
 	text-decoration: underline;
 	color: blue;
 	cursor: pointer;
 }
+*/
 .link:hover {
 	color: green;
 }
@@ -39,22 +41,24 @@ dd {
 /* Styles for the footer bar.
  */
 #footer_bar {
-	color: gray;
+	/*color: gray;*/
 	font-size: smaller;
-	clear: left;
+	/*clear: left;*/
 }
+/*
 #footer_bar a {
 	color: gray;
-	text-decoration: none;
-}
-#footer_bar span {
+*/}
+#footer_bar > span {
 	padding-right: 10px;
 }
+/*
 #engine img {
 	border: none;
 	width: 94px;
 	height: 16px;
 }
+*/
 
 /* Styles for jQuery.blockUI
  */
@@ -121,9 +125,11 @@ dd {
 	-moz-border-radius:	 10px;
 }
 
+
+/*
 .cover_art {
-	width: 40px;
-	height: auto;
+	height: 80px;
+	width: auto;
 	margin-right: 10px;
 }
 .art_box {
@@ -135,9 +141,10 @@ dd {
 .clear {
 	clear: left;
 }
-.summary_bar {
+.nav_bar {
 	clear: left;
 }
+*/
 
 .summary_info .info_line > span {
 	padding: 0 5px 0 5px;
@@ -155,9 +162,15 @@ dd {
 .hold_list {
 	padding: 0 0 10px 0;
 }
-.status_line span {
+
+/* Styles for horizontal spacing of components in status and info lines
+ */
+.account_summary .status_line span, .account_summary .info_line span, .account_summary .info_line > a, .holding.status_line > span {
 	padding: 0 12px 0 0;
 }
-.my_fine span {
-	padding: 0 12px 0 0;
+
+/*
+.logout {
+	margin: 0 50% 0 50%;
 }
+*/
