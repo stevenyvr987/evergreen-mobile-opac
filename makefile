@@ -159,6 +159,6 @@ sitka : all
 	-rm build/index.html
 	(cd build; ln -s index_sitka.html index.html)
 	-rm src/dojo/fieldmapper/fmall.js
-	(cd src/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
+	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
-	(cd min/dojo/fieldmapper; ln -s fmall_1_6.js fmall.js)
+	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
