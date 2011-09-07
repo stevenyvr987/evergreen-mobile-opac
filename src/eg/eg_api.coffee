@@ -905,15 +905,18 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 			error: (xhr, textStatus, errorThrown) ->
 				x = xhr.responseText
 
-				# Is there a debug message buried within JSON text?
-				# Also, we fix a JSON format error (missing double quote).
-				try
-					x = JSON.parse(x.replace(
-						 ',"status'
-						'","status'
-					)).debug
-				catch e
-					throw e if e.message isnt 'JSON.parse'
+				# If response text is undefined,
+				# it likely means xhr was aborted by the user.
+				unless x?
+					# Is there a debug message buried within JSON text?
+					# Also, we fix a JSON format error (missing double quote).
+					try
+						x = JSON.parse(x.replace(
+							 ',"status'
+							'","status'
+						)).debug
+					catch e
+						throw e if e.message isnt 'JSON.parse'
 
 				# textStatus is a simple text version of the error number
 				# x is a more substantial text message
