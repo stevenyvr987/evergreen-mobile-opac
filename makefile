@@ -90,6 +90,16 @@ Lib = \
 # and to minified .js files
 all : $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib)
 
+
+.PHONY : all build clean clean-source clean-min clean-build docs
+
+# Declare the important suffixes for this makefile
+.SUFFIXES:
+.SUFFIXES: .coffee .js .txt .html
+# Do not delete intermediate javascript files.
+.PRECIOUS : %.js
+
+
 # Pattern rules
 #
 # Transform javascript files to source map files in the source directory
@@ -107,6 +117,10 @@ $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 
 # Make design document.
 doc : $(dirDoc)/design.html
+
+# Make source-level documents.
+docs :
+	$(CStoHTML) $(dirSrc)/{.,opac,account,eg}/*.coffee
 
 # Build all minified .js files and other files to the build directory.
 build :
@@ -141,11 +155,11 @@ clean-min :
 # Remove and remake build/ and install a symlink to point to collateral files in target system.
 clean-build :
 	-rm -rf $(dirBuild)
+# Remove built documentation files
+clean_docs :
+	-rm $(dirDoc)/*.html
+	-rm -rf $(dirDocs)
 
-# Do not delete intermediate javascript files.
-.PRECIOUS : %.js
-
-.PHONY : all build clean clean-source clean-min clean-build
 
 kcls : all
 	-rm index.html
@@ -156,6 +170,7 @@ kcls : all
 	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
 	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
+
 
 sitka : all
 	-rm index.html
