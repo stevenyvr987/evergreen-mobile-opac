@@ -1,9 +1,9 @@
 = The Design and Implementation of a Mobile OPAC Client for the Evergreen System
 Steven Chan
-v1.0, 2010-09-15:
+2011-03-22
 
 A report prepared for the
-http://sitka.bclibraries.ca/[Sitka project]
+http://sitka.bclibraries.ca/[BC Evergreen Sitka project]
 and the http://kcls.org/[King County Library System].
 
 == Introduction
@@ -23,27 +23,25 @@ and how those goals could be met.
 Also discussed is an overview of the software architecture,
 and some aspects of the development environment.
 The document is useful for future designers
-wishing to change or expand the software.
+wishing to change or extend the software.
 
 == Design Goals and Solutions
-Our design goals can be summarized in four rules.
-Two rules define the target audiences;
-two other rules define the software features
-and the intent of the architectural framework.
+Our design goals can be summarized as four rules.
+Two rules define the target audiences,
+a third rule define the software features,
+and the fourth rule define the intent of the architectural framework.
 
-=== Target mobile devices and small screens.
+=== 1. Target mobile devices and small screens
 Mobile devices present an extreme version of the cross-browser problem,
 whereby the same software has to work across many web browsers
-with variations in rendering engines and Javascript engines.
+with variations in rendering engines and 'Javascript' engines.
 Moreover, mobile devices have small screens
 and rely on touch screens or keyboards for navigation.
 
-* _Use the http://jquery.com[jQuery] Javascript library_
-for its aggressive testing against mobile web browsers.
-In late Summer 2010, they announced a special project
-to upgrade the library to handle a diverse set of mobile web browsers;
+* _Use the http://jquery.com[jQuery] Javascript library_.
+In late Summer 2010, they announced the design of a new library
+to handle a diverse set of mobile web browsers;
 see http://jquerymobile.com for more details.
-The new version is scheduled to become available in late 2010.
 
 * _Show only what the user is focussed on_
 by using accordion-style folding and unfolding.
@@ -56,27 +54,27 @@ For example, if the user presses the enter, escape, or tab key
 a reasonable, expected action will occur in the context of each functional area.
 If the user hovers over a data area, collateral information (if any) will pop up.
 
-=== Target narrow bandwidth.
+=== 2. Target narrow bandwidth.
 Dialup users with a desktop workstation will be accessing the mobile opac
-through the narrow bandwidth of a 56 Kilobit per second modem.
-Meanwhile, mobile users will be accessing through wireless networks
-that could offer no more than modem bandwidth at times.
+through 56 Kilobit per second modems.
+Moreover, mobile users will be accessing through wireless networks
+with similar narrow bandwidths.
 
 * _Minimize the amount of files to download._
 For example, we have one CSS file and one HTML file.
-The single HTML file includes a minimal body that is dynamically filled by executing Javascript.
-There are numerous Javascript files to download,
+The single HTML file includes a minimal body that is dynamically filled by executing 'Javascript'.
+There are numerous 'Javascript' files to download,
 but whenever possible, they are `bunched' into single files.
 
 * _Minimize the size of Javascript files to download_
 by stripping out comments and white spaces, for example.
 We use http://code.google.com/closure/compiler/[Google's Closure compiler]
-to do the chore for us.
-The Closure compiler offers a more advanced level of minimization,
-but even using the basic level, we are able to generally halve the size of files.
+to minimize files.
+Using the basic level of minimization,
+we are able to generally reduce file sizes by half.
 
 * _Download Javascript files on demand._
-It is not necessary to download all Javascript files at once.
+It is not necessary to download all 'Javascript' files at once.
 For example, the initial download is a collection of common utilities
 that are needed by most functional areas.
 If the user presses the search link,
@@ -94,7 +92,21 @@ We arrange for the software to recognize those calls and cache them in memory fo
 If the user revisits functional areas involving data objects which are cached,
 they are accessed from memory rather than from the network.
 
-=== Implement a reduced set of OPAC features.
+[NOTE]
+.Using a content delivery network
+====
+'jQuery' is a popular library that may already be cached within the mobile browser
+because it was used by another recently browsed website.
+If so, then it is not necessary to download 'jQuery' again.
+In order for this cacheing mechanism to take place,
+we use http://code.google.com/apis/libraries/devguide.html[Google's Content Delivery Network].
+The relevant script tag would be:
+----
+<script src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' />
+----
+====
+
+=== 3. Implement a reduced set of OPAC features.
 For an initial effort,
 the mobile opac offers a priority set of features rather than the full set.
 We list the full set of features,
@@ -104,8 +116,7 @@ as to whether they are part of the mobile set.
 . Do basic searches of public catalogue? 'Yes'
 . Do advanced searches? 'No'
 . Do numeric searches? 'No'
-. View a list of search results? 'Partial'.
-Cannot view cover art and other collateral data.
+. View a list of search results? 'Yes'
 . View related subjects, authors, or series? 'No'
 . Browse by call numbers (`shelfbrowser')? 'No'
 . View title and copy details? 'Partial'.
@@ -115,79 +126,71 @@ Cannot view MARC record.
 Title-level holds only.
 . Log in or log out? 'Yes'
 . View or edit patron profile? 'No'
-. View or edit patron settings, and having them stored as cookies? 'No'
+. View or edit patron settings? 'No'
 . View fines? 'Yes'
 . View, renew, or cancel checkouts? 'Yes'
 . View or edit holds? 'Partial'.
 Cannot suspend by specific date.
 . View or edit bookbags? 'No'
 
-=== Use a software framework that would allow future designers to easily make changes and extensions.
+=== 4. Use a software framework that would allow future designers to easily make changes and extensions.
 We want to allow future designers
 (as well as the original designers coming back to do further work)
-to easily make changes and extensions, without a lot of time and effort.
-This can only be done if the software architecture is designed with the intention in mind.
+to easily make changes and extensions.
+This can only be done if the software architecture is designed with that intention in mind.
 
 * _Split software into two layers_,
 the UI layer for interacting with the user
-and the EG layer for communicating with Evergreen services.
-We choose an obvious pattern of design to isolate changes in the user interface
+and the EG layer for communicating with Evergreen services,
+so to isolate changes in the user interface
 and from changes to Evergreen services.
-Our goal is to draw the line between the two parts as naturally as possible.
 +
 UI would deal with the interactive behaviours of visible functional areas.
 EG would interact with Evergreen,
-changing incoming data packets into data objects that UI can more easily digest.
-Conversely, it would change objects into packets for delivery to EG.
-EG would also deal with session control and cache control.
-See the next section for details.
+changing data objects into outbound data packets,
+and changing inbound data packets into data objects that UI can more easily digest.
+EG would also deal with session control and cache control;
+see the next section for details.
 
 * _Organize software using two types of modularity_,
 `plugins' for packaging functional areas,
 and `modules' for defining dependencies and downloadable units.
 +
 Plugins would contain the layout and code to define functional areas.
-We may define a functional area using several plugins,
-for example, we define the search bar plugin
-using a plugin for defining the library selector
-and a plugin for defining the sort selector.
 In essence, plugins are composable `building blocks'
 that designers rearrange, alter, or create to define new UI features.
 See the next section for details.
 +
-We package plugins inside modules.
-We may package several plugins in one module,
+Plugins are packaged inside modules.
+Several plugins may be packaged in one module,
 so that they will be downloaded as one unit.
 For example, we define the title details area
 by four plugins contained within one module
-that is downloaded together.
-The main plugin relies on three other plugins
-that define each area of the title details screen,
-the title details, the holdings details, and the place holds form.
+that downloads the four together.
 
 * _Use http://jquery.com[jQuery], the most popular Javascript library,
 and http://jashkenas.github.com/coffee-script[Coffeescript], a dialect of Javascript._
 +
-The first reason to use jQuery
+The first reason to use 'jQuery'
 is to help meet the `Target Narrow Bandwidth' design goal, as discussed above.
 The second reason is because of its popularity.
-Using a popular Javascript library,
+Using a popular 'Javascript' library,
 especially for the vital operation of manipulating the DOM,
 allows for a greater pool of designers
 to get involved more quickly with future design work.
 +
-The decision to use jQuery seems to be countered by the decision to write code in Coffeescript,
-a recent project that has yet to gain the popularity of the jQuery project.
-Files written in Coffeescript are compiled into Javascript,
+The decision to use 'jQuery' seems to be countered by the decision to write code in Coffeescript,
+a recent project that has yet to gain the popularity of the 'jQuery' project.
+Files written in Coffeescript are compiled into 'Javascript',
 and therefore, designers have to learn Coffeescript before they are able to make contributions.
 However, Coffeescript can be learnt in one day.
 The long-lasting yield that comes from the quick study 
-is more succint source code that compiles into more rigorous Javascript coding patterns.
+is more succint source code that compiles into more rigorous 'Javascript' coding patterns.
 See the section `Coding Patterns' for details.
 
 == Details of the Software Architecture
 In this section, we describe the services of the EG and UI layer in more detail.
-The architecture is evident from the layout of the project source directory.
+The architecture is evident from listing the project source directory.
 ----
 account/             <4>
 eg/                  <2>
@@ -199,15 +202,15 @@ login_window.coffee
 messages.coffee
 mobile_opac.coffee   <1>
 plugin.coffee
+settings.coffee
 template.coffee
 ----
 <1> The main source file and common utility files are stored in the top directory.
-<2> The EG layer is stored in the `eg' sub-directory.
+<2> The EG layer.
 The remaining sub-directories and files comprise the UI layer.
-<3> The plugins defining the catalogue search functions are stored in `opac'.
-<4> Those defining the user's account functions are stored in `account'.
-<5> External Javascript libraries such as jQuery
-and others yet to be discussed are stored in the `lib' sub-directory.
+<3> Plugins defining the catalogue search functions.
+<4> Plugins defining the user's account functions.
+<5> External 'Javascript' libraries such as 'jQuery' and others not yet discussed.
 
 === EG layer
 The raw Evergreen API consists of many OpenSRF service calls,
@@ -224,10 +227,10 @@ Shorten service names from, for example,
 service='open-ils.search', method='open-ils.search.biblio.multiclass.query'
 ----
 +
-to a name which has less redundant components.
+to a name with less redundant components,
 +
 ----
-'search.biblio.multiclass.query',
+'search.biblio.multiclass.query'
 ----
 +
 We omit the prefix because it is common,
@@ -238,14 +241,17 @@ the natural data format of the API.
 Also, provide sensible default values for service calls
 that offer more general services than those needed by UI.
 
-* _Package response data values into sensible data objects._
+* _Package response data values into sensible data objects and definite data types._
 If response data is a list of anonymous values, convert it into a named object.
 If necessary, recurse into nested lists and return nested data objects.
 If response data is meant to be a tree of data objects,
 for example, the organization unit tree,
 flatten the tree of objects.
+In response data,
+if booleans, numbers, and dates are represented in diverse ways.
+converted them into definite types.
 
-* _Combine frequently occuring sequences of multiple service calls._
+* _Combine frequently occurring sequences of multiple service calls._
 For example, the two-phase login sequence
 consisting of `auth.authenticate.init' and `auth.authenticate.complete'
 is combined into one service call `auth.session.create'.
@@ -257,55 +263,68 @@ automatically provide it if there is an active session.
 For services requiring a user ID as well,
 provide it automatically if one is not specified.
 
-* _Response data caching._
-* _Automatic login event._
-* _Normalize data typing._
+* _Cache search results and other non-transactional response data_
+in order to reduce network traffic.
+
 * _Handle AJAX errors_,
 for example, network timeouts, bad formulation of requests or responses, and so on.
-Errors are published to the UI layer.
+Errors are published to the UI layer,
+where they can be rendered into visible notices.
 
 === UI layer
-The end result of the services of the EG layer
-is to allow the UI layer to do its job with clarity and without distraction.
-The main component of the UI layer is plugins.
-We design a primitive messaging system to allow plugins to communicate with each other.
-Plugins can publish or subscribe to data.
-Plugins can be refreshed.
-The UI layer is based on the notion of designing a plugins
-Behave autonomously.
-Interactive behaviours coupled with HTML patterns or templates.
-Uses the EG layer to communicate with EG services.
+The main purpose of the UI layer is to display data objects to the user,
+and to respond to UI events (mouse, keyboard, touchscreen).
+The UI layer does not directly communicate with EG services,
+relying instead on the EG layer described in the previous section.
+
+* Functional areas of the screen,
+for example, the search bar and the search result list,
+are implemented as modular plugins.
+* Plugins use HTML templates to specify layout,
+and 'Javascript' code to specify interactive behaviour.
+* Plugins can publish data objects on data channels,
+for example, the search bar plugin publishes
+a data object representing a search request on the `search' channel.
+* Plugins can subscribe to data channels,
+for example, the search result list plugin subscribes to the `search' channel
+to receive a search request.
+(It then initiates a search request to the EG layer
+and shows the search result list on the screen.)
 
 
 == Coding Patterns
-When Coffeescript is used,
-the resulting code is more succinct and clearer to understanding than Javascript.
-For example, the following one-liner in Coffeescript
+We examine four coding patterns
+which frequently show up in the mobile opac software.
+Each pattern is presented in 'Coffeescript'.
+With the use of 'Coffeescript',
+the resulting code is more succinct and clearer to understanding than 'Javascript'.
+
+For example, the following one-liner in 'Coffeescript'
 defines a function to return the list of property values of a data object.
 ----
-f = (o) -> v for k, v of o
+f = (o) -> v for own k, v of o
 ----
-The one-liner compiles into more verbose, but rigorously correct Javascript code.
-As can be seen, the compiled code is laid out well enough to be readable during a debugging session.
+The one-liner compiles into more verbose,
+but rigorously correct 'Javascript' code.
 ----
 var f;
 var __hasProp = Object.prototype.hasOwnProperty;
 f = function(o) {
-  var _a, _b, k, v;
-  _a = []; _b = o;
-  for (k in _b) {
-    if (!__hasProp.call(_b, k)) continue;
-    v = _b[k];
-    _a.push(v);
+  var k, v, _results;
+  _results = [];
+  for (k in o) {
+    if (!__hasProp.call(o, k)) continue;
+    v = o[k];
+    _results.push(v);
   }
-  return _a;
+  return _results;
 };
 ----
+As can be seen,
+the compiled code is laid out well enough
+to be readable during a debugging session.
 
-We find four patterns which determine the general look and feel of the mobile opac software.
-We present each pattern in Coffeescript.
-
-=== Defining modules
+=== 1. Defining modules
 Modules are packages of code that define plugins and other data objects
 which can be downloaded dynamically.
 Modules are implemented using the
@@ -336,7 +355,7 @@ Downloaded last.
 <5> Imported functions are available within a module's namespace;
 for example, we define the namespaces of the EG and template modules
 so that their public functions can be accessed.
-The plugin module has no public functions other than ones defined as jQuery methods,
+The plugin module has no public functions other than ones defined as 'jQuery' methods,
 therefore, there is no need to define a namespace for the module.
 <6> Use the template method defined in the template module;
 see below for details on how to define templates.
@@ -347,25 +366,25 @@ If a module needs to be downloaded dynamically,
 in response to a user event for example,
 the 'jMod' library provides a `thunk' function for this purpose.
 ----
-@delegate '.login', 'click', ->                     <1>
+this.delegate '.login', 'click', ->                 <1>
   thunk imports('login_window'), show_login_window  <2>
 ----
 <1> Upon a login click, show the login prompt for the user.
 <2> Dynamically download the login window module only when needed,
 and then show the window after download.
 
-=== Defining plugins
+=== 2. Defining plugins
 The following code excerpt shows how a typical plugin is defined.
 ----
 $.fn.a_plugin = ->                                <1>
-    @plugin('plugin_name')                        <2>
+    this.plugin('plugin_name')                    <2>
     .append( $('<form>') )                        <3>
     .delegate('form', 'submit', handle_submit)    <4>
     .publish('channel_A', [data])                 <5>
     .subscribe('channel_B', handle_subscription)  <6>
     .refresh(handle_refresh)                      <7>
 ----
-<1> Define the plugin using the jQuery mechanism, whereby each plugin is a jQuery method.
+<1> Define the plugin using the 'jQuery' mechanism, whereby each plugin is a 'jQuery' method.
 `this' refers to a container, typically a <div> element.
 <2> Decorate the plugin with a unique class name that defines instances of this plugin.
 <3> Define the content of the plugin container, for example, append a form element.
@@ -375,7 +394,7 @@ $.fn.a_plugin = ->                                <1>
 <7> Bind an event handler to respond to refresh events,
 for example, to update the display area.
 
-=== Defining HTML templates
+=== 3. Defining HTML templates
 HTML fragments are often defined within a plugin using `micro-templates'.
 The following is an example of how a template for a div element is defined and used.
 ----
@@ -386,7 +405,7 @@ tpl_content = _.template '''            <1>
   </div>
 '''
 show_content = (data) ->                <3>
-  @append tpl_content {                 <4>
+  this.append tpl_content {             <4>
     id: x.id
     date: x.date
     note: x.note
@@ -394,14 +413,14 @@ show_content = (data) ->                <3>
 ----
 <1> Define a template function for showing content.
 The template function is defined using a constructor function
-from the `underscore' Javascript library.
+borrowed from the `underscore' Javascript library.
 Input is a fragment of HTML defined in the `heredoc' syntax that is available in 'Coffeescript'.
 <2> Within the template, variables for data values are defined.
 <3> Define a function to use the template function to show values from a given data array.
 <4> The input is a data object specifying template variable names and their associated data values.
 
-=== Making AJAX calls
-The main purpose of the EG layer is to allow AJAX calls to be easily made.
+=== 4. Making AJAX calls
+The main purpose of the EG layer is to allow opensrf calls to be easily made using AJAX.
 Here are some examples.
 ----
 eg.openils 'actor.org_tree.retrieve', calculate_org_tree   <1>
@@ -417,7 +436,7 @@ The EG layer provides session ID and user ID for the service call if they are av
 otherwise an event is triggered and the service call is deferred.
 
 If the natural response of a service call is to show the data in a DOM container,
-then we convert the container to a jQuery object and apply the `openils' method.
+then we convert the container to a 'jQuery' object and apply the `openils' method.
 ----
 $('div.checkout').openils 'checkout details', 'actor.user.checked_out', show_checkout_details
 ----
@@ -446,46 +465,70 @@ The callback argument defines the overall object containing both result objects.
 <5> Calculate the ou tree based on the returned data.
 <6> Show search results.
 
-=== Using a content delivery network
-jQuery is a popular library that may already be cached within the mobile browser
-because it was used by another recently browsed website.
-If so, then it is not necessary to download jQuery again.
-In order for this cacheing mechanism to take place,
-we use http://code.google.com/apis/libraries/devguide.html[Google's Content Delivery Network].
-The relevant script tag would be:
-----
-<script src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js' />
-----
-
 
 == Development Tools and Setup
-A set of development tools need to be installed on a designer's workstation
-before work can proceed, as follows.
-Happily, the tools are open-source software
+A set of development tools and languages
+need to be installed on a designer's workstation
+before development work can proceed.
+The tools and languages are open-source software
 that can be installed on all platforms, including Windows.
 
 * http://jashkenas.github.com/coffee-script[Coffeescript],
 http://nodejs.org/#download[nodejs], and http://npmjs.org[npm].
 Coffeescript is itself written in Coffeescript and therefore needs a Javascript engine to run.
 'Nodejs' provides that Javascript engine on the server.
-Incidentally, 'nodejs' has a package manager
+Incidentally, 'nodejs' has a package manager called 'npm',
 and it should be installed to allow Coffeescript to be easily updated.
-
-* http://closure-compiler.googlecode.com/files/compiler-latest.zip[closure] and Java.
-'closure' turns regular Javascript files into minified files for production use.
-'closure' is written in Java.
-
-* http://www.methods.co.nz/asciidoc/INSTALL.html[asciidoc] and Python.
-High-level documentation, such as this document, is written in 'asciidoc' format.
-'asciidoc' is written in Python.
 
 * http://jashkenas.github.com/docco/[docco],
 http://pygments.org/download/[pygments], and Python.
 Source code files are processed by 'docco' into HTML documentation.
+'docco' is a 'nodejs' module that can be installed using 'npm'.
 'docco' requires the use of 'pygments' to do syntax highlighting.
 'pygments' is written in Python.
 
-* Apache web server. Reverse proxy configuration.
+* http://closure-compiler.googlecode.com/files/compiler-latest.zip[closure] and Java.
+'closure' turns regular Javascript files into minified files for production use.
+'closure' is written in Java.
+'closure' does not need to be installed on the designer's workstation
+as a recent version is pre-installed in the dev/ folder.
+However, the designer's workstation needs to have a recent version of Java installed.
+
+* http://www.methods.co.nz/asciidoc/INSTALL.html[asciidoc] and Python.
+High-level documentation, such as this document, is written in 'asciidoc' format.
+'asciidoc' is written in Python.
+'asciidoc' does not need to be installed on the designer's workstation
+as a recent version is pre-installed in the dev/ folder.
+However, the designer's workstation needs to have a recent version of Python installed.
+
+* http://httpd.apache.org/download.cgi[Apache] or a similar web server.
+In order to test software under development,
+the mobile opac is displayed on a web browser on the designer's workstation
+which then makes requests for services on an Evergreen server.
+However, modern browsers implement the
+http://en.wikipedia.org/wiki/Same_origin_policy[same origin policy],
+which prevents the server from properly responding.
+In order to circumvent the policy,
+the workstation should operate a web server operating in
+http://en.wikipedia.org/wiki/Reverse_proxy[reverse proxy mode].
++
+An example of the reverse proxy configuration clause
+for Apache web server is as follows.
++
+----
+<IfModule proxy_http_module>
+  ProxyRequests Off
+  ProxyPass /osrf-gateway-v1 http://opac.library.org/osrf-gateway-v1
+  ProxyPassReverse /osrf-gateway-v1 http://opac.library.org/osrf-gateway-v1
+  ProxyPass /opac/extras/ac http://opac.library.org/opac/extras/ac
+  ProxyPassReverse /opac/extras/ac http://opac.library.org/opac/extras/ac
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+</IfModule>
+----
 
 * http://cygwin.com[cygwin].
 If the designer's workstation uses Windows, then 'cygwin' needs to be installed on it
