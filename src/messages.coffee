@@ -4,14 +4,17 @@
 
 module 'messages', imports('plugin'), ->
 
-	# Handle the various types of messages:
-	# undefined, a text string, a text string contained in a 'desc' property,
-	# or an object that needs to be converted to JSON format.
+	# Convert the type of message to be displayed into a text string.
 	the_message = (msg) ->
+		# Handle the various message types:
 		switch
+			# undefined,
 			when not msg? then ''
+			# a text string,
 			when typeof msg is 'string' then msg
+			# a text string contained in a 'desc' property,
 			when msg.desc? then msg.desc
+			# or an object that needs to be converted to JSON format.
 			else JSON.stringify msg
 
 	promptUI = (title, message, timeout, cb) ->

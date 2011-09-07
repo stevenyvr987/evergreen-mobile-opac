@@ -22,32 +22,38 @@ module 'login_window', imports(
 ), (fm, eg) ->
 
 	# FIXME: div.error is not needed; error from eg_api layer overrides, I think.
-	login_form = '''
-	<form class="login_form">
-		<div class="error"/>
-		<div>
-			<label>Username:</label>
-			<input type="text" name="username"></input>
-		</div><div>
-			<label>Password:</label>
-			<input type="password" name="password"></input>
-		</div><div>
-			<button type="submit">Log in</button>
-			<button type="reset">Cancel</button>
-		</div>
-	</form>
+	#		<div class="error"></div>
+	content = '''
+		<form class="login_form">
+			<div data-role="fieldcontain">
+				<label for="login_un">Username</label>
+				<input type="text" id="login_un" name="username" />
+			</div>
+			<div data-role="fieldcontain">
+				<label for="login_pw">Password</label>
+				<input type="password" id="login_pw" name="password" value="" />
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<button type="reset">Cancel</button>
+				</div>
+				<div class="ui-block-b">
+					<button type="submit">Log in</button>
+				</div>
+			</div>
+		</form>
 	'''
 	login_failed = "Login failed: "
 
 
 	$.fn.login_window = ->
 
-		$plugin = @
+		$plugin = @plugin('login_window')
+
 		deferreds = []
 
-		# Helper for submit event handler to get defaults.
+		# Define a helper function for the submit event handler to get defaults.
 		get_defaults = ->
-
 			parallel(
 				settings: eg.openils 'actor.patron.settings.retrieve'
 				ouTree:   eg.openils 'actor.org_tree.retrieve'
@@ -58,37 +64,32 @@ module 'login_window', imports(
 				org_type = x.ouTree[org_unit].ou_type
 				$plugin.publish 'library', [org_unit, org_name, depth, org_type]
 
+		# Build first-time content
+		@find('.content').html(content).page().end()
 
-		# Note: The login form is not physically attached to the login window plugin.
-		$login_form = $(login_form)
-
-		.refresh ->
-			# FIXME: kludgey.
-			if eg.logged_in()
-				#get_defaults() # get the default search values
-				return false
-
-			# User is not logged in; display the login form
-			@detach()
-			$('input[name=username]', @).val('').focus()
-			$('input[name=password]', @).val('')
-			$('.error', @).hide()
-			$.blockUI { message: @ } # Makes login form not attached to plugin div.
-			return false
-
+		# Upon the user cancelling login
 		.delegate 'button[type=reset]', 'click', cancel = =>
+			# Reset deferreds list
 			deferreds = []
-			$.unblockUI()
+			# Close the login dialog
+			@dialog('close')
+			# Blank out any credentials that user may have entered
+			.find('input[name=username]').val('').end()
+			.find('input[name=password]').val('').end()
 			return false
 
+		# Upon the user submitting login credentials
 		.submit submit = ->
-			xs = $(@).serializeArray()
-			# Submit does not proceed without sane un and pw entries.
+			# Get the credentials from the login form
+			$f = $(@).find('form')
+			xs = $f.serializeArray()
+			# Do not proceed without sane credentials
 			un = xs[0].value
 			return false unless un and (un.replace /\s+/, "").length
 			pw = xs[1].value
 			return false unless pw and (pw.replace /\s+/, "").length
 
+			# Try to create a session with the credentials
 			eg.openils 'auth.session.create', {
 				username: un
 				password: pw
@@ -96,18 +97,34 @@ module 'login_window', imports(
 				org: 1			# TODO: remove hardcode
 			}, (session) ->
 
-				# If there is an error,
-				# session.ilsevent is 1000 and session.textcode is 'LOGIN_FAILED'
+				# Upon success (session.ilsevent isn't 1000 or session.textcode isn't 'LOGIN_FAILED')
 				unless session.ilsevent?
-					# FIXME: should session.retrieve be part of session.create?
+					# Retrieve the session object (primarily, the patron account info)
+					# FIXME: admittedly this operation could be part of the session.create operation.
 					eg.openils 'auth.session.retrieve', ->
 						# FIXME: search service in eg.api needs auth.session.settings if logged in.
 						get_defaults()
-						$().publish 'login_event', [un]
-						# once logged in, call the list of deferred objects.
+						# Call the list of deferred objects.
 						while deferreds.length > 0
 							deferreds.pop().call()
-						$.unblockUI()
+						# Close the login dialog
+						$plugin.dialog 'close'
+						# blank out the credentials user has entered on the login form
+						$f
+						.find('input[name=username]').val('').end()
+						.find('input[name=password]').val('').end()
+						# Notify others that login has occurred with the given username
+						$().publish 'login_event', [un]
+			return false
+
+		# Upon receiving notice that a login is required
+		.bind 'login_required', (e, d) ->
+			# Push a deferrment passed up from the API level that will
+			# continue a user action once user is logged in.
+			deferreds.push d
+			# Open the login dialog to enable to enter credentials
+			#$.mobile.changePage $x = $(@).refresh(), 'pop', false, false
+			$.mobile.changePage $(@), 'slidedown', true, true
 			return false
 
 		.delegate 'input', 'keyup', (e) =>
@@ -116,19 +133,4 @@ module 'login_window', imports(
 				#when 13 then submit.call @
 				# Upon pressing escape key in input boxes, cancel the login form.
 				when 27 then cancel.call @
-			return false
-
-		# The purpose of thelogin window plugin is to respond to a login trigger and a refresh event.
-		@plugin('login_window')
-
-		.bind 'login_required', (e, d) ->
-			# d is a deferred passed up from the API level that will
-			# continue a user action once user is logged in.
-			deferreds.push d
-			$(@).refresh()
-			return false
-
-		# Plugin refresh is passed to refresh event for the login form.
-		.refresh ->
-			$login_form.refresh()
 			return false

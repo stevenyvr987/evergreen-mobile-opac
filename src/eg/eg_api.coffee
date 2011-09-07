@@ -319,7 +319,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 			login_required: true
 		}
 		'circ.hold.details.retrieve.authoritative': {
-			i: i3
+			i: i2
 			o: (o) ->
 				o = o1 o
 				o.mvr = fm.fieldmap o.mvr
@@ -583,6 +583,30 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 				# Join all search terms into search phrase.
 				term = x.join ' '
 
+				# Calculate sort filter.
+				if o.sort
+					switch o.sort
+						when 'pubdate asc'
+							o.sort = 'pubdate'
+							o.sort_dir = 'asc'
+						when 'pubdate desc'
+							o.sort = 'pubdate'
+							o.sort_dir = 'desc'
+						when 'title asc'
+							o.sort = 'title'
+							o.sort_dir = 'asc'
+						when 'title desc'
+							o.sort = 'title'
+							o.sort_dir = 'desc'
+						when 'author asc'
+							o.sort = 'author'
+							o.sort_dir = 'asc'
+						when 'author desc'
+							o.sort = 'author'
+							o.sort_dir = 'desc'
+						else
+							o.sort = ''
+
 				# Delete properties that do not belong in a bona fide search object.
 				delete o[x] for x in [
 					'default_class'
@@ -803,7 +827,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 
 		s.join "&" # Return the resulting serialization
 
-	# This is probably trying to be too flexible, but here we go...
+	# Possible invocations:
 	# openils('service_name', request, function (response) {})
 	# openils('service_name', function (response) {})
 	# openils()
@@ -874,7 +898,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 				          if data.payload[0].ilsevent isnt "0"
 
 						  	# FIXME This is a hack to easily prevent EG 1.6 from
-							# displaying a server error when there is a permission problem
+							# displaying a server error when there is a permission problem (#5000)
 							# for showing holds list.
 							# This should be removed in a more finalized version.
 				            if data.payload[0].ilsevent isnt "5000"
@@ -884,6 +908,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 				            reset_timeout()
 				            return
 
+				# data.payload.length could be zero
 				cb_data = {}
 				try
 					cb_data = if lookup.o then lookup.o data else data.payload[0]

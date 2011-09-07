@@ -39,7 +39,11 @@ module 'opac.ou_tree', imports(
 				ouTypes: eg.openils 'actor.org_types.retrieve'
 				ouTree:  eg.openils 'actor.org_tree.descendants.retrieve', thisisit
 			, (x) ->
-				@append $select = $('<select>').attr 'name', rc.name
+				# We use data-native-menu for this selector because it has many options
+				# and jQM's version would display options menu in a dialog,
+				# but there is a problem with it when combined with another dialog.
+				#$select = $('<select data-native-menu="false">').attr 'name', rc.name
+				$select = $('<select>').attr 'name', rc.name
 
 				# What are the select options based on the flattened ou tree?
 				options = []
@@ -59,12 +63,13 @@ module 'opac.ou_tree', imports(
 
 					# Either all ou nodes or only ou nodes which can have users
 					# are turned into selectable option values.
+					option = "<option value=\"#{ou_id}\">"
 					if rc.all
-						options.push $('<option>').val(ou_id).text ou_name
+						options.push $(option).text ou_name
 					else if not ou_type.can_have_users or ou_type.can_have_users is 'f'
 						options.push $('<optgroup>').attr 'label', ou_name
 					else
-						options.push $('<option>').val(ou_id).text ou_name
+						options.push $(option).text ou_name
 
 				# Build select menu options.
 				$select.append x for x in options
@@ -81,4 +86,8 @@ module 'opac.ou_tree', imports(
 
 				# Focus on selector if asked for.
 				$select.focus() if rc.focus
+
+				@append $select
+				$select.parent().page()
+
 		return @

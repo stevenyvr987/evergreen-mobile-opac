@@ -2,12 +2,14 @@
 #
 # List any fines the user has to pay.
 
+###
 module 'account.account_fines', imports('eg.eg_api', 'plugin'), (eg) ->
 	$.fn.account_fines = ->
 		$('<div>').fines().appendTo @
 		@refresh ->
 			@publish 'userid', [eg.auth.session.user.id] if eg.auth.session?.user?
 			return false
+###
 
 
 module 'account.fines', imports(
@@ -16,12 +18,25 @@ module 'account.fines', imports(
 	'plugin'
 ), (eg, _) ->
 
+	tpl_form = '''
+	<form>
+		<div data-role="fieldcontain">
+			<fieldset data-role="controlgroup" />
+		</div>
+	</form>
+	'''
 	tpl_info_line = _.template '''
-	<div class="status_line" id=fine_id_"<%= fine_id %>">
-		<span>$<%= owed %></span>
-		<span><%= type %></span>
-		<span><%= date %></span>
-		<span><%= note %></span>
+	<div id="fine_id_<%= fine_id %>">
+		<input type="checkbox" name="fine_id" value="<%= fine_id %>" id="checkbox_<%= fine_id %>" />
+		<label for="checkbox_<%= fine_id %>">
+			<span class="status_line">
+				<span>$<%= owed %></span>
+				<span><%= type %></span>
+				<br />
+				<span><%= date %></span>
+				<span><%= note %></span>
+			</span>
+		</label>
 	</div>
 	'''
 
@@ -37,23 +52,17 @@ module 'account.fines', imports(
 			date: datestamp x.last_billing_ts
 			note: x.last_billing_note
 		} for x in mbts
+		@page()
 		return
 
 	$.fn.fines = ->
 
-		@plugin('acct_fines')
-		.append( $x = $('<form>') )
-
-		.subscribe 'userid', ->
-			@refresh() if @is ':visible'
-			return false
-
-		.subscribe 'logout_event', ->
-			$x.empty()
-			return false
+		$plugin = @plugin('acct_fines').page()
 
 		.refresh ->
-			$x.empty().openils 'fines details', 'actor.user.transactions.have_charge.fleshed', show_info_line
+			@html(tpl_form).page('destroy').page()
+			$list = $('fieldset', @)
+			$list.openils 'fines details', 'actor.user.transactions.have_charge.fleshed', show_info_line
 			return false
 
 		return @

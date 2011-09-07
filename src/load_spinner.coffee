@@ -1,13 +1,12 @@
 # load_spinner.coffee
 #
-# Shows an ajax spinner when an openils request is active
+# Shows an spinner graphic upon an ajax start event,
+# but hides it upon an ajax stop or error event.
 #
 
 module 'load_spinner', imports('plugin'), ->
 
-	defaults = {
-		image: 'images/loading.gif'
-	}
+	defaults = image: 'images/loading.gif'
 
 	$.fn.load_spinner = (o) ->
 		rc = $.extend {}, defaults, o

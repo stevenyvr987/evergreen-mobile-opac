@@ -6,26 +6,31 @@
 module 'login_bar', imports('template', 'plugin'), (_) ->
 
 	tpl_login = _.template '''
-	<a class="link login">Log in</a>
-	<span>to see account details</span>
+	<div>
+		<span data-role="button" data-icon="forward" data-inline="true" class="login">
+			Log in to see account details
+		</span>
+	</div>
 	'''
 
 	tpl_logout = _.template '''
-	<a class="link logout">Log out</a>
-	<span>Currently logged in as</span>
-	<span class="username"><%= username %></span>
+	<div>
+		<span data-role="button" data-icon="back" data-inline="true" class="logout">
+			Log out. You are currently logged in as <%= username %>
+		</span>
+	</div>
 	'''
 
 	$.fn.login_bar = ->
 
-		@plugin('login_bar')
-
-		# Initially show login link.
-		.html(tpl_login {})
+		@plugin('login_bar').page()
 
 		# Upon a login click, show the login prompt for the user. 
 		.delegate '.login', 'click', ->
-			thunk imports('login_window'), -> $('#login_window').login_window().refresh()
+			thunk imports('login_window'), ->
+				$x = $('#login_window')
+				$x.login_window() unless $x.plugin()
+				$.mobile.changePage $x, 'slidedown', true, true
 			return false
 
 		# Upon a logout click, delete user session.
@@ -33,13 +38,15 @@ module 'login_bar', imports('template', 'plugin'), (_) ->
 			thunk imports('eg.eg_api'), (eg) -> eg.openils 'auth.session.delete'
 			return false
 
-		# Upon login, show logout link and status message.
+		# Upon login, show logout link and login status.
 		.subscribe 'login_event', (un) ->
-			x = tpl_logout { username: un }
-			$(@).html x
+			$(@).html(tpl_logout username: un).contents().page()
 			return false
 
 		# Upon logout, show login link again.
 		.subscribe 'logout_event', ->
-			$(@).html tpl_login {}
+			$(@).html(tpl_login {}).contents().page()
 			return false
+
+		# Initially, show login link.
+		.html(tpl_login {}).contents().page().end()

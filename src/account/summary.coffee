@@ -1,11 +1,3 @@
-module 'account.account_summary', imports( 'eg.eg_api', 'plugin' ), (eg) ->
-
-	$.fn.account_summary = ->
-		@plugin('account_summary').append $('<div>').acct_summary()
-		@refresh ->
-			@publish 'userid', [eg.auth.session.user.id] if eg.auth.session?.user?
-			return false
-
 
 module 'account.summary', imports(
 	'eg.eg_api'
@@ -21,7 +13,7 @@ module 'account.summary', imports(
 	'''
 	refresh_fines_summary = ->
 		$('#fines_summary').openils 'fines summary', 'actor.user.fines.summary.authoritative', (o) ->
-			@text tpl_fines_summary {
+			$('.summary_line', @).text tpl_fines_summary {
 				nf:  nf = o.balance_owed
 			}
 		return false
@@ -33,7 +25,7 @@ module 'account.summary', imports(
 	'''
 	refresh_checkouts_summary = ->
 		$('#checkouts_summary').openils 'checkouts summary', 'actor.user.checked_out.count.authoritative', (o) ->
-			@text tpl_checkouts_summary {
+			$('.summary_line', @).text tpl_checkouts_summary {
 				nco: nco = o.out
 				nod: nod = o.overdue
 				nxx: nxx = o.total - nco - nod
@@ -45,7 +37,7 @@ module 'account.summary', imports(
 	'''
 	refresh_holds_summary = ->
 		$('#holds_summary').openils 'holds summary', 'circ.holds.id_list.retrieve.authoritative', (o) ->
-			@text tpl_holds_summary {
+			$('.summary_line', @).text tpl_holds_summary {
 				nh:  nh = o.length
 			}
 		return false
@@ -55,7 +47,7 @@ module 'account.summary', imports(
 	'''
 	refresh_bookbags_summary = ->
 		$('#bookbags_summary').openils 'bookbags summary', 'actor.container.retrieve_by_class', (o) ->
-			@text tpl_bookbags_summary {
+			$('.summary_line', @).text tpl_bookbags_summary {
 				nbb: nbb = o.length
 			}
 		return false
@@ -85,22 +77,15 @@ module 'account.summary', imports(
 		# The impact is that the main div is exposed after a session timeout.
 		@plugin('acct_summary')
 
-		.subscribe 'userid', (id) ->
-			@refresh() if @is ':visible'
-			return false
-
 		# FIXME: the main module subscribes this plugin to login_event already.
 		# We must do it there because it dynamically loads this module.
-		.subscribe('login_event', refresh_all)
+		.subscribe 'login_event', =>
+			@show()
+			refresh_all()
+			return false
 
-		.subscribe 'logout_event', ->
-			# FIXME: following sequence uses IDs, which breaks the rule
-			# that a plugin should not know about things outside its boundary.
-			$('#account_summary .accordion.on').click()
-			$('#fines_summary').empty()
-			$('#checkouts_summary').empty()
-			$('#holds_summary').empty()
-			#$('#bookbags_summary').empty()
+		.subscribe 'logout_event', =>
+			@hide()
 			return false
 
 		.subscribe('fines_summary', refresh_fines_summary)
@@ -109,8 +94,34 @@ module 'account.summary', imports(
 		.subscribe('bookbags_summary', refresh_bookbags_summary)
 		.refresh refresh_all
 
-			# Guard against login process not finished before attempting to get account summaries.
-#			if eg.logged_in()
-#				refresh.call @
-#			else
-#				@openils 'account summaries', 'auth.session.retrieve', => refresh.call @
+		# For each account summary content
+		$('.account_summary', @)
+
+		# Upon expanding account summary content
+		.live 'expand', (e, ui) ->
+			# Refresh the summary line
+			# By convention, the id of the h3 element is the name of the data channel to publish on.
+			$(@).publish $('h3', @).attr 'id'
+			# Refresh any inner plugins
+			$ps = $('.plugin', @).refresh()
+			return false
+
+		# Upon collapsing account summary content
+		.live 'collapse', (e, ui) ->
+			# Remove any inner plugin content
+			$ps = $('.plugin', @).empty()
+			return false
+
+		# Upon login
+		.subscribe 'login_event', ->
+			# Refresh any inner plugin content if not collapsed
+			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').attr('aria-hidden') is 'false'
+			return false
+
+		# Upon logout
+		.subscribe 'logout_event', ->
+			# Empty any inner plugin content if not collapsed
+			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').attr('aria-hidden') is 'false'
+			return false
+
+		return @

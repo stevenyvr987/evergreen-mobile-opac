@@ -23,7 +23,8 @@ module 'opac.edit_hold', imports(
 	$.fn.title_details = ($img) ->
 
 		tpl_title_details = _.template '''
-			<div class="art_box" />
+		<li>
+			<div class="art_box"></div>
 			<div class="info_box">
 				<div>Title:                <span class="value"><%= b.title            %></span></div>
 				<div>Author:               <span class="value"><%= b.author           %></span></div>
@@ -37,7 +38,7 @@ module 'opac.edit_hold', imports(
 				<div>Edition:              <span class="value"><%= b.edition          %></span></div>
 				<div>Frequency:            <span class="value"><%= b.frequency        %></span></div>
 			</div>
-			<div class="clear" />
+		</li>
 		'''
 		tags2text =
 			title:            { '245':'abchp' }
@@ -86,9 +87,9 @@ module 'opac.edit_hold', imports(
 				if text.length then tags2text[name] = text else delete tags2text[name]
 			return tags2text
 
-		hold = @parent().data 'hold'
+		hold = @closest('.plugin').data 'hold'
 
-		@openils 'title details', 'search.biblio.record.html', hold.target, (htmlmarc) ->
+		@openils "title details ##{hold.target}", 'search.biblio.record.html', hold.target, (htmlmarc) ->
 			@html(tpl_title_details {
 				b: marc_text htmlmarc # Convert MARC HTML to MARC object.
 				target_id: hold.target
@@ -99,30 +100,47 @@ module 'opac.edit_hold', imports(
 				# FIXME: removal is not perfect, leaves empty divs behind.
 				$(@).parent().empty() unless $(@).text()
 
-			$('.art_box', @).append $img.attr('title', '').width 100
+			# Remove thumbnail container from list view is there is no thumbnail image
+			if $img.get(0).naturalHeight > 0
+				# FIXME: This is an attempt to double the size of the thumbnail,
+				# but it is stymied by the fixed size of the outer conainer.
+				#h = $img.get(0).naturalHeight
+				#w = $img.get(0).naturalWidth
+				#$img.height(2 * h).width(2 * w)
+				$('.art_box', @).append $img.attr('title', '')
+			else
+				$('.art_box', @).remove()
+
+			@listview 'refresh'
 			return
+
+		# Show a large version of the thumbnail image in a dialogue
+		# FIXME: jQM has trouble navigating history; comment out for now.
+#		@delegate 'img`', 'click', (e) ->
+#			src = e.target.src.replace 'small', 'large'
+#			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
+#			return false
 
 
 	# Plugin to show holding details for a hold target.
 	$.fn.holding_details = ->
 
-		$parent      = @parent()
-		hold         = $parent.data 'hold'
-		search_ou    = $parent.data 'search_ou'
-		search_depth = $parent.data 'search_depth'
-		ou_tree      = $parent.data 'ou_tree'
-		ou_types     = $parent.data 'ou_types'
-		status_names = $parent.data 'status_names'
+		$plugin      = @closest '.plugin'
+		hold         = $plugin.data 'hold'
+		search_ou    = $plugin.data 'search_ou'
+		search_depth = $plugin.data 'search_depth'
+		ou_tree      = $plugin.data 'ou_tree'
+		ou_types     = $plugin.data 'ou_types'
+		status_names = $plugin.data 'status_names'
 
-		# The following element is appended to div.holding_details, one for each holding.
+		# Show each item holding in a listview
 		tpl_holding_details = _.template '''
-		<div class="holding status_line" id="<%= holding_id %>">
-			<span>
+		<li class="holding status_line" id="<%= holding_id %>">
+			<div>
 				<span><span title="Circulating branch or library" class="value"><%= h.org_name %></span></span>
 				<span> / <span title="Name of collection" class="value"><%= h.copylocation %></span></span>
 				<span> / <span title="Call number" class="value"><%= h.callnumber %></span></span>
-			</span>
-
+			</div>
 			<span title="Copy status" class="copy_status">
 				<span class="value"><%= h.Available %></span> available
 			</span>
@@ -156,11 +174,11 @@ module 'opac.edit_hold', imports(
 			<span title="Copy status" class="copy_status">
 				<span class="value"><%= checked_out %></span> checked out
 			</span>
-		</div>
+		</li>
 		'''
 		show_holding = (holding_id, copy) ->
 			# FIXME: _.template is not able to handle property names with spaces.
-			@append(tpl_holding_details {
+			@append( tpl_holding_details {
 				holding_id: holding_id
 				h:              copy
 				checked_out:    copy['Checked out']
@@ -172,6 +190,9 @@ module 'opac.edit_hold', imports(
 				# Remove empty values of Holdings Details section.
 				$(@).parent().remove() unless $(@).text()
 
+			# We need to refresh the jQM listview with new list item.
+			@listview 'refresh'
+
 		# The following element is appended to each div.holding, one elem for each checked out circ.
 		tpl_due_date = _.template '''
 			<span id="<%= barcode %>">Due date <%= duedate %></span>
@@ -180,13 +201,16 @@ module 'opac.edit_hold', imports(
 		datestamp = (x) ->
 			"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
 		show_due_date = (x) ->
+			due_date = if x.circulations? then x.circulations[0].due_date else ''
 			@append tpl_due_date {
 				barcode: x.barcode
-				duedate: datestamp x.circulations[0].due_date
-			} if x.circulations?
+				duedate: datestamp due_date
+			} if due_date
 			return
 
-		@loading 'holding details'
+		# Build the view of holdings asynchronously.
+		# If a holding is checked out, schedule a second ajax call to get its due date.
+		@empty().loading "holding details ##{hold.target}"
 		eg.openils 'search.biblio.copy_location_counts.summary.retrieve',
 			id: hold.target
 			org_id: search_ou
@@ -212,15 +236,15 @@ module 'opac.edit_hold', imports(
 				show_holding.call @, holding_id, copy
 
 				# For checked out copies, fill in data from circs asynchronously.
-				( (holding_id, copy) ->
-					$holding = $("##{holding_id}").openils 'due dates', 'search.asset.copy.retrieve_by_cn_label',
-						id:     hold.target
-						cn:     copy.callnumber
-						org_id: copy.org_id
-					, (ids) ->
-						for copy_id in ids
-							$holding.openils 'due dates', 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
-				)(holding_id, copy) if copy['Checked out']
+				if copy['Checked out']
+					do (holding_id, copy) ->
+						$holding = $("##{holding_id}").openils 'due dates', 'search.asset.copy.retrieve_by_cn_label',
+							id:     hold.target
+							cn:     copy.callnumber
+							org_id: copy.org_id
+						, (ids) ->
+							for copy_id in ids
+								$holding.openils "due dates ##{copy_id}", 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
 		return @
 
 
@@ -233,20 +257,25 @@ module 'opac.edit_hold', imports(
 
 		hold = @parent().closest('.plugin').data('hold')
 
-		tpl_place_hold = '''
-		<form class="place_hold">
-			<div>
-				<label>Hold a copy of this title at</label>
-				<span class="org_unit_selector" />
-			</div> <div>
-				<button type="submit">Place Hold</button>
-				<button type="reset">Cancel</button>
+		# The content for the plugin is a form to enable the user
+		# to place a title-level hold on the current item.
+		$form = $ '''
+		<form class="place_hold" data-ajax="false">
+			<div data-role="fieldcontain">
+				<label for="edit_hold_org_unit">Hold a copy of this title at</label>
+				<span id="edit_hold_org_unit" class="org_unit_selector"></span>
 			</div>
+			<fieldset class="ui-grid-a">
+				<!--div class="ui-block-a"><button type="reset">Cancel</button></div-->
+				<div class="ui-block-a"><a href="#" data-role="button" data-rel="back" class="reset">Cancel</a></div>
+				<!--div class="ui-block-b"><button type="submit">Place Hold</button></div-->
+				<div class="ui-block-b"><a href="#" data-role="button" data-rel="back" class="submit">Place Hold</a></div>
+			</fieldset>
 		</form>
 		'''
 
 		hide_form = ->
-			$.unblockUI { onUnblock: => @empty() }
+			#@closest('.ui-dialog').dialog 'close'
 			return false
 
 		place_hold = ->
@@ -281,13 +310,11 @@ module 'opac.edit_hold', imports(
 						@publish 'holds_summary', [hold.id]
 					else
 						@publish 'prompt', ['Hold update failed', "#{result[0].desc}"]
-					hide_form.call @
 
 			else
 				eg.openils 'circ.title_hold.is_possible', hold, (possible) =>
 					if possible?.success
 						eg.openils 'circ.holds.create', hold, (result) =>
-							hide_form.call @
 							if ok = typeof result isnt 'object'
 								# Publish notice of successful hold creation to user
 								@publish 'notice', ['Hold created']
@@ -296,7 +323,6 @@ module 'opac.edit_hold', imports(
 							else
 								@publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
 					else
-						hide_form.call @
 						if possible?.last_event?.desc
 							@publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
 						else
@@ -307,18 +333,28 @@ module 'opac.edit_hold', imports(
 
 			return false
 
-		@append(tpl_place_hold)
+		# Append the place hold form as its main content
+		@html($form)
+		# Convert the form into a jQM page
+		.find('form').page()
+
+		# Build an ou selector to show pickup libraries.
+		$('.org_unit_selector', @).ou_tree(
+			'name': 'pickup_lib'
+			'all': false
+			'selected': Number hold.pickup_lib #or Number copy.org_id
+			'indent': '. '
+			'focus': true
+		)
 
 		# Clicking submit button places a hold.
-		.delegate('[type=submit]', 'click', => place_hold.call @)
-
-		# Clicking reset button hides the form.
-		.delegate('[type=reset]', 'click', => hide_form.call @)
+		$('a.submit', @).bind 'click', => place_hold.call @
 
 		# Keyboard shortcuts:
+		# FIXME: not working for jQM
 		#
 		# Pressing esc key has same effect as clicking reset button.
-		.delegate 'form.place_hold', 'keyup', (e) =>
+		@delegate 'form.place_hold', 'keyup', (e) =>
 			switch e.keyCode
 				when 27 then hide_form.call @
 			return false
@@ -335,77 +371,107 @@ module 'opac.edit_hold', imports(
 						when $target.is '[type=submit]' then place_hold.call @
 			return false
 
-		# Build an ou selector to show pickup libraries.
-		$('.org_unit_selector', @).ou_tree(
-			'name': 'pickup_lib'
-			'all': false
-			'selected': Number hold.pickup_lib #or Number copy.org_id
-			'indent': '. '
-			'focus': true
-		)
-		return @
 
-
+	# Plugin to show the edit hold dialog,
+	# which includes title details, hold details, and holdings details.
 	$.fn.edit_hold = ->
+
+		count = 0
+		total = 0
+
+		# Define the header for navigating to prev/next title
+		nav_bar = _.template '''
+		<h3>
+			Title <span class="count"><%= count %></span> of <span class="total"><%= total %></span>
+		</h3>
+		<div class="ui-btn-right">
+			<div data-role="button" data-icon="arrow-u" class="prev">Previous</div>
+			<div data-role="button" data-icon="arrow-d" class="next">Next</div>
+		</div>
+		'''
+		# Build the nav bar with inital count and total
+		$('.nav_bar', @).html(nav_bar count: 0, total: 0)
+
+		# Upon user clicking a button in the nav bar
+		.delegate 'div', 'click', (e) =>
+			title_id = @closest('.plugin').data('hold').titleid
+			$target = $(e.currentTarget)
+
+			count = Number $('.count', @).text()
+
+			if $target.hasClass 'prev'
+				unless count is 1
+					count -= 1
+					$('.count', @).text count
+				@publish 'title', [title_id, -1]
+			else if $target.hasClass 'next'
+				unless count is total
+					count += 1
+					$('.count', @).text count
+				@publish 'title', [title_id, +1]
+			return false
+
+		# Build the content structure of the details view
 		# FIXME: add option for user to see all tags of MARC record.
 		# FIXME: add class name 'marctag'.
-		tpl_details = '''
-		<div class="title_details" />
-		<hr />
-		<div class="hold_details" />
-		<hr />
-		<div>Copies available for this title</div>
-		<div class="holding_details" />
+		content = '''
+		<ul class="title_details" data-role="listview" data-inset="true"></ul>
+		<h3>Copies available for this title</h3>
+		<ul class="holding_details" data-role="listview" data-inset="true"></ul>
+		<div class="hold_details"></div>
 		'''
+		$('.content', @).html(content)
 
-		show_form = (hold, search_ou, search_depth, $img) ->
+		# Define a utility function to show content of the details view.
+		show_content = (hold, search_ou, search_depth, $img) ->
 
-			# Persist the hold data object.
-			# Build details pane.
-			@data('hold', hold).html tpl_details
+			# Cache arguments as data objects.
+			@data('hold', hold)
+			.data('search_ou', search_ou)
+			.data('search_depth', search_depth)
 
-			# Get cacheable data objects (in parallel and asynchronously).
+			# Get more cacheable data objects (asynchronously and in parallel).
 			# In the future, we could get these objects once per browser session.
 			parallel(
 				ouTypes:         eg.openils 'actor.org_types.retrieve'
 				ouTree:          eg.openils 'actor.org_tree.retrieve'
 				copy_status_map: eg.openils 'search.config.copy_status.retrieve.all'
 			).next (x) =>
-
-				# Show details pane.
-				$.blockUI { message: @ }
-
-				@
-				.data('hold', hold)
-				.data('search_ou', search_ou)
-				.data('search_depth', search_depth)
-				.data('ou_tree', x.ouTree)
+				@data('ou_tree', x.ouTree)
 				.data('ou_types', x.ouTypes)
 				.data('status_names', x.copy_status_map)
 
+				# Show the three main areas of the details view
 				$('.title_details', @).title_details $img
 				$('.holding_details', @).holding_details()
 				$('.hold_details', @).hold_details()
-				return
 
-			return false
+		# Prepare this container as a plugin.
+		@plugin('edit_hold')
 
+		# Upon receiving a potential request on the hold create data channel,
+		.subscribe 'hold_create', (title_id, search_ou, search_depth, $img, titles_total, titles_count) =>
 
-		return @empty().hide() if @plugin()
-
-		@plugin('edit_hold').empty().hide()
-
-		# Set default pickup_lib to user's home ou if defined (implies user has logged in)
-		.subscribe 'hold_create', (id, search_ou, search_depth, $img) =>
+			# Build a hold request object
 			hold =
-				target: id # version 1.6 software
-				titleid: id # version 2.0 software
+				target: title_id # version 1.6 software
+				titleid: title_id # version 2.0 software
 				hold_type: 'T' # default type
 				selection_depth: 0
+				# Set default pickup_lib to user's home ou if defined
+				# (implies user has logged in)
 				pickup_lib: Number eg.auth.session.user.home_ou
-			show_form.call @, hold, search_ou, search_depth, $img
-			return false
 
+			# Build DOM content based on hold request
+			show_content.call @, hold, search_ou, search_depth, $img
+
+			# Update total and count numbers in header
+			$('.total', @).text total = titles_total
+			$('.count', @).text count = titles_count
+
+			# Change to this page unless it is already acive
+			$.mobile.changePage @page(), false, true unless @ is $.mobile.activePage
+
+		# Currently, the interface doesn't have controls to update holds.
 		.subscribe 'hold_update', (hold) =>
-			show_form.call @, hold
-			return false
+			show_content.call @, hold

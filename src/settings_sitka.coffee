@@ -9,7 +9,7 @@ window.settings =
 		m:  'Electronic Resources'
 
 	language:
-		'' : 'All Languages'
+		'': 'All Languages'
 		eng: 'English'
 		spa: 'Spanish'
 		fre: 'French'

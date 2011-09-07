@@ -5,14 +5,6 @@
 # account_holds plugin waits for a refresh event and publishes the userid of
 # the currently logged in user before triggering the list_holds plugin inside it.
 
-module 'account.account_holds', imports('eg.eg_api', 'plugin'), (eg) ->
-	$.fn.account_holds = ->
-		@append $('<div>').holds()
-		@refresh ->
-			@publish 'userid', [eg.auth.session.user.id] if eg.auth.session?.user?
-			return false
-
-
 module 'account.holds', imports(
 	'eg.eg_api'
 	'eg.fieldmapper'
@@ -20,28 +12,36 @@ module 'account.holds', imports(
 	'plugin'
 ), (eg, fm, _) ->
 
-	tpl_hold_form = '''
+	tpl_form = '''
 	<form>
-		<div class="hold_list" />
-		<input type="submit" class="cancel" name="some" value="Cancel selected holds" />
-		<input type="submit" class="cancel" name="all" value="Cancel all" />
-		<input type="submit" class="suspend" name="some" value="Suspend selected holds" />
-		<input type="submit" class="suspend" name="all" value="Suspend all" />
-		<input type="submit" class="resume" name="some" value="Activate selected holds" />
-		<input type="submit" class="resume" name="all" value="Activate all" />
+		<div data-role="fieldcontain">
+			<fieldset data-role="controlgroup" />
+		</div>
+		<div data-role="controlgroup" data-type="horizontal">
+			<span class="cancel some"><button type="submit">Cancel selected holds</button></span>
+			<span class="cancel all"><button type="submit">Cancel all</button></span>
+			<span class="suspend some"><button type="submit">Suspend selected holds</button></span>
+			<span class="suspend all"><button type="submit">Suspend all</button></span>
+			<span class="resume some"><button type="submit">Activate selected holds</button></span>
+			<span class="resume all"><button type="submit">Activate all</button></span>
+		</div>
 	</form>
 	'''
-	tpl_hold_item = _.template '''
+	tpl_item = _.template '''
 	<div class="my_hold" id="hold_id_<%= hold_id %>">
-		<input type="checkbox" name="hold_id" value="<%= hold_id %>" />
-		<span class="info_line" />
-		<div class="status_line" />
+		<input type="checkbox" name="hold_id" value="<%= hold_id %>" id="checkbox_<%= hold_id %>" />
+		<label for="checkbox_<%= hold_id %>">
+			<span class="info_line" />
+			<br />
+			<span class="status_line" />
+		</label>
 	</div>
 	'''
 	tpl_info_line = _.template '''
 	<span class="title"> <%= title %> </span>
-	<span class="author"> <%= author %> </span>
 	<span class="types"> <%= types %> </span>
+	<br />
+	<span class="author"> <%= author %> </span>
 	'''
 	tpl_status_line = (o) ->
 		a = if o.status is 'Ready for Pickup'
@@ -54,19 +54,21 @@ module 'account.holds', imports(
 					'''
 				else
 					''
-			b + c
+			'<div>' + b + '</div><div>' + c + '</div>'
 		else if o.status is 'In transit'
 			b = '''
 			<span><%= status %></span>
+			'''
+			c = '''
 			<span>Pick up at <%= pickup %></span>
 			'''
-			c = if o.hold.shelf_time
+			d = if o.hold.shelf_time
 					'''
 					<span>Expires on <strong><%= shelf %></strong></span>
 					'''
 				else
 					''
-			b + c
+			'<div>' + b + '<div></div>' + c + '</div>'
 		else
 			b = if o.queue_position and o.potential_copies
 					'''
@@ -88,7 +90,7 @@ module 'account.holds', imports(
 				<span>Pick up at <%= pickup %></span>
 				<span>Expires on <%= expire %></span>
 				'''
-			b + c + d
+			'<div>' + b + c + '</div><div>' + d + '</div>'
 		_.template a
 
 	pad = (x) -> if x < 10 then '0' + x else x
@@ -97,7 +99,7 @@ module 'account.holds', imports(
 
 	$.fn.holds = ->
 
-		$plugin = @
+		$plugin = @plugin('acct_holds').page()
 
 		# List of current holds for logged-in user.
 		holds = []
@@ -130,27 +132,17 @@ module 'account.holds', imports(
 				return false
 
 
-		@plugin('acct_holds')
-
-		.subscribe 'userid', (id) ->
-			@refresh() if @is ':visible'
-			return false
-
-		.subscribe 'logout_event', ->
-			@empty()
-			return false
-
-		.refresh ->
-			@empty().append $ tpl_hold_form
-			$list = $('.hold_list', @)
+		@refresh ->
+			@html(tpl_form).page('destroy').page()
+			$list = $('fieldset', @)
 
 			# Hide action buttons until they are needed.
-			$cancel_some = $('.cancel[name="some"]', @).hide()
-			$cancel_all = $('.cancel[name="all"]', @).hide()
-			$suspend_some = $('.suspend[name="some"]', @).hide()
-			$suspend_all = $('.suspend[name="all"]', @).hide()
-			$resume_some = $('.resume[name="some"]', @).hide()
-			$resume_all = $('.resume[name="all"]', @).hide()
+			$cancel_some = $('.cancel.some', @).hide()
+			$cancel_all = $('.cancel.all"', @).hide()
+			$suspend_some = $('.suspend.some', @).hide()
+			$suspend_all = $('.suspend.all', @).hide()
+			$resume_some = $('.resume.some', @).hide()
+			$resume_all = $('.resume.all', @).hide()
 			# Show action buttons as necessary.
 			show_buttons = (frozen) ->
 				if $cancel_all.is ':visible'
@@ -169,7 +161,8 @@ module 'account.holds', imports(
 						$suspend_all.show()
 				return
 
-			eg.openils 'circ.hold.details.retrieve.authoritative', 0, (o) =>
+			###
+			eg.openils 'circ.hold.details.retrieve.authoritative', 1, (o) =>
 				if o.ilsevent? and o.ilsevent is '5000'
 
 					# Same sequence as full OPAC for open-ils v1.6.
@@ -179,12 +172,11 @@ module 'account.holds', imports(
 						ouTree: eg.openils 'actor.org_tree.retrieve'
 					, (x) =>
 						for hold in x.ahrs
-							((hold) ->
-								id = hold.id
-								$list.append tpl_hold_item { hold_id: id }
-								$("#hold_id_#{id}").parallel 'holds details',
+							$list.append $item = $(tpl_item hold_id: hold.id)
+							do (hold, $item) ->
+								$item.parallel 'holds details',
 									mvr: eg.openils 'search.biblio.record.mods_slim.retrieve', hold.target
-									hqs: eg.openils 'circ.hold.queue_stats.retrieve', id
+									hqs: eg.openils 'circ.hold.queue_stats.retrieve', hold.id
 								, (o) ->
 									o.hold = hold
 									o.status = o.hqs.status
@@ -193,11 +185,11 @@ module 'account.holds', imports(
 									o.potential_copies = o.hqs.potential_copies
 
 									holds.push o.hold
-									$('.info_line', @).append tpl_info_line
+									$('.info_line', $item).append tpl_info_line
 										title: o.mvr.title if o.mvr.title
 										author: "#{o.mvr.author}" if o.mvr.author
 										types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
-									$('.status_line', @).append (tpl_status_line o)
+									$('.status_line', $item).append (tpl_status_line o)
 										status: o.status if o.status
 										posn:	o.queue_position
 										total:	o.total_holds
@@ -205,44 +197,46 @@ module 'account.holds', imports(
 										pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
 										expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
 										shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
-									@addClass if o.hold.frozen then 'inactive' else 'active'
+									$('input, .info_line, .status_line', $item).addClass if o.hold.frozen then 'inactive' else 'active'
 									show_buttons o.hold.frozen
-								)(hold)
+									$item.page()
 				else
+			###
 
-					# A good sequence for open-ils v2.0
-					# which does not show the database replication error.
-					$list.parallel 'holds list',
-						ids: eg.openils 'circ.holds.id_list.retrieve.authoritative'
-						ouTree: eg.openils 'actor.org_tree.retrieve'
-					, (x) =>
-						for id in x.ids
-							$list.append tpl_hold_item { hold_id: id }
-							$("#hold_id_#{id}").openils 'holds details', 'circ.hold.details.retrieve.authoritative', id, (o) ->
+			# A sequence for open-ils v2.0
+			# which does not show the database replication error.
+			$list.parallel 'holds list',
+				ids: eg.openils 'circ.holds.id_list.retrieve.authoritative'
+				ouTree: eg.openils 'actor.org_tree.retrieve'
+			, (x) =>
+				for id in x.ids
+					$list.append $item = $(tpl_item hold_id: id)
+					do ($item) ->
+						$item.openils "holds details ##{id}", 'circ.hold.details.retrieve.authoritative', id, (o) ->
 
-								# Accumulate holds object in a list.
-								# Useful for updating as the updated object needs to be returned to the server.
-								holds.push o.hold
+							# Accumulate holds object in a list.
+							# Useful for updating as the updated object needs to be returned to the server.
+							holds.push o.hold
 
-								$('.info_line', @).append tpl_info_line
-									title: o.mvr.title if o.mvr.title
-									author: "#{o.mvr.author}" if o.mvr.author
-									types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
-								$('.status_line', @).append (tpl_status_line o)
-									status: o.status if o.status
-									posn:	o.queue_position
-									total:	o.total_holds
-									avail:	o.potential_copies
-									pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
-									expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
-									shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
-								@addClass if o.hold.frozen then 'inactive' else 'active'
-								show_buttons o.hold.frozen
-
+							$('.info_line', $item).append tpl_info_line
+								title: o.mvr.title if o.mvr.title
+								author: "#{o.mvr.author}" if o.mvr.author
+								types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+							$('.status_line', $item).append (tpl_status_line o)
+								status: o.status if o.status
+								posn:	o.queue_position
+								total:	o.total_holds
+								avail:	o.potential_copies
+								pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+								expire: if o.hold.expire_time then "#{datestamp o.hold.expire_time}" else ''
+								shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
+							$('input, .info_line, .status_line', $item).addClass if o.hold.frozen then 'inactive' else 'active'
+							show_buttons o.hold.frozen
+							$item.page()
 			return false
 
-		@delegate '.cancel[name=some]', 'click', ->
-			xids = $(@).parent().serializeArray()
+		@delegate '.cancel.some', 'click', ->
+			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				cancel xid.value for xid in xids
 				refresh()
@@ -250,18 +244,18 @@ module 'account.holds', imports(
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
 
-		@delegate '.cancel[name=all]', 'click', ->
-			$xs = $(@).parent().find('input:checkbox')
+		@delegate '.cancel.all', 'click', ->
+			$xs = $(@).closest('form').find('input:checkbox')
 			if $xs.length
 				$xs.each -> cancel $(@).val()
 				refresh()
 			else
-				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
+				$(@).publish 'notice', ['Nothing was done because no holds can be cancelled.']
 			return false
 
-		@delegate '.suspend[name=some]', 'click', update_some = ->
+		@delegate '.suspend.some', 'click', update_some = ->
 			suspend = $(@).hasClass 'suspend'
-			xids = $(@).parent().serializeArray()
+			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				for xid in xids
 					for hold in holds when hold.id is parseInt xid.value
@@ -273,13 +267,11 @@ module 'account.holds', imports(
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
 
-		@delegate '.suspend[name=all]', 'click', update_all = ->
-			suspend = $(@).hasClass 'suspend' # suspend or resume?
-			$form = $(@).parent()
-			if suspend
-				$xs = $('.my_hold.active', $form).find 'input:checkbox'
-			else
-				$xs = $('.my_hold.inactive', $form).find 'input:checkbox'
+		@delegate '.suspend.all', 'click', update_all = ->
+			suspend = $(@).hasClass 'suspend'
+			$xs = $(@).closest('form')
+				.find(".my_hold #{if suspend then '.active' else '.inactive'}")
+				.closest 'input:checkbox'
 			if $xs.length
 				$xs.each ->
 					for hold in holds when hold.id is parseInt $(@).val()
@@ -291,5 +283,5 @@ module 'account.holds', imports(
 				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to activate.']
 			return false
 
-		@delegate '.resume[name=some]', 'click', update_some
-		@delegate '.resume[name=all]', 'click', update_all
+		@delegate '.resume.some', 'click', update_some
+		@delegate '.resume.all', 'click', update_all
