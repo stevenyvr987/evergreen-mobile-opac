@@ -1,6 +1,6 @@
 # Makefile for building Mobile OPAC software.
 #
-# Recommended sequences...
+# Recommended sequence...
 #
 # ...for rebuilding all software.
 # make clean
@@ -11,6 +11,7 @@
 # make clean-build
 # make build
 #
+
 
 # Source directory contains coffeescript, unminified javascript,
 # and map files compiled as a result of minification.
@@ -79,7 +80,6 @@ Eg = \
 # External javascript libraries.
 Lib = \
 	$(dirSrc)/lib/jmod.map \
-	$(dirSrc)/lib/jquery-1.4.2.map \
 	$(dirSrc)/lib/jquery.blockUI.map \
 	$(dirSrc)/lib/jsdeferred.map \
 	$(dirSrc)/lib/json2.map \
@@ -115,7 +115,8 @@ $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 # Transform text files to HTML pages.
 %.html : %.txt ; $(TXTtoHTML) $< > $@
 
-# Make design document.
+
+# Make main design document.
 doc : $(dirDoc)/design.html
 
 # Make source-level documents.
@@ -152,7 +153,7 @@ clean-min :
 	-rm $(dirMin)/account/*.js
 	-rm $(dirMin)/eg/*.js
 	-rm $(dirMin)/lib/*.js
-# Remove and remake build/ and install a symlink to point to collateral files in target system.
+# Remove and remake $(dirBuild) and install a symlink to point to collateral files in target system.
 clean-build :
 	-rm -rf $(dirBuild)
 # Remove built documentation files
