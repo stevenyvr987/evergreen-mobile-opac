@@ -29,15 +29,14 @@ dirDev = dev
 
 
 # Compile coffeescript to javascript using the coffee compiler.
-CStoJS = $(dirDev)/node_modules/coffee-script/bin/coffee -c -b
+CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -c -b
 # Minify javascript using Google closure compiler.
 JStoMAP = java -jar $(dirDev)/closure/compiler.jar
 # Prepare build directory containing minified javascript and other files using rsync.
 Build = rsync -av --del --delete --exclude=zzz/ --exclude=*~ --exclude=.DS_Store
 # Generate HTML documentation.
-CStoHTML = $(dirDev)/node_modules/docco/bin/docco
-CStoHTML = docco
-TXTtoHTML = $(dirDev)/asciidoc/asciidoc.py
+CStoHTML = node $(dirDev)/node_modules/docco/bin/docco
+TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
 
 
 # Main modules.
@@ -123,6 +122,10 @@ doc : $(dirDoc)/design.html
 docs :
 	$(CStoHTML) $(dirSrc)/{.,opac,account,eg}/*.coffee
 
+clean_docs :
+	-rm $(dirDoc)/*.html
+	-rm -rf $(dirDocs)
+
 # Build all minified .js files and other files to the build directory.
 build :
 	-mkdir $(dirBuild)
@@ -131,9 +134,12 @@ build :
 	$(Build)                 --include=.gif    images  $(dirBuild)
 	$(Build)                                   *.html  $(dirBuild)
 	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
+clean-build :
+	-rm -rf $(dirBuild)
 
 # Remove compiled files in source/ and min/ and build/ directories.
 clean : clean-source clean-min clean-build
+
 # Remove source map files in source/.
 # Ignore errors in the process.
 clean-source :
@@ -145,21 +151,15 @@ clean-source :
 	-rm $(dirSrc)/eg/eg_api.js
 	-rm $(dirSrc)/eg/fieldmapper.js
 	-rm $(dirSrc)/lib/*.map
+
 # Remove the minified javascript files in min/.
 # Ignore errors in the process.
 clean-min :
-	-rm $(dirMin)/*.js
-	-rm $(dirMin)/opac/*.js
-	-rm $(dirMin)/account/*.js
-	-rm $(dirMin)/eg/*.js
-	-rm $(dirMin)/lib/*.js
-# Remove and remake $(dirBuild) and install a symlink to point to collateral files in target system.
-clean-build :
-	-rm -rf $(dirBuild)
-# Remove built documentation files
-clean_docs :
-	-rm $(dirDoc)/*.html
-	-rm -rf $(dirDocs)
+	-rm -rf $(dirMin)
+	-mkdir -p $(dirMin)/opac
+	-mkdir -p $(dirMin)/account
+	-mkdir -p $(dirMin)/eg
+	-mkdir -p $(dirMin)/lib
 
 
 kcls : all
