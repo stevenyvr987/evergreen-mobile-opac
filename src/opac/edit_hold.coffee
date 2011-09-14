@@ -115,11 +115,10 @@ module 'opac.edit_hold', imports(
 			return
 
 		# Show a large version of the thumbnail image in a dialogue
-		# FIXME: jQM has trouble navigating history; comment out for now.
-#		@delegate 'img`', 'click', (e) ->
-#			src = e.target.src.replace 'small', 'large'
-#			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
-#			return false
+		@delegate 'img`', 'click', (e) ->
+			src = e.target.src.replace 'small', 'large'
+			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
+			return false
 
 
 	# Plugin to show holding details for a hold target.
