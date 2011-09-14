@@ -117,8 +117,8 @@ module 'login_window', imports(
 						$().publish 'login_event', [un]
 			return false
 
-		# Upon receiving notice that a login is required
-		.bind 'login_required', (e, d) ->
+		# Upon the plugin receiving notice that a login is required
+		$plugin.bind 'login_required', (e, d) ->
 			# Push a deferrment passed up from the API level that will
 			# continue a user action once user is logged in.
 			deferreds.push d
@@ -126,10 +126,10 @@ module 'login_window', imports(
 			$.mobile.changePage $(@)
 			return false
 
+		# Upon pressing escape key in input boxes, the login form is cancelled.
+		# (Also, upon pressing enter key in input boxes, the login form is submitted,
+		# but this is a natural behaviour of the form and so doesn't require any code below.)
 		.delegate 'input', 'keyup', (e) =>
 			switch e.keyCode
-				# Upon pressing enter key in input boxes, submit the login form.
-				#when 13 then submit.call @
-				# Upon pressing escape key in input boxes, cancel the login form.
 				when 27 then cancel.call @
 			return false
