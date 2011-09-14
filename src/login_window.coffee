@@ -123,8 +123,7 @@ module 'login_window', imports(
 			# continue a user action once user is logged in.
 			deferreds.push d
 			# Open the login dialog to enable to enter credentials
-			#$.mobile.changePage $x = $(@).refresh(), 'pop', false, false
-			$.mobile.changePage $(@), 'slidedown', true, true
+			$.mobile.changePage $(@)
 			return false
 
 		.delegate 'input', 'keyup', (e) =>

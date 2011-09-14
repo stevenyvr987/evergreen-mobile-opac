@@ -259,7 +259,7 @@ module 'opac.search_result', imports(
 		@delegate 'img`', 'click', (e) ->
 			# show a large version of it
 			src = e.target.src.replace 'small', 'large'
-			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end(), 'slidedown', true, true
+			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
 			return false
 
 		# Upon user clicking on an item of title list,

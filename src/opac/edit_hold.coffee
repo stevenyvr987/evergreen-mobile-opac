@@ -469,8 +469,8 @@ module 'opac.edit_hold', imports(
 			$('.total', @).text total = titles_total
 			$('.count', @).text count = titles_count
 
-			# Change to this page unless it is already acive
-			$.mobile.changePage @page(), false, true unless @ is $.mobile.activePage
+			# Change to this page unless it is already active
+			$.mobile.changePage @page() unless @ is $.mobile.activePage
 
 		# Currently, the interface doesn't have controls to update holds.
 		.subscribe 'hold_update', (hold) =>

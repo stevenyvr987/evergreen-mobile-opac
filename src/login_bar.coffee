@@ -30,7 +30,7 @@ module 'login_bar', imports('template', 'plugin'), (_) ->
 			thunk imports('login_window'), ->
 				$x = $('#login_window')
 				$x.login_window() unless $x.plugin()
-				$.mobile.changePage $x, 'slidedown', true, true
+				$.mobile.changePage $x
 			return false
 
 		# Upon a logout click, delete user session.
