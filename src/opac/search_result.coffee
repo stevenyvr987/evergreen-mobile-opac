@@ -30,8 +30,8 @@ module 'opac.search_result', imports(
 	#<a class="title" href="#edit_hold">
 	tpl_summary_info = _.template '''
 	<li id="title_id_<%= title_id %>">
-		<div class="art_box"><img cover_art"></img></div>
 		<a href="#" class="title">
+			<img class="cover_art"></img>
 			<div class="info_box">
 				<h3 class="info_line">
 					<span class="title"></span>
