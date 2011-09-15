@@ -83,5 +83,5 @@ module 'mobile_opac', imports(
 		# Displays error messages and notices.
 		$('#messages').messages()
 		# Indicates data loading is occurring between client and server.
-		$('#loading').load_spinner()
+		$('body').load_spinner()
 		return

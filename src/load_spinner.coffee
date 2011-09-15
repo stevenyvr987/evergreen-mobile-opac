@@ -6,20 +6,16 @@
 
 module 'load_spinner', imports('plugin'), ->
 
-	defaults = image: 'images/loading.gif'
-
 	$.fn.load_spinner = (o) ->
-		rc = $.extend {}, defaults, o
 
 		@plugin('load_spinner')
-		.append( $image = $('<img>').attr('src', rc.image).hide() )
 		.refresh refresh = ->
-			$image.hide()
+			$.mobile.hidePageLoadingMsg()
 			return false
 		.ajaxStop(refresh)
 		.ajaxError(refresh)
 		.ajaxStart ->
-			$image.show()
+			$.mobile.showPageLoadingMsg()
 			return false
 
 		# FIXME: if user presses esc key to force loading to stop, the spinner stays on screen.
