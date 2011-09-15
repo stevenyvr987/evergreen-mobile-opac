@@ -23,7 +23,7 @@ module 'login_bar', imports('template', 'plugin'), (_) ->
 
 	$.fn.login_bar = ->
 
-		@plugin('login_bar').page()
+		@plugin('login_bar')
 
 		# Upon a login click, show the login prompt for the user. 
 		.delegate '.login', 'click', ->
@@ -40,13 +40,13 @@ module 'login_bar', imports('template', 'plugin'), (_) ->
 
 		# Upon login, show logout link and login status.
 		.subscribe 'login_event', (un) ->
-			$(@).html(tpl_logout username: un).contents().page()
+			$(@).html(tpl_logout username: un).trigger 'create'
 			return false
 
 		# Upon logout, show login link again.
 		.subscribe 'logout_event', ->
-			$(@).html(tpl_login {}).contents().page()
+			$(@).html(tpl_login {}).trigger 'create'
 			return false
 
 		# Initially, show login link.
-		.html(tpl_login {}).contents().page().end()
+		.html(tpl_login {}).trigger 'create'

@@ -52,15 +52,15 @@ module 'account.fines', imports(
 			date: datestamp x.last_billing_ts
 			note: x.last_billing_note
 		} for x in mbts
-		@page()
+		@trigger 'create'
 		return
 
 	$.fn.fines = ->
 
-		$plugin = @plugin('acct_fines').page()
+		$plugin = @plugin('acct_fines').trigger('create')
 
 		.refresh ->
-			@html(tpl_form).page('destroy').page()
+			@html(tpl_form).trigger 'create'
 			$list = $('fieldset', @)
 			$list.openils 'fines details', 'actor.user.transactions.have_charge.fleshed', show_info_line
 			return false

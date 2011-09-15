@@ -88,6 +88,6 @@ module 'opac.ou_tree', imports(
 				$select.focus() if rc.focus
 
 				@append $select
-				$select.parent().page()
+				$select.parent().trigger 'create'
 
 		return @

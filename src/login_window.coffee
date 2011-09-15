@@ -65,7 +65,7 @@ module 'login_window', imports(
 				$plugin.publish 'library', [org_unit, org_name, depth, org_type]
 
 		# Build first-time content
-		@find('.content').html(content).page().end()
+		@find('.content').html(content).trigger('refresh')
 
 		# Upon the user cancelling login
 		.delegate 'button[type=reset]', 'click', cancel = =>

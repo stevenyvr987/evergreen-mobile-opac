@@ -98,10 +98,10 @@ module 'account.checkouts', imports(
 				$(@).unbind('ajaxStop').refresh().publish 'checkouts_summary'
 				return false
 
-		@plugin('acct_checkouts').page()
+		@plugin('acct_checkouts').trigger('create')
 
 		.refresh ->
-			@html(tpl_form).page('destroy').page()
+			@html(tpl_form).trigger 'create'
 			$list = $('fieldset', @)
 
 			# Hide action buttons until they are needed.
@@ -131,7 +131,7 @@ module 'account.checkouts', imports(
 								# Show relevant action buttons.
 								if type is 'out' and circ.renewal_remaining > 0
 									if $renew_all.is ':visible' then $renew_some.show() else $renew_all.show()
-								$item.page()
+								$item.trigger 'create'
 			return false
 
 		@delegate '.renew.some', 'click', ->

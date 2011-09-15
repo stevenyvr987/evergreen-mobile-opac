@@ -216,7 +216,7 @@ module 'opac.search_bar', imports(
 		# Hide the year end elements
 		$('.year_end', $form).hide()
 
-		@plugin('basic_search search_bar').empty().append($form).page()
+		@plugin('basic_search search_bar').empty().append($form).trigger('create')
 
 		# Handle a change in the flip switch between basic and advanced search form
 		.delegate '.search.type', 'change', (e) =>

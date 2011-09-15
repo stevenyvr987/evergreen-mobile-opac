@@ -330,9 +330,7 @@ module 'opac.edit_hold', imports(
 			return false
 
 		# Append the place hold form as its main content
-		@html($form)
-		# Convert the form into a jQM page
-		.find('form').page()
+		@html($form).trigger 'create'
 
 		# Build an ou selector to show pickup libraries.
 		$('.org_unit_selector', @).ou_tree(

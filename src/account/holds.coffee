@@ -99,7 +99,7 @@ module 'account.holds', imports(
 
 	$.fn.holds = ->
 
-		$plugin = @plugin('acct_holds').page()
+		$plugin = @plugin('acct_holds').trigger 'create'
 
 		# List of current holds for logged-in user.
 		holds = []
@@ -133,7 +133,7 @@ module 'account.holds', imports(
 
 
 		@refresh ->
-			@html(tpl_form).page('destroy').page()
+			@html(tpl_form).trigger 'create'
 			$list = $('fieldset', @)
 
 			# Hide action buttons until they are needed.
@@ -199,7 +199,7 @@ module 'account.holds', imports(
 										shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
 									$('input, .info_line, .status_line', $item).addClass if o.hold.frozen then 'inactive' else 'active'
 									show_buttons o.hold.frozen
-									$item.page()
+									$item.trigger 'create'
 				else
 			###
 
@@ -232,7 +232,7 @@ module 'account.holds', imports(
 								shelf: if o.hold.shelf_time then "#{datestamp o.hold.shelf_time}" else ''
 							$('input, .info_line, .status_line', $item).addClass if o.hold.frozen then 'inactive' else 'active'
 							show_buttons o.hold.frozen
-							$item.page()
+							$item.trigger 'create'
 			return false
 
 		@delegate '.cancel.some', 'click', ->

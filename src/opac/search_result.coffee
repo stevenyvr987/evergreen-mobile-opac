@@ -145,7 +145,7 @@ module 'opac.search_result', imports(
 			# Remember the search request.
 			@data 'request', request
 
-			$this = @html(content)#.page()
+			$this = @html(content)
 
 			# Make a search request and bind handler for result list.
 			@parallel 'search results',
@@ -172,7 +172,7 @@ module 'opac.search_result', imports(
 				}
 
 				# Build the result list.
-				$result_list = $('.result_list', @).page()
+				$result_list = $('.result_list', @).listview()
 				ou_id = Number request.org_unit
 				n = 0
 				for title_id in x.result.ids
@@ -180,7 +180,7 @@ module 'opac.search_result', imports(
 					# Record the maximum tab index.
 					maxTab = n if maxTab < ++n
 
-					$result_list.append($(tpl_summary_info title_id: title_id))#.listview 'refresh'
+					$result_list.append($(tpl_summary_info title_id: title_id))
 
 					do (title_id, n) ->
 						$x = $("#title_id_#{title_id}")
@@ -432,4 +432,4 @@ module 'opac.page_bar', imports('template'), (_) ->
 
 		# Group all buttons on page bar horizontally.
 		@plugin('page_bar')
-		.wrapInner('<div data-role="controlgroup" data-type="horizontal"></div>').page()
+		.wrapInner('<div data-role="controlgroup" data-type="horizontal"></div>').trigger 'create'
