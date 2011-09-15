@@ -379,8 +379,8 @@ module 'opac.edit_hold', imports(
 			Title <span class="count"><%= count %></span> of <span class="total"><%= total %></span>
 		</h3>
 		<div class="ui-btn-right">
-			<div data-role="button" data-icon="arrow-u" class="prev">Previous</div>
-			<div data-role="button" data-icon="arrow-d" class="next">Next</div>
+			<div data-role="button" data-icon="arrow-u" class="prev"></div>
+			<div data-role="button" data-icon="arrow-d" class="next"></div>
 		</div>
 		'''
 		# Build the nav bar with inital count and total
