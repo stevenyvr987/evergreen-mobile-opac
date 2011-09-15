@@ -23,8 +23,7 @@ module 'opac.edit_hold', imports(
 	$.fn.title_details = ($img) ->
 
 		tpl_title_details = _.template '''
-		<li>
-			<div class="art_box"></div>
+		<li class="title_details" id="target_id_<%= target_id %>">
 			<div class="info_box">
 				<div>Title:                <span class="value"><%= b.title            %></span></div>
 				<div>Author:               <span class="value"><%= b.author           %></span></div>
@@ -90,11 +89,11 @@ module 'opac.edit_hold', imports(
 		hold = @closest('.plugin').data 'hold'
 
 		@openils "title details ##{hold.target}", 'search.biblio.record.html', hold.target, (htmlmarc) ->
-			@html(tpl_title_details {
+			@html(tpl_title_details
 				b: marc_text htmlmarc # Convert MARC HTML to MARC object.
 				target_id: hold.target
 				hold_id: hold.id or 0
-			})
+			)
 			.find('.value').each ->
 				# Remove empty values.
 				# FIXME: removal is not perfect, leaves empty divs behind.
@@ -103,13 +102,11 @@ module 'opac.edit_hold', imports(
 			# Remove thumbnail container from list view is there is no thumbnail image
 			if $img.get(0).naturalHeight > 0
 				# FIXME: This is an attempt to double the size of the thumbnail,
-				# but it is stymied by the fixed size of the outer conainer.
+				# but it is stymied by the fixed size of the outer container.
 				#h = $img.get(0).naturalHeight
 				#w = $img.get(0).naturalWidth
 				#$img.height(2 * h).width(2 * w)
-				$('.art_box', @).append $img.attr('title', '')
-			else
-				$('.art_box', @).remove()
+				$('.title_details', @).prepend $img.attr('title', '')
 
 			@listview 'refresh'
 			return
