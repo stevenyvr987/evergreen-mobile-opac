@@ -34,7 +34,7 @@ module 'account.checkouts', imports(
 					<br />
 					<span class="status_line">
 						Due date <span class="due_date" />
-						Renewal used <span class="remaining_renewals" />
+						Renews left <span class="remaining_renewals" />
 					</span>
 				</label>
 			</div>
@@ -54,7 +54,7 @@ module 'account.checkouts', imports(
 					<span class="status_line">
 						<span class="copy_status"><%= circ_type %></span>
 						Due date <span class="due_date" />
-						Renewal used <span class="remaining_renewals" />
+						Renews left <span class="remaining_renewals" />
 					</span>
 				</label>
 			</div>
