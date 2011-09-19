@@ -101,7 +101,7 @@ module 'account.summary', imports(
 		.live 'expand', (e, ui) ->
 			# Refresh the summary line
 			# By convention, the id of the h3 element is the name of the data channel to publish on.
-			$(@).publish $('h3', @).attr 'id'
+			$(@).publish $('h3', @).prop 'id'
 			# Refresh any inner plugins
 			$ps = $('.plugin', @).refresh()
 			return false
@@ -115,13 +115,13 @@ module 'account.summary', imports(
 		# Upon login
 		.subscribe 'login_event', ->
 			# Refresh any inner plugin content if not collapsed
-			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').attr('aria-hidden') is 'false'
+			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
 		# Upon logout
 		.subscribe 'logout_event', ->
 			# Empty any inner plugin content if not collapsed
-			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').attr('aria-hidden') is 'false'
+			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
 		return @

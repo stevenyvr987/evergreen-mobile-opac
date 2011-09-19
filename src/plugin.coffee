@@ -16,10 +16,9 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 	$.fn.subscribe = (channel, cb) ->
 
 		subscriptions[channel] ?= []
-		subscriptions[channel].push {
+		subscriptions[channel].push
 			'subscriber': @
 			'cb': cb
-		}
 		return @
 
 	# Go through all subscriptions on a data channel,
@@ -40,10 +39,10 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 				sub.subscriber = null
 				continue # was return
 			# If publisher is also subscriber, skip processing this channel's data.
-			continue if sub.subscriber.attr('id') is @.attr('id')
+			continue if sub.subscriber.prop('id') is @.prop('id')
 			ret = if data? then sub.cb.apply sub.subscriber, data else sub.cb.apply sub.subscriber
 			sub.subscriber.trigger '_', [ret] if ret isnt false
-			#pubHistory.push "${@attr('id')} > $channel > ${sub.subscriber.attr('id')}"
+			#pubHistory.push "${@prop('id')} > $channel > ${sub.subscriber.prop('id')}"
 
 		return @
 

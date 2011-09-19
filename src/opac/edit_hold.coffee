@@ -106,7 +106,7 @@ module 'opac.edit_hold', imports(
 				#h = $img.get(0).naturalHeight
 				#w = $img.get(0).naturalWidth
 				#$img.height(2 * h).width(2 * w)
-				$('.title_details', @).prepend $img.attr('title', '')
+				$('.title_details', @).prepend $img.prop('title', '')
 
 			@listview 'refresh'
 			return

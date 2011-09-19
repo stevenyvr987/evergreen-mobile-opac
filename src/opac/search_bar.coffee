@@ -148,12 +148,12 @@ module 'opac.search_bar', imports(
 		return if $('option', @).length
 		# Options are dynamically supplied in the settings object.
 		$select = $(@)
-		for v, n of settings[ $select.attr 'name' ]
+		for v, n of settings[ $select.prop 'name' ]
 			$select.append $("<option value=\"#{v}\">#{n}</option>")
 		# Select the first option as the default
 		$options = $('option', @)
 		if $options.length
-			$options.first().attr 'selected', 'selected'
+			$options.first().prop 'selected', 'selected'
 		# Otherwise, remove the select element from the DOM if it has no options list.
 		else
 			$select.remove()
@@ -168,7 +168,7 @@ module 'opac.search_bar', imports(
 		$('input[name="term"]', $form).val ''
 		# Uncheck visibile checkboxes
 		$('input[type=checkbox]:visible:checked', $form)
-			.attr('checked', false)
+			.prop('checked', false)
 			.checkboxradio 'refresh'
 		# Set visible select menus to their default values
 		for s in $('select:visible', $form)

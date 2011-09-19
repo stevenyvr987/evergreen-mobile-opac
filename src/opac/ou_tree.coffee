@@ -42,8 +42,8 @@ module 'opac.ou_tree', imports(
 				# We use data-native-menu for this selector because it has many options
 				# and jQM's version would display options menu in a dialog,
 				# but there is a problem with it when combined with another dialog.
-				#$select = $('<select data-native-menu="false">').attr 'name', rc.name
-				$select = $('<select>').attr 'name', rc.name
+				#$select = $('<select data-native-menu="false">').prop 'name', rc.name
+				$select = $('<select>').prop 'name', rc.name
 
 				# What are the select options based on the flattened ou tree?
 				options = []
@@ -67,7 +67,7 @@ module 'opac.ou_tree', imports(
 					if rc.all
 						options.push $(option).text ou_name
 					else if not ou_type.can_have_users or ou_type.can_have_users is 'f'
-						options.push $('<optgroup>').attr 'label', ou_name
+						options.push $('<optgroup>').prop 'label', ou_name
 					else
 						options.push $(option).text ou_name
 
@@ -81,7 +81,7 @@ module 'opac.ou_tree', imports(
 					else
 						$select.children().each ->
 							if Number($(@).val()) is rc.selected
-								$(@).attr 'selected', 'selected'
+								$(@).prop 'selected', 'selected'
 								return false
 
 				# Focus on selector if asked for.

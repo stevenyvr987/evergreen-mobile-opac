@@ -49,8 +49,8 @@ module 'opac.search_result', imports(
 	</li>
 	'''
 	show_summary_info = (mvr) ->
-		$('span.title', @).text(mvr.title).attr 'title', mvr.title if mvr.title
-		$('div.author', @).text(mvr.author).attr 'title', mvr.author if mvr.author
+		$('span.title', @).text(mvr.title).prop 'title', mvr.title if mvr.title
+		$('div.author', @).text(mvr.author).prop 'title', mvr.author if mvr.author
 		$('.pub_date', @).text mvr.pubdate if mvr.pubdate
 		$('.resource_types', @).text mvr.types_of_resource.join ', ' if mvr.types_of_resource.length
 
@@ -60,7 +60,7 @@ module 'opac.search_result', imports(
 		# If we get back a 1x1 pixel image, we do not use it.
 		$img = $('img', @)
 		if isbn = /^(\d+)\D/.exec mvr.isbn
-			img = $img.attr('src', "/opac/extras/ac/jacket/small/#{isbn[1]}").get(0)
+			img = $img.prop('src', "/opac/extras/ac/jacket/small/#{isbn[1]}").get(0)
 			# FIXME: natural dimensions are not available until image is retrieved
 			#$img.remove() if (not img) or (img.naturalHeight is 1 and img.naturalWidth is 1)
 		else
@@ -95,7 +95,7 @@ module 'opac.search_result', imports(
 	# FIXME
 	get_id = ($el) ->
 		while $el.length > 0
-			for c in ($el.attr('id') or '').split(' ')
+			for c in ($el.prop('id') or '').split(' ')
 				m = c.match /^title_id_(\d+)/
 				return Number m[1] if m
 			$el = $el.parent()
@@ -214,7 +214,7 @@ module 'opac.search_result', imports(
 							$result_list.listview 'refresh'
 						###
 
-						#$('.title, .author', $x).attr 'tabindex', n
+						#$('.title, .author', $x).prop 'tabindex', n
 
 						# This sequence populates the areas after all ajax calls are completed.
 						$x.parallel "title ID##{title_id}",

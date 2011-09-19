@@ -29,7 +29,7 @@ module 'opac.sort', imports('plugin'), ->
 		@append $("<select name=#{n} />") for n of o
 
 		# Append option elements for each selector.
-		for x in @find('select') when options = o[$(x).attr 'name']
+		for x in @find('select') when options = o[$(x).prop 'name']
 			$(x).append "<option value=#{v}>#{n}</option>" for v, n of options
 
 		return @
@@ -45,12 +45,12 @@ module 'opac.sort', imports('plugin'), ->
 		# Add change behaviour to selector pair.
 		.find('select').first().change ->
 			if $(@).val() is ''
-				$(@).next().attr('disabled', true).val('asc')
+				$(@).next().prop('disabled', true).val('asc')
 			else
-				$(@).next().attr('disabled', false)
+				$(@).next().prop('disabled', false)
 			return false
 
 		# Add initial default behaviour.
-		#.next().attr 'disabled', true
+		#.next().prop 'disabled', true
 
 		return @

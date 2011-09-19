@@ -125,10 +125,10 @@ module 'account.checkouts', imports(
 								# Deactivate items that are not checked out, primarily items overdued.
 								if type isnt 'out'
 									#$('input, .info_line, .status_line', $item).addClass 'inactive'
-									$('input, .info_line, .status_line', $item).attr 'data-theme', 'e'
+									$('input, .info_line, .status_line', $item).prop 'data-theme', 'e'
 								# Disable items that cannot be renewed.
 								if circ.renewal_remaining is 0
-									$item.find(':checkbox').attr 'disabled', true
+									$item.find(':checkbox').prop 'disabled', true
 								# Show relevant action buttons.
 								if type is 'out' and circ.renewal_remaining > 0
 									if $renew_all.is ':visible' then $renew_some.show() else $renew_all.show()
