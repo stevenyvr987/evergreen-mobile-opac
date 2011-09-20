@@ -80,12 +80,12 @@ module 'account.summary', imports(
 		# FIXME: the main module subscribes this plugin to login_event already.
 		# We must do it there because it dynamically loads this module.
 		.subscribe 'login_event', =>
-			@show()
+			$('.account_summary', @).show()
 			refresh_all()
 			return false
 
 		.subscribe 'logout_event', =>
-			@hide()
+			$('.account_summary', @).hide()
 			return false
 
 		.subscribe('fines_summary', refresh_fines_summary)

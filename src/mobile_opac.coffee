@@ -55,16 +55,13 @@ module 'mobile_opac', imports(
 
 	jQuery ($) ->
 
-		# For all account summary content
-		$('#account_summary')
+		# Upon startup, hide account summary lines
+		$('.account_summary').hide()
 
-		# Upon startup, hide all content
-		.hide()
-
-		# Upon user login, show all content
+		# Upon user login, show account summary lines
 		# and dynamically load and apply account summary plugin.
-		.subscribe 'login_event', ->
-			@show()
+		$('#account_summary').subscribe 'login_event', ->
+			$('.account_summary', @).show()
 			thunk imports('account.summary'), => @acct_summary() unless @plugin()
 			return false
 
