@@ -26,9 +26,6 @@ jQuery.blockUI.defaults.growlCSS.filter = 'alpha(opacity=90)'
 # FIXME: if external growlCSS is used, we get layout problem.
 #jQuery.blockUI.defaults.growlCSS = {}
 
-# FIXME: Dependents of eg.fieldmapper, but we need to load early.
-jMod.include 'dojo.fieldmapper.fmall', 'eg.fm_datatypes'
-
 jQuery.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false
 jQuery.mobile.ajaxEnabled = false
 

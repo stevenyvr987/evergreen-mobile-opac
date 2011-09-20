@@ -6,7 +6,6 @@
 # manipulated, and back again.
 
 # Synchronously load dependents that are not jModules.
-#jMod.include('eg.fmall_1_6', 'eg.fm_datatypes')
 jMod.include 'dojo.fieldmapper.fmall', 'eg.fm_datatypes'
 
 module 'eg.fieldmapper', ->
