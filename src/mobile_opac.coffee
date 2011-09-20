@@ -11,21 +11,6 @@ Deferred.define()
 # Define the base file path for modules
 jMod.config { path: 'js' }
 
-# Customize layout and behaviour of jQuery.blockUI plugin.
-jQuery.extend $.blockUI.defaults,
-	message: "Error. Reload the page."
-	applyPlatformOpacityRules: false
-# Styles for jQuery.blockUI are defined in CSS files.
-jQuery.blockUI.defaults.css = {}
-jQuery.blockUI.defaults.overlayCSS = {}
-jQuery.blockUI.defaults.overlayCSS.opacity = 0.6
-jQuery.blockUI.defaults.overlayCSS['-ms-filter'] = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=60)'
-jQuery.blockUI.defaults.overlayCSS.filter = 'alpha(opacity=60)'
-jQuery.blockUI.defaults.growlCSS.opacity = 0.9
-jQuery.blockUI.defaults.growlCSS['-ms-filter'] = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)'
-jQuery.blockUI.defaults.growlCSS.filter = 'alpha(opacity=90)'
-# FIXME: if external growlCSS is used, we get layout problem.
-#jQuery.blockUI.defaults.growlCSS = {}
 
 # Define some custom jQuery Mobile settings
 #
@@ -76,9 +61,6 @@ module 'mobile_opac', imports(
 		#
 		# The login bar enables user to log in and out.
 		$('#login_bar').login_bar()
-		#
-		# The following interactive panes rely on jQuery.blockUI.
-		#
 		# Displays error messages and notices.
 		$('#messages').messages()
 		# Indicates data loading is occurring between client and server.

@@ -2,7 +2,27 @@
 #
 # Use jQuery.blockUI to notify the user of messages.
 
+# Synchronously load dependents that are not jModules.
+jMod.include 'lib.jquery_blockUI'
+
 module 'messages', imports('plugin'), ->
+
+	# Customize layout and behaviour of jQuery.blockUI plugin.
+	$.extend $.blockUI.defaults,
+		message: "Error. Reload the page."
+		applyPlatformOpacityRules: false
+	# Styles for jQuery.blockUI are defined in CSS files.
+	$.blockUI.defaults.css = {}
+	$.blockUI.defaults.overlayCSS = {}
+	$.blockUI.defaults.overlayCSS.opacity = 0.6
+	$.blockUI.defaults.overlayCSS['-ms-filter'] = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=60)'
+	$.blockUI.defaults.overlayCSS.filter = 'alpha(opacity=60)'
+	$.blockUI.defaults.growlCSS.opacity = 0.9
+	$.blockUI.defaults.growlCSS['-ms-filter'] = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)'
+	$.blockUI.defaults.growlCSS.filter = 'alpha(opacity=90)'
+	# FIXME: if external growlCSS is used, we get layout problem.
+	#$.blockUI.defaults.growlCSS = {}
+
 
 	# Convert the type of message to be displayed into a text string.
 	the_message = (msg) ->

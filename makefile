@@ -81,7 +81,7 @@ Eg = \
 # External javascript libraries.
 Lib = \
 	$(dirSrc)/lib/jmod.map \
-	$(dirSrc)/lib/jquery.blockUI.map \
+	$(dirSrc)/lib/jquery_blockUI.map \
 	$(dirSrc)/lib/jsdeferred.map \
 	$(dirSrc)/lib/json2.map \
 	$(dirSrc)/lib/md5.map
