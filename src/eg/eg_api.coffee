@@ -7,10 +7,10 @@
 # Define i/o using functional compositions
 # Define object methods for user session
 
-module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
+# Synchronously load dependents that are not jModules.
+jMod.include 'lib.md5'
 
-	# Synchronously load dependents that are not jModules.
-	jMod.include 'lib.md5'
+module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 
 	#attempted_username = 0
 	no_session = 0
