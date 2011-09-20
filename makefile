@@ -74,7 +74,9 @@ Eg = \
 	$(dirSrc)/eg/eg_api.map \
 	$(dirSrc)/eg/fieldmapper.map \
 	$(dirSrc)/eg/date.map \
-	$(dirSrc)/eg/fm_datatypes.map
+	$(dirSrc)/eg/fm_datatypes.map \
+	$(dirSrc)/dojo/fieldmapper/fmall_1_6.map \
+	$(dirSrc)/dojo/fieldmapper/fmall_2_0.map
 
 # External javascript libraries.
 Lib = \
@@ -151,6 +153,7 @@ clean-source :
 	-rm $(dirSrc)/eg/eg_api.js
 	-rm $(dirSrc)/eg/fieldmapper.js
 	-rm $(dirSrc)/lib/*.map
+	-rm $(dirSrc)/dojo/fieldmapper/*.map
 
 # Remove the minified javascript files in min/.
 # Ignore errors in the process.
@@ -160,6 +163,7 @@ clean-min :
 	-mkdir -p $(dirMin)/account
 	-mkdir -p $(dirMin)/eg
 	-mkdir -p $(dirMin)/lib
+	-mkdir -p $(dirMin)/dojo/fieldmapper
 
 
 kcls : all
