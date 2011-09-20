@@ -8,6 +8,7 @@ Deferred.define()
 # For debugging: catch errors thrown by Deferred callbacks and show them as alert messages.
 #Deferred.onerror = (e) -> alert e + "\n" + JSON.stringify e, null, '  '
 
+# Define the base file path for modules
 jMod.config { path: 'js' }
 
 # Customize layout and behaviour of jQuery.blockUI plugin.
@@ -26,8 +27,12 @@ jQuery.blockUI.defaults.growlCSS.filter = 'alpha(opacity=90)'
 # FIXME: if external growlCSS is used, we get layout problem.
 #jQuery.blockUI.defaults.growlCSS = {}
 
+# Define some custom jQuery Mobile settings
+#
 jQuery.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false
+# Disable jQM's ajax mechanism since we are depending on the one in jQuery
 jQuery.mobile.ajaxEnabled = false
+
 
 # Do a one-time parse of any parameters in the query string.
 # Make it available in window.query object.
