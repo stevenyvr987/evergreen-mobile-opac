@@ -30,14 +30,14 @@ module 'opac.ou_tree', imports(
 			# If an originating library system has been chosen by query string,
 			# then we narrow the ou selector to the system branches.
 			if window.query?.ol?
-				ol = window.query.ol.toUpperCase()
-				for id, ou of ouLookup when ou.shortname is ol
-					thisisit = Number id
+				OL = window.query.ol.toUpperCase()
+				for ou_id, ou of ouTree when ou.shortname is OL
+					ou_id = Number ou_id
 					break
 
 			@parallel 'organization list',
+				ouTree:  eg.openils 'actor.org_tree.descendants.retrieve', ou_id
 				ouTypes: eg.openils 'actor.org_types.retrieve'
-				ouTree:  eg.openils 'actor.org_tree.descendants.retrieve', thisisit
 			, (x) ->
 				# We use data-native-menu for this selector because it has many options
 				# and jQM's version would display options menu in a dialog,
