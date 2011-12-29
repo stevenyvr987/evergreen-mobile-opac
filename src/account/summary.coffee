@@ -1,3 +1,25 @@
+# We define a module that contains a jQuery plugin
+# to show the status of a user when the user is logged in.
+# The prepatory work to build user status
+# will be delayed until the user has logged in.
+#
+# The plugin will show or hide user status upon login or logout.
+# User status will be shown as a collapsible set of summary lines:
+#
+# 1. the amount of fines owed
+# 2. the number of items checked out
+# 3. the number of items on hold
+# 4. the number of bookbags created (not currently implemented)
+#
+# The plugin will refresh a summary line and its details
+# upon the user expanding the summary line.
+# The plugin will empty a summary line details
+# upon the user collapsing the summary line.
+#
+# If a summary line is expanded,
+# the plugin will refresh or empty a summary line's details upon login or logout.
+#
+# If the plugin receives *refresh*, it will refresh all summary lines.
 
 module 'account.summary', imports(
 	'eg.eg_api'
@@ -7,6 +29,11 @@ module 'account.summary', imports(
 	'account.checkouts'
 	'account.holds'
 ), (eg, _) ->
+
+	# ***
+	# Each summary line is implemented by a template,
+	# and a refresh function that will make the relevant service call
+	# to get data values and instantiate the template with them.
 
 	tpl_fines_summary = _.template '''
 	$<%= nf %> fines owing
@@ -52,73 +79,85 @@ module 'account.summary', imports(
 			}
 		return false
 
+	# ***
+	# Define a function to refresh all summary lines.
 	refresh_all = ->
 		refresh_fines_summary()
 		refresh_checkouts_summary()
 		refresh_holds_summary()
-		#refresh_bookbags_summary()
 
 
+	# ***
+	# Define a jQuery plugin to show account summary lines.
 	$.fn.acct_summary = ->
+		@plugin('acct_summary')
+		# > FIXME:
+		# The main div may be inadvertently shown after a session timeout.
+		# This is because the plugin does not contain summary bars.
+		# receives logout_event, which is session timeout,
+		# and proceeds to empty div but div is always empty.
 
+		# Upon applying the plugin,
+		# we will further apply account detail plugins to their containers.
 		$('#account_fines').fines()
 		$('#account_checkouts').checkouts()
 		$('#account_holds').holds()
 
-		# Do a first-time refresh of summary lines.
+		# We will refresh the summary lines if the user is already logged in,
+		# otherwise, we will retrieve a session object before we refresh.
 		if eg.logged_in()
 			refresh_all()
 		else
 			@openils 'account summaries', 'auth.session.retrieve', refresh_all
 
-		# FIXME: plugin does not contain summary bars.
-		# receives logout_event, which is session timeout,
-		# and proceeds to empty div but div is always empty.
-		# The impact is that the main div is exposed after a session timeout.
-		@plugin('acct_summary')
-
-		# FIXME: the main module subscribes this plugin to login_event already.
-		# We must do it there because it dynamically loads this module.
-		.subscribe 'login_event', =>
+		# Upon the user logging in,
+		# we will show the summary lines and refresh their content.
+		@subscribe 'login_event', =>
 			$('.account_summary', @).show()
 			refresh_all()
 			return false
+		# > FIXME:
+		# The main module already subscribes this plugin to the login_event
+		# when it dynamically loads this module.
 
+		# Upon the user logging out, we will hide the summary lines.
 		.subscribe 'logout_event', =>
 			$('.account_summary', @).hide()
 			return false
 
+		# Upon receiving a notice to a summary line, we will refresh it.
 		.subscribe('fines_summary', refresh_fines_summary)
 		.subscribe('checkouts_summary', refresh_checkouts_summary)
 		.subscribe('holds_summary', refresh_holds_summary)
 		.subscribe('bookbags_summary', refresh_bookbags_summary)
+
+		# Upon a plugin refresh, we will refresh all summary lines.
 		.refresh refresh_all
 
-		# For each account summary content
 		$('.account_summary', @)
 
-		# Upon expanding account summary content
+		# Upon the user expanding a summary line,
+		# we will refresh the line and its inner plugins.
 		.live 'expand', (e, ui) ->
-			# Refresh the summary line
-			# By convention, the id of the h3 element is the name of the data channel to publish on.
-			$(@).publish $('h3', @).prop 'id'
-			# Refresh any inner plugins
+			$(@).publish $('h3', @).prop 'id' # The h3 element id is the name of the data channel to publish on
 			$ps = $('.plugin', @).refresh()
 			return false
 
-		# Upon collapsing account summary content
+		# Upon the user collapsing a summary line,
+		# we will empty its inner plugin content.
 		.live 'collapse', (e, ui) ->
-			# Remove any inner plugin content
 			$ps = $('.plugin', @).empty()
 			return false
 
-		# Upon login
+		# Upon the user logging in,
+		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
 		.subscribe 'login_event', ->
 			# Refresh any inner plugin content if not collapsed
 			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
-		# Upon logout
+		# Upon the user logging out,
+		# we will empty a summary line's inner plugin content if the summary line is not collapsed.
 		.subscribe 'logout_event', ->
 			# Empty any inner plugin content if not collapsed
 			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'

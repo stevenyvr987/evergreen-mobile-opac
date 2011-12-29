@@ -1,6 +1,11 @@
-# checkouts.coffee
+# We define a module to contain a jQuery plugin
+# to list items the user has checked out
+# or in other unfinished circulation statuses.
+# Interactively, the plugin will behave as follows.
 #
-# List the items the user has checked out
+# * Respond to submit events fron the user to renew checked out items
+# * Refresh the list upon receiving *refresh*
+# * Publish *checkouts_summary* to synchronize its summary line
 
 module 'account.checkouts', imports(
 	'eg.eg_api'
@@ -8,7 +13,13 @@ module 'account.checkouts', imports(
 	'plugin'
 ), (eg, _) ->
 
-	tpl_form = '''
+
+	# ***
+	# Define the container of content, a list of items.
+	# The list will be built as an interactive form
+	# containing a set of input fields,
+	# accompanied by submit buttons to renew a group of selected items.
+	content = '''
 	<form>
 		<div data-role="fieldcontain">
 			<fieldset data-role="controlgroup" />
@@ -19,6 +30,16 @@ module 'account.checkouts', imports(
 		</div>
 	</form>
 	'''
+
+	# Define the template for displaying an item.
+	# The outer container will be identified by *circ_id*.
+	# Details of an item will be shown in an *info_line* and a *status_line*.
+	# An item can be in one of several circulation states
+	# and the status line will normally show it,
+	# but if the item is checked out, which is the majority case,
+	# the status line will omit showing the state.
+	# The item will be accompanied by a checkbox.
+	# If the user selects the checkbox, it will set *circ_id* for *value*.
 	tpl_item = (type) ->
 		x = if type is 'out'
 			'''
@@ -61,11 +82,17 @@ module 'account.checkouts', imports(
 			'''
 		_.template x
 
+
+	# ***
+	# Define a function to refresh the *info_line* given an *mvr* object and a context.
 	show_info_line = (mvr) ->
 		$('.title', @).text mvr.title if mvr.title
 		$('.author', @).text "#{mvr.author}" if mvr.author
 		$('.types', @).text "#{(mvr.types_of_resource).join ', '}" if mvr.types_of_resource
 
+	# Define a function to refresh the *status_line* given a *circ* object and a context.
+	# One of the compoments of the status line is the due date,
+	# which we will convert into MMDDYY format. 
 	pad = (x) -> if x < 10 then '0' + x else x
 	datestamp = (x) ->
 		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
@@ -76,38 +103,51 @@ module 'account.checkouts', imports(
 		$('input:checkbox', @).val circ.target_copy
 
 
+	# ***
+	# Define a function to make a service call to try to renew an item given a copy ID.
+	renew = (xid) ->
+		eg.openils 'circ.renew', parseInt(xid), (result) ->
+			# >FIXME:
+			# If *result.desc* indicates failure,
+			# we will have *result.circ*, *result.copy*, and *result.record* objects on hand.
+			# Using their information, we could refresh individual status lines
+			# rather than refreshing the entire list.
+
+
+	# ***
+	# Define the jQuery plugin to show and control a list of items.
 	$.fn.checkouts = ->
+		$plugin = @plugin('acct_checkouts').trigger('create')
 
-		$plugin = @
-
-		# Use ajax to renew a circ given a copy id.
-		renew = (xid) ->
-			eg.openils 'circ.renew', parseInt(xid), (result) ->
-				###
-				if result.desc
-					# A server error is shown to user by eg_api layer.
-					return
-				else
-					# FIXME: we have available result.circ, result.copy, and result.record objects.
-					# We could avoid refreshing entire pane and refresh individual status lines instead.
-					return
-				###
-
+		# Define a function to refresh details list and summary line.
+		# We will refresh the list by issuing *refresh*;
+		# we will refresh the summary line by publishing *checkouts_summary*.
 		refresh = ->
 			$plugin.ajaxStop ->
-				$(@).unbind('ajaxStop').refresh().publish 'checkouts_summary'
+				$(@).unbind('ajaxStop')
+				.refresh()
+				.publish('checkouts_summary')
 				return false
 
-		@plugin('acct_checkouts').trigger('create')
-
-		.refresh ->
-			@html(tpl_form).trigger 'create'
+		# Upon receiving *refresh*,
+		# we will recreate and refresh the list.
+		@refresh ->
+			@html(content).trigger 'create'
 			$list = $('fieldset', @)
 
-			# Hide action buttons until they are needed.
+			# We will hide buttons until they are needed.
 			$renew_some = $('.renew.some', @).hide()
 			$renew_all = $('.renew.all', @).hide()
 
+			# We will make the relevant set of service calls to try to get checkout information.
+			#
+			# 1. Get summary object for the user, which lists circ IDs that are hashed by circ type
+			# 2. Get the circ object for each ID
+			# 3. Get the mvr object for target copy ID
+			#
+			# We will progressively populate the list as data become available.
+			# Moreover, we will modify the visibility of the list and its buttons
+			# according to the circ status.
 			$list.openils 'checkout details', 'actor.user.checked_out.authoritative', (co) ->
 				$plugin.publish 'items_checked_out', [co]
 				for type, checkouts of co
@@ -122,19 +162,25 @@ module 'account.checkouts', imports(
 								show_status_line.call $item, circ
 								$('.info_line', $item).openils "title info for ##{circ.target_copy}", 'search.biblio.mods_from_copy', circ.target_copy, (mvr) ->
 									show_info_line.call $item, mvr
-								# Deactivate items that are not checked out, primarily items overdued.
+
+								# * Emphasize overdue items
 								if type isnt 'out'
-									#$('input, .info_line, .status_line', $item).addClass 'inactive'
 									$('input, .info_line, .status_line', $item).prop 'data-theme', 'e'
-								# Disable items that cannot be renewed.
+								# * Disable checkboxes of non-renewable items
 								if circ.renewal_remaining is 0
 									$item.find(':checkbox').prop 'disabled', true
-								# Show relevant action buttons.
+								# * Show only relevant submit buttons
 								if type is 'out' and circ.renewal_remaining > 0
 									if $renew_all.is ':visible' then $renew_some.show() else $renew_all.show()
 								$item.trigger 'create'
 			return false
 
+		# Upon the user clicking the *renew some* button,
+		# we will find the selected DOM elements
+		# and renew the related items asynchronously.
+		# We also will refresh the list.
+		# If the user clicked the button without making a selection,
+		# we will publish a notice instead.
 		@delegate '.renew.some', 'click', ->
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
@@ -144,6 +190,9 @@ module 'account.checkouts', imports(
 				$(@).publish 'notice', ['Nothing was done because no items were selected.']
 			return false
 
+		# Upon the user clicking the *renew all* button,
+		# we do as above, except the details of finding items differ.
+		# Here, we will find the set as jQuery objects.
 		@delegate '.renew.all', 'click', ->
 			$xs = $(@).closest('form').find('input:checkbox:enabled')
 			if $xs.length
