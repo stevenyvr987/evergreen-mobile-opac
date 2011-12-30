@@ -1,8 +1,17 @@
-# search_result.coffee
+# We define the *search_result* module
+# to contain a *result_summary* jQuery plugin that will behave as follows.
 #
-# Plugin to provide a summary list of search results. It subscribes to the
-# 'search' data type:
-#  @publish('search', [search_obj])
+# * Try searching the public catalogue upon receiving a *search* object
+# * Publish title summaries on *search_results* and show them to the user
+# * Empty the result list upon receiving *clear_data*
+# * Respond to three user actions in the list of title summaries
+#
+#   1. Show a jacket cover upon the user clicking a thumbnail image
+#   2. Initiate an author search upon the user clicking an author link
+#   3. Publish an object on *hold_create* upon the user clicking a title summary area
+#
+# * As a scrolling analogue, response 3 will also occur
+# upon the plugin receiving an ID value and a plus or minus step indicator on *title*
 
 module 'opac.search_result', imports(
 	'eg.fieldmapper'
@@ -11,23 +20,21 @@ module 'opac.search_result', imports(
 	'plugin'
 ), (fm, eg, _) ->
 
-	# Define the overall content container for search result list (includes top and bottom page bars).
+	# ***
+	# Define the plugin content, a list view of title summaries.
+	# At the top and bottom of the list will be a *page_bar* the user can use to paginate.
 	content = '''
 	<div class="page_bar"></div>
 	<ul data-role="listview" data-inset="true" data-split-icon="gear" class="result_list"></ul>
 	<div class="page_bar"></div>
 	'''
 
-	# Define the zero hits message.
-	tpl_zero_hits = _.template '''
-	<div class="zero_hits">
-		<strong>Sorry, no entries were found for "<%= query %>"</strong>
-	</div>
-	'''
-
-	# Define the individual list element for a search result.
-	#<a class="title" href="#edit_hold" data-rel="dialog" data-transition="slidedown">
-	#<a class="title" href="#edit_hold">
+	# Define the template for a title summary.
+	# The first anchor defines the summary content,
+	# consisting of a thumbnail of the jacket cover,
+	# a line of title information,
+	# and a line of holding and circulation status.
+	# The second anchor provides a way for the user to try searching for the author.
 	tpl_summary_info = _.template '''
 	<li id="title_id_<%= title_id %>">
 		<a href="#" class="title">
@@ -48,51 +55,77 @@ module 'opac.search_result', imports(
 		<a class="author">Search other titles by this author</a>
 	</li>
 	'''
+
+	# Define the template of a message that will show instead of an empty list
+	tpl_zero_hits = _.template '''
+	<div class="zero_hits">
+		<strong>Sorry, no entries were found for "<%= query %>"</strong>
+	</div>
+	'''
+
+	# ***
+	# Define a function to show the info line
 	show_summary_info = (mvr) ->
 		$('span.title', @).text(mvr.title).prop 'title', mvr.title if mvr.title
 		$('div.author', @).text(mvr.author).prop 'title', mvr.author if mvr.author
 		$('.pub_date', @).text mvr.pubdate if mvr.pubdate
 		$('.resource_types', @).text mvr.types_of_resource.join ', ' if mvr.types_of_resource.length
 
-		# ISBN string may be empty, or may contain annotations or multiple values.
-		# We pick the first ISBN value, if there is one,
-		# and build an image element using the corresponding image.
-		# If we get back a 1x1 pixel image, we do not use it.
+		# > The ISBN string will be used as a key to getting the thumbnail image.
+		# But the ISBN may be empty, or it may contain annotations or multiple values.
+		# As a coping strategy, we will pick the first ISBN value, if there is one.
+		# We will use it to get the corresponding thumbnail
+		# and build an image element out of it.
+		# If we get back a one-by-one pixel image, we will discard it.
 		$img = $('img', @)
 		if isbn = /^(\d+)\D/.exec mvr.isbn
 			img = $img.prop('src', "/opac/extras/ac/jacket/small/#{isbn[1]}").get(0)
-			# FIXME: natural dimensions are not available until image is retrieved
-			#$img.remove() if (not img) or (img.naturalHeight is 1 and img.naturalWidth is 1)
+			# >FIXME: natural dimensions are not available until the image is retrieved.
+			# $img.remove() if (not img) or (img.naturalHeight is 1 and img.naturalWidth is 1)
 		else
-			#$img.remove()
+			# $img.remove()
 
+
+	# ***
+	# Define a function to show the status line.
 	show_status_line = (nc, depth) ->
 		counts = (v for n, v of nc when Number(v.depth) is depth)[0]
 		$('.counts_avail', @).text counts.available
 		$('.counts_total', @).text counts.count
 
-	# Return ou name / copy location / callnumber as a text string.
-	# show_callnumber.call $cns.succeeded(), cns, x.ou_tree
+
+	# ***
+	# Define a function to show the call number of a title.
+	# We will format a call number as 'ou name / copy location / callnumber'.
+	# There are some provisos to the format, as follows.
 	show_callnumber = (cns, ou) ->
 		$cn = $('.callnumber', @)
 		if (cns).length
 			first = cns[0]
-			# Do not show callnumber if all callnumbers do not match first callnumber.
+
+			# * If all callnumbers do not match the first callnumber,
+			# we will not show a callnumber.
 			for cn in cns when cn.callnumber isnt first.callnumber
 				return $cn.text 'Multiple locations and call numbers'
-			# Do not show ou name if all ou names do not match first ou name.
-			# FIXME: also do not show ou name if request ou id corresponds to a leaf of the ou tree.
+
+			# * If all ou names do not match the first ou name,
+			# we will not show an ou name.
 			ou_name = ou[first.org_id].name
 			for cn in cns when ou[cn.org_id].name isnt ou_name
 				return $cn.text "#{first.copylocation} / #{first.callnumber}"
-			# Do not show copy location if all copy locations do not match first copy location.
+				# >FIXME: Unfortunately,
+				# if the request ou ID corresponds to a leaf of the ou tree,
+				# we will not show an ou name.
+
+			# * If all copy locations do not match the first copy location,
+			# we will not show a copy location.
 			for cn in cns when cn.copylocation isnt first.copylocation
 				return $cn.text "#{first.callnumber}"
 			$cn.text "#{ou_name} / #{first.copylocation} / #{first.callnumber}"
 
 
-	# Find title id by looking in given jQuery object or its ancestors.
-	# FIXME
+	# ***
+	# Define a function to find the title ID of a given jQuery object or its closest ancestor.
 	get_id = ($el) ->
 		while $el.length > 0
 			for c in ($el.prop('id') or '').split(' ')
@@ -102,6 +135,8 @@ module 'opac.search_result', imports(
 		return
 
 
+	# ***
+	# Define the *result_summary* plugin.
 	$.fn.result_summary = ->
 
 		current_location = ''
@@ -123,12 +158,11 @@ module 'opac.search_result', imports(
 			sort_dir: 'asc'
 			depth: 0
 			org_unit: 1
-		#org_type: 1
-		#org_name: 'Sitka'
+			#org_type: 1
+			#org_name: 'Sitka'
 
-		# Define a utility function to perform a search
-		# for the given request object and under the context of the plugin container.
-		doSearch = (request, direction) ->
+		# Define a function to try searching the public catalogue given a request object.
+		trySearching = (request, direction) ->
 
 			#request = $.extend {}, $('.search_settings').data('settings'), request
 			#FIXME: the following object is empty and overrides default settings.
@@ -139,39 +173,40 @@ module 'opac.search_result', imports(
 			#org_type: current_type
 			#}
 
-			# The new request has to differ from the old one.
+			# We compare this request with a previously cached request
+			# and proceed only if they differ.
+			# Our method of comparison is to first stringify the objects into JSON format
+			# and then check if the text strings are equal.
 			return if @length and JSON.stringify(request) is JSON.stringify(@data 'request')
-
-			# Remember the search request.
 			@data 'request', request
 
 			$this = @html(content)
 
-			# Make a search request and bind handler for result list.
+			# We now try searching the public catalogue with the new request.
 			@parallel 'search results',
-				ou_tree: eg.openils 'actor.org_tree.retrieve'
 				result: eg.openils('search', request)
+				ou_tree: eg.openils 'actor.org_tree.retrieve'
 			, (x) ->
 
-				# Remember the search result for myself.
+				# Upon success or not,
+				# we will cache the result object and publish it to other plugins.
 				@data 'result', x.result
-				# Publish search result for others.
 				@publish 'search_results', [x.result]
 
 				# If there are no results,
-				# replace the result list with a 'zero hits' message.
+				# we will show a *zero_hits* message and an optional *search_tips* message.
 				if x.result.count is 0
 					@append tpl_zero_hits query: x.result.query
 					@append window.search_tips if window.search_tips
 					return
 
-				# Build page bar(s) indicating the length of the result list.
+				# Otherwise, we will build page bars to indicate the length of the result list.
 				$('.page_bar', @).page_bar {
 					request: request
 					result:  x.result
 				}
 
-				# Build the result list.
+				# Finally, we will build the result list.
 				$result_list = $('.result_list', @).listview()
 				ou_id = Number request.org_unit
 				n = 0
@@ -185,8 +220,8 @@ module 'opac.search_result', imports(
 					do (title_id, n) ->
 						$x = $("#title_id_#{title_id}")
 
-						# For each title, we need to make ajax calls to three services
-						# and populate three content areas.
+						# For each title, we need to populate three content areas
+						# by making three service calls.
 
 						###
 						# This sequence populates the areas as soon as each ajax call is completed.
@@ -216,7 +251,8 @@ module 'opac.search_result', imports(
 
 						#$('.title, .author', $x).prop 'tabindex', n
 
-						# This sequence populates the areas after all ajax calls are completed.
+						# We will use a sequence to populate the areas
+						# after all service calls are completed.
 						$x.parallel "title ID##{title_id}",
 							mvr: eg.openils('search.biblio.record.mods_slim.retrieve', title_id)
 							nc: eg.openils('search.biblio.record.copy_count',
@@ -234,10 +270,12 @@ module 'opac.search_result', imports(
 							show_callnumber.call @, y.cns, x.ou_tree if y.cns
 							$result_list.listview 'refresh'
 
-				# Focus on the first title in the result list.
+				# We will focus the user on the first list element.
 				$('a.title:first', $result_list).focus()
 
-				# FIXME: A terrible hack to get paging working in title details.
+				# >FIXME:
+				# this is a hack to get paging working in title details.
+				# Is there a better way?
 				$li = switch direction
 					when +1 then $this.find('li').first()
 					when -1 then $this.find('li').last()
@@ -255,15 +293,15 @@ module 'opac.search_result', imports(
 				when 13 then $(@).click()
 			return false
 
-		# Upon user clicking on thumbnail image,
+		# Upon the user clicking a thumbnail image,
+		# we will show a larger version of it.
 		@delegate 'img`', 'click', (e) ->
-			# show a large version of it
 			src = e.target.src.replace 'small', 'large'
 			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
 			return false
 
-		# Upon user clicking on an item of title list,
-		# publish a request on the hold create data channel.
+		# Upon the user clicking a title summary area,
+		# we will publish a request to create a hold.
 		@delegate 'li`', 'click', (e) =>
 			$this = $(@)
 			request = $this.data 'request'
@@ -275,15 +313,14 @@ module 'opac.search_result', imports(
 
 			if $li and (id = get_id $li) and request
 				count = offset + 1 + $('li').index $li
-				# FIXME: perhaps better to have main js file do dynamic loading
+				# >FIXME: it would be better for the main js file to load the required modules.
 				thunk imports('login_window', 'opac.edit_hold'), ->
 					$('#edit_hold').edit_hold() unless $('#edit_hold').plugin()
 					$('#login_window').login_window() unless $('#login_window').plugin()
-					# The main side effect is to publish a hold create request.
 					$this.publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
 			return false
 
-		# Upon receiving an ID on the title data channel (with a possible direction)
+		# Upon the plugin receiving an ID (and a possible direction) on *title*
 		@subscribe 'title', (title_id, direction) ->
 			request = @data 'request'
 			result = @data 'result'
@@ -301,14 +338,14 @@ module 'opac.search_result', imports(
 					unless ($li = $this_title.next()).length
 						# Search for next page and pick first item on page
 						if (offset + limit) < total
-							doSearch.call @, $.extend({}, request, offset: offset + limit), direction
+							trySearching.call @, $.extend({}, request, offset: offset + limit), direction
 					$li
 				when -1
 					# Unless there is no previous title on this page
 					unless ($li = $this_title.prev()).length
 						# Search for previous page and pick last item on page
 						if 0 <= (offset - limit)
-							doSearch.call @, $.extend({}, request, offset: offset - limit), direction
+							trySearching.call @, $.extend({}, request, offset: offset - limit), direction
 					$li
 				else
 					$()
@@ -318,14 +355,15 @@ module 'opac.search_result', imports(
 				@publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total], count
 			return false
 
-		# Handle clicks to author links.
+		# Upon the user clicking an author link,
+		# we will extend the recent request with an author search term at zero page offset.
+		# We will publish it and try searching the public catalogue with it.
 		@delegate 'a.author', 'click', (e) =>
 			$this = $(@)
 			request = $this.data 'request'
 			author = $('div.author', $(e.currentTarget).closest('li')).text()
 
 			if author and request
-				# Override recent search request with an author search term at zero offset.
 				request = $.extend {}, request,
 					default_class: 'author'
 					term: author
@@ -333,27 +371,27 @@ module 'opac.search_result', imports(
 					type: 'advanced'
 
 				$this.publish 'search', [request]
-				doSearch.call $this, request
+				trySearching.call $this, request
 			return false
 
-		# Subscription to get a new search request
-		@subscribe 'search', doSearch
+		# Upon receiving a *search* object, we will try searching the public catalogue.
+		@subscribe 'search', trySearching
 
-		# Subscription to get a change notice in search scope.
+		# Upon receiving a change notice in the search scope,
 		@subscribe 'ou', (ou) ->
 
-			# Upon notification, remember the new scope parameters.
+			# * Cache the new scope parameters
 			$.pushState { library: JSON.stringify [ou.id, ou.name, ou.depth, ou.type] }
 			current_location = ou.id
 			current_name     = ou.name
 			current_depth    = ou.depth
 			current_type     = ou.type
 
+			# * Do nothing if the plugin is not visible
 			return false if not @is ':visible'
 
-			# If plugin is visible,
-			# extend the current search request with new scope
-			# and publish on search channel.
+			# * Otherwise, extend the current request object with a new scope
+			# and publish it on *search*
 			if request = @data 'request'
 				request = $.extend {}, request,
 					org_unit: ou.id
@@ -364,12 +402,17 @@ module 'opac.search_result', imports(
 
 			return false
 
-		# Empty the plugin's content.
+		# Upon receiving *clear_data*, we will empty the plugin's content.
 		@subscribe 'clear_data', -> @empty()
 
+		# Upon receiving *refresh*, we simply consume it;
+		# the content will not change because it is static.
 		@refresh -> return false
 
 
+# ***
+# We define the *page_bar* module
+# to contain a jQuery plugin to navigate between pages of search results.
 module 'opac.page_bar', imports('template'), (_) ->
 
 	nav_start = '<span data-role="button" data-icon="arrow-l" data-inline="true" class="start">Start</span>'
@@ -391,6 +434,8 @@ module 'opac.page_bar', imports('template'), (_) ->
 	<% } %>
 	'''
 
+	# ***
+	# Define the jQuery plugin.
 	$.fn.page_bar = (x) ->
 
 		total =  x.result.count
@@ -402,12 +447,11 @@ module 'opac.page_bar', imports('template'), (_) ->
 		pgtotal = Math.ceil total/limit
 
 		@each ->
-			$(@).append page_number {
+			$(@).append page_number
 				total:  total
 				actual: actual
 				pgnumber: pgnumber
 				pgtotal: pgtotal
-			}
 
 		if (pgtotal > 1) and (offset isnt 0)
 			@each ->

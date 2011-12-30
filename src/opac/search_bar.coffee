@@ -1,52 +1,27 @@
-# search_bar.coffee
+# We define a module called *search\_bar*
+# to contain a jQuery plugin that will enable the user
+# to initiate a search of the public catalogue.
+# The main content in the search bar is an interactive form
+# that can be flipped between basic or advanced mode.
+# The plugin will rely on the *ou\_tree* plugin
+# to provide interactive behaviour for an ou tree selector.
+# The plugin itself will behave as follows. 
 #
-# Plugin to provide a basic search bar.
-# Publishes and subscribes to the 'search' data channel.
+# * Respond to submit and cancel events from the user
+# * Communicate to other plugins using a two-way data channel called *search*
+# * Publish an object representing the form input values upon the user submitting the form
+# * Receive an object and modify the search form accordingly
 
 module 'opac.search_bar', imports(
 	'eg.eg_api'
 	'plugin'
 	'opac.ou_tree'
-	'opac.sort'
 ), (eg) ->
 
-	# Option settings for search bar selectors that are not dynamically built.
-	# FIXME: item_type names are displayed in the search form,
-	# but in the result list, a different set of names is used; confusing.
-	settings = {}
-	defaults =
-		default_class:
-			keyword: 'Keyword'
-			title:   'Title'
-			author:  'Author'
-			subject: 'Subject'
-			series:  'Series'
-
-		search_term_verb:
-			' ': 'Contains'
-			'-': 'Does not contain'
-			'=': 'Matches exactly'
-
-		pub_year_verb:
-			'is': 'Is'
-			before: 'Before'
-			after: 'After'
-			between: 'Between'
-
-		sort:
-			'': 'Relevance'
-			'pubdate asc' : 'Publication date: ascending'
-			'pubdate desc': 'Publication date: descending'
-			'title asc' : 'Title: ascending'
-			'title desc': 'Title: descending'
-			'author asc' : 'Author: ascending'
-			'author desc': 'Author: descending'
-
-		refresh: ''
-
-	# Search form contains input and selector elements that are named after request parameters.
+	# ***
+	# Define the search form.
+	# The form contains input and selector elements that are named after request parameters.
 	search_form = '''
-
 	<form class="search_form_advanced">
 		<div data-role="fieldcontain" class="search term">
 			<div class="basic search row">
@@ -142,49 +117,92 @@ module 'opac.search_bar', imports(
 	</div>
 	'''
 
-	# Build options for a given select menu element on the search form.
+
+	# ***
+	# Define default settings for search bar selectors that are not dynamically built.
+	# >FIXME: item_type names are displayed in the search form,
+	# but in the result list, a different set of names is used; confusing.
+	defaults =
+		default_class:
+			keyword: 'Keyword'
+			title:   'Title'
+			author:  'Author'
+			subject: 'Subject'
+			series:  'Series'
+
+		search_term_verb:
+			' ': 'Contains'
+			'-': 'Does not contain'
+			'=': 'Matches exactly'
+
+		pub_year_verb:
+			'is': 'Is'
+			before: 'Before'
+			after: 'After'
+			between: 'Between'
+
+		sort:
+			'': 'Relevance'
+			'pubdate asc' : 'Publication date: ascending'
+			'pubdate desc': 'Publication date: descending'
+			'title asc' : 'Title: ascending'
+			'title desc': 'Title: descending'
+			'author asc' : 'Author: ascending'
+			'author desc': 'Author: descending'
+
+		refresh: ''
+
+
+	# ***
+	# Define a function to build the option list for a selector on the search form.
+	settings = {}
 	build_options = ->
-		# Skip the select element if it already has a list of options defined.
+		# * The build is skipped if there is a predefined options list.
 		return if $('option', @).length
-		# Options are dynamically supplied in the settings object.
-		$select = $(@)
-		for v, n of settings[ $select.prop 'name' ]
-			$select.append $("<option value=\"#{v}\">#{n}</option>")
-		# Select the first option as the default
+		# * Any options list is specified in the *settings* object by selector name.
+		$sor = $(@)
+		for v, n of settings[ $sor.prop 'name' ]
+			$sor.append $("<option value=\"#{v}\">#{n}</option>")
+		# * If there is one, the first entry becomes the selected option.
+		# Otherwise, the selector is removed.
 		$options = $('option', @)
 		if $options.length
 			$options.first().prop 'selected', 'selected'
-		# Otherwise, remove the select element from the DOM if it has no options list.
 		else
-			$select.remove()
+			$sor.remove()
 		return
 
-	# Reset the visible input elements of the search form
+
+	# ***
+	# Define a function to reset the visible input elements of the search form
 	# that are not automatically taken care of by the browser upon a reset event.
-	# This is a lot of fiddly work; it might be better to destroy the form and rebuild it.
+	# This is a lot of fiddly work;
+	# it might be better to destroy the form and rebuild it.
 	reset_search_form = ->
 		$form = $('form', @)
-		# Empty search inputs, visible or not.
+		# * Empty search inputs, visible or not
 		$('input[name="term"]', $form).val ''
-		# Uncheck visibile checkboxes
+		# * Uncheck visible checkboxes
 		$('input[type=checkbox]:visible:checked', $form)
 			.prop('checked', false)
 			.checkboxradio 'refresh'
-		# Set visible select menus to their default values
+		# * Set visible select menus to their default values
 		for s in $('select:visible', $form)
 			$s = $(s)
 			$s.val $('option:first', $s).val()
-			# Refresh the jQM version of the select menu unless it is part of a set that is not jQM'ed.
+			# * Refresh the jQM version of the select menu unless it is part of a set that is not jQM'ed
 			$s.selectmenu 'refresh' unless $s.closest('.advanced.search.row').length
-		# Hide the visible year end elements,
+		# * Hide the visible year end elements
 		$('.year_end:visible', $form).hide()
-		# And publish a clear_data event to other interested plugins.
+		# * Publish the event to other interested plugins
 		$(@).publish 'clear_data'
 		return
 
-	# Flip between different types of search form
-	flip_to = (type) ->
-		if type is 'advanced'
+
+	# ***
+	# Define a function to flip between different modes of the search form
+	flip_to = (mode) ->
+		if mode is 'advanced'
 			$('.advanced', @).show()
 			$('.basic', @).hide()
 		else
@@ -195,70 +213,71 @@ module 'opac.search_bar', imports(
 		reset_search_form.call @
 		return false
 
-	# Define search bar plugin.
+
+	# ***
+	# Define the search bar plugin
 	$.fn.search_bar = (options) ->
+		@plugin('basic_search search_bar').empty()
+
+		# We determine the runtime settings by extending the default by a given options object.
 		settings = $.extend {}, defaults, options
 
+		# We create the search form.
 		$form = $(search_form)
-
-		# Build the ou selector once; default selection is the root node.
+		# We build the ou selector, defaulting the scope to the top of the ou tree.
 		$('.org_unit_selector', $form).ou_tree
 			'all': true
 			'selected': if window.query?.ol? then null else 'All Libraries'
 			'indent': '_ '
-
-		# Build selector options using options listed in settings object.
+		# We build option lists for the other selectors.
 		$('select', $form).each -> build_options.call @
-
-		# Initially, show simple search form.
+		# Initially, we show the 'basic' search form.
 		flip_to.call $form, 'basic'
-
-		# Hide the year end elements
+		# But we hide the year end elements.
 		$('.year_end', $form).hide()
+		@append($form).trigger('create')
 
-		@plugin('basic_search search_bar').empty().append($form).trigger('create')
-
-		# Handle a change in the flip switch between basic and advanced search form
+		# Upon a change in the flip switch,
+		# we will flip between basic and advanced modes of the search form.
 		.delegate '.search.type', 'change', (e) =>
 			flip_to.call @, $(e.target).val()
 
-		# Handle button clicks to add search rows.
+		# Upon the user clicking the buttons to add or delete search rows
 		.delegate 'button.add', 'click', (e) =>
 			$p = $(e.target).closest 'fieldset'
 			$p.after $p.clone true
 			@find('select', $p).each -> build_options.call @
 			return false
-
-		# Handle button clicks to delete search rows.
 		.delegate 'button.delete', 'click', (e) =>
 			$p = $(e.target).closest 'fieldset'
 			$n = $('div.advanced fieldset.search.row', @)
 			$p.remove() unless $n.length is 1
 			return false
 
-		# Show or hide input text box for year end depending on verb chosen by user.
+		# Upon the user clicking the publish year end input,
+		# we will show or hide the text box for year end depending on verb chosen by user.
 		.delegate 'input[name=pub_year_verb]', 'click', (e) =>
 			between = $(e.target).val() is 'between'
 			$yr_end = $('.year_end', @)
 			if between then $yr_end.show() else $yr_end.hide()
 			return
 
-		# Pressing esc key is same as clicking reset button.
+		# Upon the user clicking the reset button or the esc key,
+		# we will nullify all input and select values.
+		.delegate 'button[type=reset]', 'click', =>
+			reset_search_form.call @
 		.keyup (e) =>
 			switch e.keyCode
 				when 27 then $('button[type=reset]', @).click()
 			return false
 
-		# Upon reset, we nullify all input and select values.
-		.delegate 'button[type=reset]', 'click', =>
-			reset_search_form.call @
-
-		# Handle submission events
+		# Upon the user submitting the search form,
+		# we will convert the input values into a data object
+		# and publish it on the *search* channel.
 		.submit ->
-
 			$this = $(@)
 
-			# A valid submission needs at least one input terms to contain non-whitespace.
+			# We validate that at least one input term contains non-whitespace.
 			ok = false
 			$('input[name=term]', @).each ->
 				if @value
@@ -266,8 +285,9 @@ module 'opac.search_bar', imports(
 					return false
 			return false unless ok
 
-			# Build request object from input and select values of search form.
-			# Multiple values for a property name are cast into an array, eg, name:[1, 2]
+			# After validation, we build an object from the input and select values of the search form.
+			# For a property name into an array, eg, name:[1, 2],
+			# we cast them into multiple values.
 			o = {}
 			for x in $this.children('form').serializeArray()
 				unless o[x.name]?
@@ -277,24 +297,24 @@ module 'opac.search_bar', imports(
 						o[x.name] = [o[x.name]]
 					o[x.name].push x.value
 
-			# Calculate search depth from indentation of selected ou name.
+			# We calculate the search depth from the indentation of the selected ou name.
 			o.depth = $('select[name=org_unit]', @).find(':selected').text().match(/\_ /g)?.length or 0
 
-			# Publish the search form content on the search data channel.
 			$this.publish 'search', [o]
 			return false
 
-		# Subscribe to publications of data on the search channel.
+		# Upon receiving a data object on the *search* channel published by other plugins,
+		# we will handle it if it corresponds to an author search.
 		.subscribe 'search', (o) ->
-			# For now, we only handle a new author search.
 			return unless o.default_class is 'author'
-			# The corresponding changes are to revert to basic search form,
-			# and to modify the search term in the form.
+			# We revert to the basic search form,
+			# and modify the search term in the form.
 			flip_to.call @, 'basic'
 			$('input[name="term"]', @).first().val o.term
 			$('select[name="default_class"]', @).first().val(o.default_class).selectmenu 'refresh'
 
-		###
+# ***
+### Commented out
 		# If there are other plugins publishing on the same channel,
 		# subscribing to the channel will update this search object.
 		.subscribe 'search', (o) ->
@@ -307,4 +327,4 @@ module 'opac.search_bar', imports(
 			$('select', @).each -> $(@).selectmenu 'refresh'
 			$('input[type="checkbox"]', @).each -> $(@).checkboxradio 'refresh'
 			return
-		###
+###

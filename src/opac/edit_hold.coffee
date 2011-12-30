@@ -1,14 +1,15 @@
-#  edit_hold.js
-# 
-#  Place or edit a hold. Subscribes to 'hold_create' and 'hold_update', which
-#  perform predictable actions. 'hold_create' takes an item id, and
-#  'hold_update' takes a hold object from the server.
-# 
-#   @publish('hold_create', [item_id])
-#   @publish('hold_update', [hold_obj])
-# 
-#  The plugin hides the main pane (more accurately, asks the system to), and
-#  shows it again once the user finishes their actions.
+# We define a module to contain the *edit_hold* jQuery plugin and its dependent
+# plugins.  The master plugin and its dependencies will show three areas of
+# content.
+#
+# 1. Details of the title
+# 2. Copies of the title
+# 3. An interactive form for the user to place a hold on the title
+#
+# Possible extensions to the plugin are as follows.
+#
+# * Place other types of holds, eg, on the title's copies or volumes
+# * Edit an already placed hold
 
 module 'opac.edit_hold', imports(
 	'eg.fieldmapper'
@@ -18,11 +19,14 @@ module 'opac.edit_hold', imports(
 	'opac.ou_tree'
 ), (fm, eg, _) ->
 
-
-	# Plugin to show title details for a hold target.
+	# ***
+	# Define a jQuery plugin to show title details of a possible hold target.
+	# The hold object will have been stored in the plugin's data *hold* object.
+	# The plugin will show a large version of a given thumbnail image if the user clicks the thumbnail.
 	$.fn.title_details = ($img) ->
 
-		tpl_title_details = _.template '''
+		# We will format title details as a jQuery Mobile list view of one list element.
+		tpl_content = _.template '''
 		<li class="title_details" id="target_id_<%= target_id %>">
 			<div class="info_box">
 				<div>Title:                <span class="value"><%= b.title            %></span></div>
@@ -39,6 +43,15 @@ module 'opac.edit_hold', imports(
 			</div>
 		</li>
 		'''
+
+		# Define a one-liner to 'pinch' white space out of a jQuery object,
+		# ie, remove white space duplicates from inside
+		# and trim white space before and after.
+		pinch = ($x) -> $.trim $x.text().replace /\s+/g, ' '
+
+
+		# Define a function to mutate a given MARC text in HTML format to a MARC data object.
+		# MARC tags are mapped to text fields according to the *tags2text* object.
 		tags2text =
 			title:            { '245':'abchp' }
 			author:           { '100':'', '110':'', '111':'', '130':'', '700':'', '710':'', '711':'' }
@@ -52,15 +65,7 @@ module 'opac.edit_hold', imports(
 			edition:          { '250':'' }
 			frequency:        { '310':'' }
 
-		# 'Pinch' the text out of a jQuery object,
-		# ie, remove white space duplicates from inside
-		# and trim white space before and after.
-		pinch = ($x) -> $.trim $x.text().replace /\s+/g, ' '
-
-		# Convert a MARC HTML text string into a MARC data object according to this specification object.
-		# The spec. object is mutated to contain the MARC text.
 		marc_text = (html) ->
-
 			marctext = []
 			$('.marc_tag_row', html).each ->
 				marctext.push pinch($ @).replace(/^(.....)\. /, '$1').replace(/^(...) \. /, '$1')
@@ -68,7 +73,7 @@ module 'opac.edit_hold', imports(
 			# For each specification...
 			for name, tags of tags2text
 				text = ''
-				# For each MARC tag specified...
+				# For each specified MARC tag...
 				for tag, subfields of tags
 					# For each text line in MARC record...
 					for x in marctext
@@ -81,44 +86,45 @@ module 'opac.edit_hold', imports(
 							more = (y.replace /^../, '' for y in x2).join ' '
 							text = unless text then more else "#{text} #{more}"
 					break if text.length
-				# Delete specification entry if it has no MARC text.
-				#if text.length then @[name] = text else delete @[name]
+				# We will delete this entry if it has no MARC text.
 				if text.length then tags2text[name] = text else delete tags2text[name]
 			return tags2text
 
+		# We get the hold request object,
+		# which has been stored in the plugin's data *hold* object.
 		hold = @closest('.plugin').data 'hold'
 
+		# We try to get the MARC HTML record of the hold target.
 		@openils "title details ##{hold.target}", 'search.biblio.record.html', hold.target, (htmlmarc) ->
-			@html(tpl_title_details
-				b: marc_text htmlmarc # Convert MARC HTML to MARC object.
+
+			# Upon success, we will fill in the content template with data from the MARC object,
+			# and remove the empty parts of the template.
+			@html(tpl_content
+				b: marc_text htmlmarc
 				target_id: hold.target
 				hold_id: hold.id or 0
-			)
-			.find('.value').each ->
-				# Remove empty values.
-				# FIXME: removal is not perfect, leaves empty divs behind.
+			).find('.value').each ->
 				$(@).parent().empty() unless $(@).text()
-
-			# Remove thumbnail container from list view is there is no thumbnail image
-			if $img.get(0).naturalHeight > 0
-				# FIXME: This is an attempt to double the size of the thumbnail,
-				# but it is stymied by the fixed size of the outer container.
-				#h = $img.get(0).naturalHeight
-				#w = $img.get(0).naturalWidth
-				#$img.height(2 * h).width(2 * w)
-				$('.title_details', @).prepend $img.prop('title', '')
+				# > FIXME: empty divs may be left behind
 
 			@listview 'refresh'
 			return
 
-		# Show a large version of the thumbnail image in a dialogue
+		# We add the given thumbnail image.
+		if $img.get(0).naturalHeight > 0
+			$('.title_details', @).prepend $img.prop('title', '')
+
+		# Upon the user clicking the thumbnail image,
+		# we will show the large image in a jQuery Mobile dialogue.
 		@delegate 'img`', 'click', (e) ->
 			src = e.target.src.replace 'small', 'large'
 			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
 			return false
 
 
-	# Plugin to show holding details for a hold target.
+	# ***
+	# Define a jQuery plugin to show the holding details of a possible hold target.
+	# The plugin will not react to any user events.
 	$.fn.holding_details = ->
 
 		$plugin      = @closest '.plugin'
@@ -129,7 +135,10 @@ module 'opac.edit_hold', imports(
 		ou_types     = $plugin.data 'ou_types'
 		status_names = $plugin.data 'status_names'
 
-		# Show each item holding in a listview
+		# Define a template and its accompanying function
+		# to show details of a holding in a jQuery Mobile listview.
+		# and to remove the empty parts of the template.
+		# Details are specified by the given *holding_id* and *copy* object.
 		tpl_holding_details = _.template '''
 		<li class="holding status_line" id="<%= holding_id %>">
 			<div>
@@ -173,8 +182,7 @@ module 'opac.edit_hold', imports(
 		</li>
 		'''
 		show_holding = (holding_id, copy) ->
-			# FIXME: _.template is not able to handle property names with spaces.
-			@append( tpl_holding_details {
+			@append(tpl_holding_details
 				holding_id: holding_id
 				h:              copy
 				checked_out:    copy['Checked out']
@@ -182,20 +190,21 @@ module 'opac.edit_hold', imports(
 				in_transit:     copy['In transit']
 				on_holds_shelf: copy['On holds shelf']
 				on_order:       copy['On order']
-			}).find('.value').each ->
-				# Remove empty values of Holdings Details section.
+				# > FIXME:
+				# *_.template()* is not able to handle property names with spaces.
+				# and so we need to specify them explicitly.
+			).find('.value').each ->
 				$(@).parent().remove() unless $(@).text()
-
-			# We need to refresh the jQM listview with new list item.
 			@listview 'refresh'
 
-		# The following element is appended to each div.holding, one elem for each checked out circ.
+
+		# Define a template and its accompanying function
+		# to show due date for a checked out circ.
 		tpl_due_date = _.template '''
 			<span id="<%= barcode %>">Due date <%= duedate %></span>
 		'''
 		pad = (x) -> if x < 10 then '0' + x else x
-		datestamp = (x) ->
-			"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
+		datestamp = (x) -> "#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
 		show_due_date = (x) ->
 			due_date = if x.circulations? then x.circulations[0].due_date else ''
 			@append tpl_due_date {
@@ -204,8 +213,9 @@ module 'opac.edit_hold', imports(
 			} if due_date
 			return
 
-		# Build the view of holdings asynchronously.
-		# If a holding is checked out, schedule a second ajax call to get its due date.
+
+		# We try to build the view of holdings of a possible hold target.
+		# If a holding is checked out, we will try to get its due date.
 		@empty().loading "holding details ##{hold.target}"
 		eg.openils 'search.biblio.copy_location_counts.summary.retrieve',
 			id: hold.target
@@ -214,24 +224,28 @@ module 'opac.edit_hold', imports(
 		, (copy_location) =>
 			if copy_location instanceof Error then return @failed 'holding details' else @succeeded()
 
-			# FIXME: show available copies first.
+			# Upon successfully receving a list of *copy* objects from the server
+			# >FIXME: we should show available copies first.
 			for copy in copy_location
 
-				# Filter by search request's org_unit's depth.
+				# We will only show this *copy*
+				# if its depth is within scope of the search depth
 				copy_depth = ou_types[ou_tree[copy.org_id].ou_type].depth
 				continue unless search_depth <= copy_depth
 
-				# Convert org id to org name.
+				# * We need to remap some values of this *copy* to displayable names:
+				#   * Map org id to org name
+				#   * Map status number to status name
 				copy.org_name = ou_tree[copy.org_id].name
-				# Convert status number to status name.
-				for id, n of copy.available
-					copy[status_names[id].name] = n
+				copy[status_names[id].name] = n for id, n of copy.available
 
-				# Calculate a unique identifier for a title's holdings for an ou.
+				# * We calculate a unique identifier for this holding
 				holding_id = ("#{copy.org_id} #{hold.target} #{copy.callnumber}").replace /\s+|\.+/g, '_'
+
+				# * We show this holding using details from this *copy*
 				show_holding.call @, holding_id, copy
 
-				# For checked out copies, fill in data from circs asynchronously.
+				# * If this *copy* is checked out, try to get its due date and show it
 				if copy['Checked out']
 					do (holding_id, copy) ->
 						$holding = $("##{holding_id}").openils 'due dates', 'search.asset.copy.retrieve_by_cn_label',
@@ -244,17 +258,20 @@ module 'opac.edit_hold', imports(
 		return @
 
 
-
-	# Plugin to show the place hold form.
+	# ***
+	# Define the jQuery plugin to show a form
+	# to allow the user to place a title-level hold.
 	# Default pickup location is specified by hold request.
 	# Otherwise, set it to ou id of last copy listed.
-	# FIXME: would be good to mark these circ_ou's in the ou selection list.
+	# >FIXME: would be good to mark these circ_ou's in the ou selection list.
 	$.fn.hold_details = ->
 
+		# We get the possible hold target from the parent plugin's *hold* data object.
 		hold = @parent().closest('.plugin').data('hold')
 
 		# The content for the plugin is a form to enable the user
 		# to place a title-level hold on the current item.
+		# The main input element is a selector to allow the user to select the pickup library.
 		$form = $ '''
 		<form class="place_hold" data-ajax="false">
 			<div data-role="fieldcontain">
@@ -262,9 +279,7 @@ module 'opac.edit_hold', imports(
 				<span id="edit_hold_org_unit" class="org_unit_selector"></span>
 			</div>
 			<fieldset class="ui-grid-a">
-				<!--div class="ui-block-a"><button type="reset">Cancel</button></div-->
 				<div class="ui-block-a"><a href="#" data-role="button" data-rel="back" class="reset">Cancel</a></div>
-				<!--div class="ui-block-b"><button type="submit">Place Hold</button></div-->
 				<div class="ui-block-b"><a href="#" data-role="button" data-rel="back" class="submit">Place Hold</a></div>
 			</fieldset>
 		</form>
@@ -274,6 +289,7 @@ module 'opac.edit_hold', imports(
 			#@closest('.ui-dialog').dialog 'close'
 			return false
 
+		# Define a function to handle the submit event.
 		place_hold = ->
 
 			# Prepare the hold request based on
@@ -295,7 +311,7 @@ module 'opac.edit_hold', imports(
 					break
 
 			# Request to update or create a hold.
-			# FIXME: need better success message.
+			# >FIXME: need better success message.
 			$plugin = @
 			if hold.id
 				eg.openils 'circ.hold.update', hold, (result) =>
@@ -326,38 +342,38 @@ module 'opac.edit_hold', imports(
 								'This title is not eligible for a hold.'
 								'Please ask your friendly library staff for assistance.'
 							]
-
 			return false
 
-		# Append the place hold form as its main content
+		# We create the place hold form for the plugin.
 		@html($form).trigger 'create'
 
-		# Build an ou selector to show pickup libraries.
+		# We build a selector for the form to show a list of pickup libraries.
 		$('.org_unit_selector', @).ou_tree(
 			'name': 'pickup_lib'
 			'all': false
-			'selected': Number hold.pickup_lib #or Number copy.org_id
+			'selected': Number hold.pickup_lib
 			'indent': '. '
 			'focus': true
 		)
 
-		# Clicking submit button places a hold.
+		# Upon the user clicking the submit button, we will place a hold.
 		$('a.submit', @).bind 'click', => place_hold.call @
 
-		# Keyboard shortcuts:
-		# FIXME: not working for jQM
-		#
-		# Pressing esc key has same effect as clicking reset button.
+		# >FIXME: esc key does not work for jQM
 		@delegate 'form.place_hold', 'keyup', (e) =>
 			switch e.keyCode
 				when 27 then hide_form.call @
 			return false
 
-		# Pressing enter key will have an effect if focussed on submit or reset button.
-		.delegate 'button', 'keyup', (e) =>
+		# We define some keyboard shortcuts:
+		@delegate 'button', 'keyup', (e) =>
 			switch e.keyCode
+				# * Upon the user pressing the esc key,
+				# we will ensure it has same the effect as clicking the reset button.
 				when 27 then hide_form.call @
 			switch e.keyCode
+				# * Upon the user pressing the enter key,
+				# we will ensure it has an effect if the user is focussed on the submit or reset button.
 				when 13
 					$target = $(e.target)
 					switch $target
@@ -366,14 +382,21 @@ module 'opac.edit_hold', imports(
 			return false
 
 
-	# Plugin to show the edit hold dialog,
-	# which includes title details, hold details, and holdings details.
+	# ***
+	# We define the master jQuery plugin to show the edit hold dialog,
+	# which includes title details, holdings details, and hold details.
+	# The plugin will refresh its content
+	#
+	# * If a potential request is received on *hold_create* channel
+	# * If the user presses next or previous links on the nav bar
+	#
 	$.fn.edit_hold = ->
 
-		count = 0
-		total = 0
-
-		# Define the header for navigating to prev/next title
+		# One of the responsibility of the master plugin
+		# is to define a navigation bar to allow the user
+		# to incrementally scroll through the search result list.
+		# The nav bar will also show the current number of the title displayed
+		# and the total nunmber of titles in the result list.
 		nav_bar = _.template '''
 		<h3>
 			Title <span class="count"><%= count %></span> of <span class="total"><%= total %></span>
@@ -383,10 +406,17 @@ module 'opac.edit_hold', imports(
 			<div data-role="button" data-icon="arrow-d" class="next"></div>
 		</div>
 		'''
-		# Build the nav bar with inital count and total
+
+		# We build the nav bar with count and total initialized to zero.
+		count = 0
+		total = 0
+
 		$('.nav_bar', @).html(nav_bar count: 0, total: 0)
 
-		# Upon user clicking a button in the nav bar
+		# Upon the user clicking the prev or next button in the nav bar,
+		# we will publish the current *title_id* and a step indicator (+1 or -1) on *title* channel.
+		# We will also ensure that the count is properly adjusted
+		# and that it will stop adjusting if it reaches the bottom or top boundary.
 		.delegate 'div', 'click', (e) =>
 			title_id = @closest('.plugin').data('hold').titleid
 			$target = $(e.currentTarget)
@@ -405,9 +435,12 @@ module 'opac.edit_hold', imports(
 				@publish 'title', [title_id, +1]
 			return false
 
-		# Build the content structure of the details view
-		# FIXME: add option for user to see all tags of MARC record.
-		# FIXME: add class name 'marctag'.
+
+		# Define the container for the three main areas of content.
+		# >FIXME:
+		#
+		# * Add option for user to see all tags of MARC record
+		# * Add class name 'marctag'
 		content = '''
 		<ul class="title_details" data-role="listview" data-inset="true"></ul>
 		<h3>Copies available for this title</h3>
@@ -416,16 +449,17 @@ module 'opac.edit_hold', imports(
 		'''
 		$('.content', @).html(content)
 
-		# Define a utility function to show content of the details view.
+		# Define a function to show content.
 		show_content = (hold, search_ou, search_depth, $img) ->
 
-			# Cache arguments as data objects.
+			# We cache function arguments as data objects attached to the plugin
+			# so that child plugins can access them.
 			@data('hold', hold)
 			.data('search_ou', search_ou)
 			.data('search_depth', search_depth)
 
-			# Get more cacheable data objects (asynchronously and in parallel).
-			# In the future, we could get these objects once per browser session.
+			# We try to get more cacheable data objects (asynchronously and in parallel)
+			# that will be needed by child plugins.
 			parallel(
 				ouTypes:         eg.openils 'actor.org_types.retrieve'
 				ouTree:          eg.openils 'actor.org_tree.retrieve'
@@ -435,37 +469,43 @@ module 'opac.edit_hold', imports(
 				.data('ou_types', x.ouTypes)
 				.data('status_names', x.copy_status_map)
 
-				# Show the three main areas of the details view
+				# Upon success, we will show the content by applying the three child plugins.
 				$('.title_details', @).title_details $img
 				$('.holding_details', @).holding_details()
 				$('.hold_details', @).hold_details()
+			# >FIXME:
+			#
+			# * We should get these objects once per browser session.
+			# * We should also rethink the notion of using data objects as a caching mechanism.
 
-		# Prepare this container as a plugin.
+		# We prepare this container as a plugin.
 		@plugin('edit_hold')
 
-		# Upon receiving a potential request on the hold create data channel,
+		# Upon receiving a potential request on *hold_create* channel
 		.subscribe 'hold_create', (title_id, search_ou, search_depth, $img, titles_total, titles_count) =>
 
-			# Build a hold request object
+			# We will build a title-level hold request
+			# and set the default pickup library
+			# to the user's home ou if it is defined
+			# (implies user has logged in).
 			hold =
 				target: title_id # version 1.6 software
 				titleid: title_id # version 2.0 software
-				hold_type: 'T' # default type
+				hold_type: 'T' # default type is 'title-level'
 				selection_depth: 0
-				# Set default pickup_lib to user's home ou if defined
-				# (implies user has logged in)
 				pickup_lib: Number eg.auth.session.user.home_ou
 
-			# Build DOM content based on hold request
+			# We will show content based on the hold request.
 			show_content.call @, hold, search_ou, search_depth, $img
 
-			# Update total and count numbers in header
+			# We will update total and count numbers in the nav bar.
 			$('.total', @).text total = titles_total
 			$('.count', @).text count = titles_count
 
-			# Change to this page unless it is already active
+			# We will change to this page unless it is already active.
 			$.mobile.changePage @page() unless @ is $.mobile.activePage
 
-		# Currently, the interface doesn't have controls to update holds.
+		# Upon receiving a potential request on *hold_update* channel,
+		# we will show its content, but currently the plugin doesn't have controls to update holds.
 		.subscribe 'hold_update', (hold) =>
 			show_content.call @, hold
