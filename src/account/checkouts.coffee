@@ -94,11 +94,10 @@ module 'account.checkouts', imports(
 	# One of the compoments of the status line is the due date,
 	# which we will convert into MMDDYY format. 
 	pad = (x) -> if x < 10 then '0' + x else x
-	datestamp = (x) ->
-		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{x.getFullYear()}"
-
+	mmddyy = (x) ->
+		"#{pad x.getMonth() + 1}/#{pad x.getDate()}/#{pad x.getFullYear()}"
 	show_status_line = (circ) ->
-		$('.due_date', @).text datestamp circ.due_date
+		$('.due_date', @).text mmddyy circ.due_date
 		$('.remaining_renewals', @).text circ.renewal_remaining
 		$('input:checkbox', @).val circ.target_copy
 
