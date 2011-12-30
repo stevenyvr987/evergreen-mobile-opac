@@ -16,10 +16,9 @@
 # the openils callback will be executed only if the user successfully logs in.
 
 module 'login_window', imports(
-	'eg.fieldmapper'
 	'eg.eg_api'
 	'plugin'
-), (fm, eg) ->
+), (eg) ->
 
 	# FIXME: div.error is not needed; error from eg_api layer overrides, I think.
 	#		<div class="error"></div>

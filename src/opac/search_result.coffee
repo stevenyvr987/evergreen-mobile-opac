@@ -14,11 +14,10 @@
 # upon the plugin receiving an ID value and a plus or minus step indicator on *title*
 
 module 'opac.search_result', imports(
-	'eg.fieldmapper'
 	'eg.eg_api'
 	'template'
 	'plugin'
-), (fm, eg, _) ->
+), (eg, _) ->
 
 	# ***
 	# Define the plugin content, a list view of title summaries.

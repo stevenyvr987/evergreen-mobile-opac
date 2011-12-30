@@ -8,10 +8,9 @@
 
 module 'account.holds', imports(
 	'eg.eg_api'
-	'eg.fieldmapper'
 	'template'
 	'plugin'
-), (eg, fm, _) ->
+), (eg, _) ->
 
 
 	# ***

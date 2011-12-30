@@ -12,12 +12,11 @@
 # * Edit an already placed hold
 
 module 'opac.edit_hold', imports(
-	'eg.fieldmapper'
 	'eg.eg_api'
 	'template'
 	'plugin'
 	'opac.ou_tree'
-), (fm, eg, _) ->
+), (eg, _) ->
 
 	# ***
 	# Define a jQuery plugin to show title details of a possible hold target.
