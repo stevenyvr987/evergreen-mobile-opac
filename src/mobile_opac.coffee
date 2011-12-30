@@ -55,7 +55,21 @@ module 'mobile_opac', imports(
 		$('#opac_search').one 'click', ->
 			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar(window.settings)
 			thunk imports('opac.search_result'), -> $('#result_summary').result_summary()
-			return # Allow click event to bubble up to accordion link.
+			return # We allow the click event to bubble up to the accordion link.
+
+		# Whenever the user expands the search bar,
+		# my account summary bars should collapse, and vice versa.
+		# This means the search bar acts as part of the collapsible set of summary bars,
+		# even though it is not located inside the container
+		# that defines the summary bars as a collapsible set.
+		$('.account_summary').click ->
+			toggle = if $(@).is(':visible') then 'collapse' else 'expand'
+			$('#opac_search').trigger toggle
+			return false
+		$('#opac_search').click ->
+			toggle = if $(@).is(':visible') then 'collapse' else 'expand'
+			$('.account_summary').each -> $(@).trigger toggle
+			return false
 
 		# Prepare the following containers for immediate use.
 		#
