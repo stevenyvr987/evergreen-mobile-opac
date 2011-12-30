@@ -29,7 +29,7 @@ dirDev = dev
 
 
 # Compile coffeescript to javascript using the coffee compiler.
-CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -c -b
+CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
 # Minify javascript using Google closure compiler.
 JStoMAP = java -jar $(dirDev)/closure/compiler.jar
 # Prepare build directory containing minified javascript and other files using rsync.
@@ -37,6 +37,17 @@ Build = rsync -av --del --delete --exclude=zzz/ --exclude=*~ --exclude=.DS_Store
 # Generate HTML documentation.
 CStoHTML = node $(dirDev)/node_modules/docco/bin/docco
 TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
+
+
+# Implicit pattern rules
+#
+# Transform coffeescripts to javascripts.
+%.js   : %.coffee ; $(CStoJS) $< > $@
+# Transform coffeescripts to HTML pages
+# (which are automatically deposited in dirDocs directory).
+%.html : %.coffee ; $(CStoHTML) $<
+# Transform text files to HTML pages.
+%.html : %.txt    ; $(TXTtoHTML) $< > $@
 
 
 # Main modules.
@@ -92,7 +103,7 @@ Lib = \
 all : $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib)
 
 
-.PHONY : all build clean clean-source clean-min clean-build docs
+.PHONY : all build clean clean-source clean-min clean-build docs coffee
 
 # Declare the important suffixes for this makefile
 .SUFFIXES:
@@ -109,20 +120,19 @@ $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 	$(JStoMAP) --js=$< --create_source_map $@ --js_output_file=$(subst $(dirSrc),$(dirMin),$<)
 
 
-# Implicit pattern rules
-#
-# Transform coffeescripts to javascripts.
-%.js : %.coffee ; $(CStoJS) $< > $@
-# Transform text files to HTML pages.
-%.html : %.txt ; $(TXTtoHTML) $< > $@
-
+# Run the coffeescript compiler in watch mode on the src folder so that as
+# Coffeescript source files are modified they are compiled into Javascript
+# files.
+coffee :
+	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc $(dirSrc)
 
 # Make main design document.
 doc : $(dirDoc)/design.html
 
 # Make source-level documents.
 docs :
-	$(CStoHTML) $(dirSrc)/{.,opac,account,eg}/*.coffee
+	-rm -rf $(dirDocs)
+	$(CStoHTML) $(dirSrc)/*.coffee $(dirSrc)/opac/*.coffee $(dirSrc)/account/*.coffee $(dirSrc)/eg/*.coffee
 
 clean_docs :
 	-rm $(dirDoc)/*.html
