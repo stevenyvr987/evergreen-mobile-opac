@@ -40,9 +40,8 @@ module 'account.summary', imports(
 	'''
 	refresh_fines_summary = ->
 		$('#fines_summary').openils 'fines summary', 'actor.user.fines.summary.authoritative', (o) ->
-			$('.summary_line', @).text tpl_fines_summary {
-				nf:  nf = o.balance_owed
-			}
+			$('.summary_line', @).text tpl_fines_summary
+				nf: nf = o.balance_owed
 		return false
 
 	tpl_checkouts_summary = _.template '''
@@ -52,11 +51,10 @@ module 'account.summary', imports(
 	'''
 	refresh_checkouts_summary = ->
 		$('#checkouts_summary').openils 'checkouts summary', 'actor.user.checked_out.count.authoritative', (o) ->
-			$('.summary_line', @).text tpl_checkouts_summary {
+			$('.summary_line', @).text tpl_checkouts_summary
 				nco: nco = o.out
 				nod: nod = o.overdue
 				nxx: nxx = o.total - nco - nod
-			}
 		return false
 
 	tpl_holds_summary = _.template '''
@@ -64,9 +62,8 @@ module 'account.summary', imports(
 	'''
 	refresh_holds_summary = ->
 		$('#holds_summary').openils 'holds summary', 'circ.holds.id_list.retrieve.authoritative', (o) ->
-			$('.summary_line', @).text tpl_holds_summary {
-				nh:  nh = o.length
-			}
+			$('.summary_line', @).text tpl_holds_summary
+				nh: nh = o.length
 		return false
 
 	tpl_bookbags_summary = _.template '''
@@ -74,9 +71,8 @@ module 'account.summary', imports(
 	'''
 	refresh_bookbags_summary = ->
 		$('#bookbags_summary').openils 'bookbags summary', 'actor.container.retrieve_by_class', (o) ->
-			$('.summary_line', @).text tpl_bookbags_summary {
+			$('.summary_line', @).text tpl_bookbags_summary
 				nbb: nbb = o.length
-			}
 		return false
 
 	# ***
@@ -140,26 +136,24 @@ module 'account.summary', imports(
 		# we will refresh the line and its inner plugins.
 		.live 'expand', (e, ui) ->
 			$(@).publish $('h3', @).prop 'id' # The h3 element id is the name of the data channel to publish on
-			$ps = $('.plugin', @).refresh()
+			$('.plugin', @).refresh()
 			return false
 
 		# Upon the user collapsing a summary line,
 		# we will empty its inner plugin content.
 		.live 'collapse', (e, ui) ->
-			$ps = $('.plugin', @).empty()
+			$('.plugin', @).empty()
 			return false
 
 		# Upon the user logging in,
 		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
 		.subscribe 'login_event', ->
-			# Refresh any inner plugin content if not collapsed
 			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
 		# Upon the user logging out,
 		# we will empty a summary line's inner plugin content if the summary line is not collapsed.
 		.subscribe 'logout_event', ->
-			# Empty any inner plugin content if not collapsed
 			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
