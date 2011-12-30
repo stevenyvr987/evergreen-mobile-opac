@@ -1,26 +1,25 @@
-# load_spinner.coffee
-#
-# Shows an spinner graphic upon an ajax start event,
-# but hides it upon an ajax stop or error event.
-#
-
+# We define a module called 'load_spinner'.
 module 'load_spinner', imports('plugin'), ->
 
-	$.fn.load_spinner = (o) ->
+	# The module defines a jQuery plugin to show or hide a spinner graphic.
+	# It is actually a wrapper to use jQuery Mobile's 'page loading message' as the graphic.
+	$.fn.load_spinner = () ->
 
 		@plugin('load_spinner')
-		.refresh refresh = ->
-			$.mobile.hidePageLoadingMsg()
-			return false
-		.ajaxStop(refresh)
-		.ajaxError(refresh)
+
+		# We show the spinner upon an ajax start event,
 		.ajaxStart ->
 			$.mobile.showPageLoadingMsg()
 			return false
 
-		# FIXME: if user presses esc key to force loading to stop, the spinner stays on screen.
-		# following keydown event is not caught.
-#		$(document).keydown (e) ->
-#			$image.hide() if e.keyCode is 27
+		.refresh refresh = ->
+			$.mobile.hidePageLoadingMsg()
+			return false
 
-		return @
+		# and hide the spinner upon an ajax stop
+		.ajaxStop(refresh)
+		# or an ajax error event.
+		.ajaxError(refresh)
+
+	# > FIXME: if the user presses the esc key to force loading to stop,
+	# we ought to hide the spinner.

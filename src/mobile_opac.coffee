@@ -1,26 +1,23 @@
-# mobile_opac.coffee
-#
-# Entry way to the mobile OPAC application.
+# The mobile OPAC uses the _jMod_ library for defining modules.
+# We configure the file path where _jMod_ can expect to find modules.
+jMod.config path: 'js'
 
-
-Deferred.define()
-
-# For debugging: catch errors thrown by Deferred callbacks and show them as alert messages.
-#Deferred.onerror = (e) -> alert e + "\n" + JSON.stringify e, null, '  '
-
-# Define the base file path for modules
-jMod.config { path: 'js' }
-
-
-# Define some custom jQuery Mobile settings
-#
+# The mobile OPAC uses _jQuery Mobile_.
+# We customize some jQM options.
 jQuery.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false
-# Disable jQM's ajax mechanism since we are depending on the one in jQuery
+# We disable jQM's ajax mechanism since we are using the one in jQuery.
 jQuery.mobile.ajaxEnabled = false
 
+# The mobile OPAC uses _JSDeferred_ to manage deferrments.
+# We initialize the service for use.
+Deferred.define()
 
-# Do a one-time parse of any parameters in the query string.
-# Make it available in window.query object.
+# >For debugging: catch errors thrown by Deferred callbacks and show them as alert messages.
+# Deferred.onerror = (e) -> alert e + "\n" + JSON.stringify e, null, '  '
+
+
+# The mobile OPAC can be passed run-time parameters in the query string.
+# We parse it for any such parameters and make them available in _window.query_.
 ( (q) ->
 	return unless q.length
 	query = {}
@@ -32,26 +29,41 @@ jQuery.mobile.ajaxEnabled = false
 )(window.location.search.substring(1))
 
 
+# We define the main module.
 module 'mobile_opac', imports(
 	'messages'
 	'load_spinner'
 	'login_bar'
 ), ->
 
+	# Upon document is ready...
 	jQuery ($) ->
 
-		# Upon startup, hide account summary lines
+		# We will prepare a container for displaying error or progress messages.
+		$('#messages').messages()
+
+		# We will apply a load spinner to the body,
+		# which will indicate that data is being transferred across the network.
+		$('body').load_spinner()
+
+		# We will prepare a container for enabling the user to log in or log out.
+		$('#login_bar').login_bar()
+
+		# We will hide account summary lines,
+		# because the user is not logged in upon startup.
 		$('.account_summary').hide()
 
-		# Upon user login, show account summary lines
-		# and dynamically load and apply account summary plugin.
+		# Upon user login, we will show account summary lines.
 		$('#account_summary').subscribe 'login_event', ->
 			$('.account_summary', @).show()
+			# We will also load and apply the account summary plugin
+			# if it hasn't been applied before.
 			thunk imports('account.summary'), => @acct_summary() unless @plugin()
 			return false
 
 		# Upon starting an OPAC search for first time,
-		# dynamically load search bar and result summary plugins.
+		# we will load and apply the search bar and result summary plugins.
+		# The search bar will be customized by values found in _window.settings_.
 		$('#opac_search').one 'click', ->
 			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar(window.settings)
 			thunk imports('opac.search_result'), -> $('#result_summary').result_summary()
@@ -71,12 +83,4 @@ module 'mobile_opac', imports(
 			$('.account_summary').each -> $(@).trigger toggle
 			return false
 
-		# Prepare the following containers for immediate use.
-		#
-		# The login bar enables user to log in and out.
-		$('#login_bar').login_bar()
-		# Displays error messages and notices.
-		$('#messages').messages()
-		# Indicates data loading is occurring between client and server.
-		$('body').load_spinner()
 		return

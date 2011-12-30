@@ -1,11 +1,11 @@
-# jmod template method
-#
-# 'Borrowed' from underscore.js
+# We define a jMod version of the template method from underscore.js.
+# Templates are used extensively in jQuery plugins
+# to define areas of display and interactivity on the screen.
 
 module 'template', ->
 
-	# By default, Underscore uses ERB-style template delimiters, change the
-	# following template settings to use alternative delimiters.
+	# By default, Underscore uses ERB-style template delimiters.
+	# Here, we change the following template settings to use alternative delimiters.
 	c = {
 		start:       '<%'
 		end:         '%>'
