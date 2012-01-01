@@ -77,10 +77,10 @@ module 'mobile_opac', imports(
 		$('.account_summary').click ->
 			toggle = if $(@).is(':visible') then 'collapse' else 'expand'
 			$('#opac_search').trigger toggle
-			return false
+			return # need to bubble up click event for jQM
 		$('#opac_search').click ->
 			toggle = if $(@).is(':visible') then 'collapse' else 'expand'
 			$('.account_summary').each -> $(@).trigger toggle
-			return false
+			return # need to bubble up click event for jQM
 
 		return
