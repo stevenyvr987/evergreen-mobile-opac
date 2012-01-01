@@ -20,9 +20,7 @@ module 'account.holds', imports(
 	# accompanied by submit buttons to modify the status of a selected group of holds.
 	content = '''
 	<form>
-		<div data-role="fieldcontain">
-			<fieldset data-role="controlgroup" />
-		</div>
+		<fieldset data-role="controlgroup" />
 		<div data-role="controlgroup" data-type="horizontal">
 			<span class="cancel some"><button type="submit">Cancel selected holds</button></span>
 			<span class="cancel all"><button type="submit">Cancel all</button></span>
@@ -236,7 +234,7 @@ module 'account.holds', imports(
 							$('input, .info_line, .status_line', $item).addClass if o.hold.frozen then 'inactive' else 'active'
 							# * Show only relevant submit buttons
 							show_buttons o.hold.frozen
-							$item.trigger 'create'
+							$plugin.trigger 'create'
 			return false
 
 		# Upon the user clicking one of the *some* buttons,

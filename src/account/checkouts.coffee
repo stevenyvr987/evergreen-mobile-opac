@@ -21,9 +21,7 @@ module 'account.checkouts', imports(
 	# accompanied by submit buttons to renew a group of selected items.
 	content = '''
 	<form>
-		<div data-role="fieldcontain">
-			<fieldset data-role="controlgroup" />
-		</div>
+		<fieldset data-role="controlgroup" />
 		<div data-role="controlgroup" data-type="horizontal">
 			<span class="renew some"><button type="submit">Renew selected items</button></span>
 			<span class="renew all"><button type="submit">Renew all</button></span>
@@ -132,7 +130,6 @@ module 'account.checkouts', imports(
 		# we will recreate and refresh the list.
 		@refresh ->
 			@html(content).trigger 'create'
-			$list = $('fieldset', @)
 
 			# We will hide buttons until they are needed.
 			$renew_some = $('.renew.some', @).hide()
@@ -147,12 +144,12 @@ module 'account.checkouts', imports(
 			# We will progressively populate the list as data become available.
 			# Moreover, we will modify the visibility of the list and its buttons
 			# according to the circ status.
-			$list.openils 'checkout details', 'actor.user.checked_out.authoritative', (co) ->
+			$('fieldset', @).openils 'checkout details', 'actor.user.checked_out.authoritative', (co) ->
 				$plugin.publish 'items_checked_out', [co]
 				for type, checkouts of co
 					for circ_id in checkouts
 
-						$list.prepend $item = $ (tpl_item type)
+						@prepend $item = $ (tpl_item type)
 							circ_id: circ_id
 							circ_type: type
 
@@ -171,7 +168,7 @@ module 'account.checkouts', imports(
 								# * Show only relevant submit buttons
 								if type is 'out' and circ.renewal_remaining > 0
 									if $renew_all.is ':visible' then $renew_some.show() else $renew_all.show()
-								$item.trigger 'create'
+								$plugin.trigger 'create'
 			return false
 
 		# Upon the user clicking the *renew some* button,
