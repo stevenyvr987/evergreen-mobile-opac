@@ -196,3 +196,11 @@ sitka : all
 	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 	-rm min/dojo/fieldmapper/fmall.js
 	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
+
+# Mirror local darcs repository to local git repository
+mirror :
+	dev/git_mirror.sh
+
+# Push local git repository to Google Project Hosting site
+push :
+	git push https://code.google.com/p/evergreen-mobile-opac/
