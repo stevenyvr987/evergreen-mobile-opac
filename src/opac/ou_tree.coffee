@@ -44,7 +44,7 @@ module 'opac.ou_tree', imports('eg.eg_api'), (eg) ->
 			, (x) ->
 				# Using the ou tree and ou types, we build a list of select options.
 				options = []
-				for ou_id, ou of x.ouTree
+				for ou in x.ouTree
 
 					# A preliminary step is to build an ou name
 					# so that it is indented for each depth level,
@@ -59,17 +59,26 @@ module 'opac.ou_tree', imports('eg.eg_api'), (eg) ->
 					ou_name.push ou.name
 					ou_name = ou_name.join('') # joining ou name to its indentation markers
 
-					# The final step is to build this option element
-					# using this ou name as its text node and this ou id as its value.
-					# If ou nodes which cannot have users should not be selectable options,
-					# then they will be converted into option groups with the ou name serving as the label.
-					option = "<option value=\"#{ou_id}\">"
-					if rc.all
-						options.push $(option).text ou_name
-					else if not ou_type.can_have_users or ou_type.can_have_users is 'f'
-						options.push $('<optgroup>').prop 'label', ou_name
-					else
-						options.push $(option).text ou_name
+					# The final step is to build this option element using this
+					# ou name as its label and this ou id as its value.
+					#
+					# If the option element will be a selectable option, we
+					# will also convert the ou name into a text node, because
+					# some web browsers (eg, Firefox) do not display the label.
+					#
+					# If the option element will correspond to an ou node that
+					# cannot have users and that should not be a selectable
+					# option, then it will be converted into an option group
+					# with the ou name serving as the label.
+					$option = if rc.all
+							$('<option>').text ou_name
+						else if not ou_type.can_have_users or ou_type.can_have_users is 'f'
+							$('<optgroup>')
+						else
+							$('<option>').text ou_name
+					options.push $option.prop
+						label: ou_name
+						value: ou.id
 
 				# Using the options list, we build a selector.
 				$select = $('<select>').prop 'name', rc.name

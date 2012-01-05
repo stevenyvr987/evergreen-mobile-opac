@@ -57,7 +57,8 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 		(o[x.id] = x) for x in xs
 		return o
 	o4 = (x) -> a2o o3 x
-	o5 = (x) -> a2o fm.flatten_tree o3 x
+	o6 = (x) -> fm.flatten_tree o3 x
+	o5 = (x) -> a2o o6 x
 
 
 	# Registry of Evergreen or openils services
@@ -124,7 +125,7 @@ module 'eg.eg_api', imports('eg.fieldmapper', 'eg.date'), (fm, date) ->
 		}
 		'actor.org_tree.descendants.retrieve': {
 			i: (id) -> [id or 1]
-			o: o5 # (x) -> a2o fm.flatten_tree fm.fieldmap o1 x # o5
+			o: o6
 			login_required: false
 			cache: 24 * 60
 		}
