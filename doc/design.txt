@@ -467,49 +467,41 @@ The callback argument defines the overall object containing both result objects.
 
 
 == Development Tools and Setup
-A set of development tools and languages
-need to be installed on a designer's workstation
-before development work can proceed.
-The tools and languages are open-source software
-that can be installed on all platforms, including Windows.
+Developing the mobile opac requires the use of software tools to compile the
+coffeescript files into javascript, to minimize the javascript files, and to
+build documentation.  Recent versions of the software tools are included as
+part of the mobile opac software in the folder called 'dev'.  However, the
+tools need to be runned under certain program languages and runtime
+environments that need to be installed on a developer's workstation.  In the
+following, we outline the tools and their runtime environments.  The tools and
+languages are open-source software that can be installed on all platforms,
+including Windows.
 
-* http://jashkenas.github.com/coffee-script[Coffeescript],
-http://nodejs.org/#download[nodejs], and http://npmjs.org[npm].
-Coffeescript is itself written in Coffeescript and therefore needs a Javascript engine to run.
-'Nodejs' provides that Javascript engine on the server.
-Incidentally, 'nodejs' has a package manager called 'npm',
-and it should be installed to allow Coffeescript to be easily updated.
+* 'Coffeescript' compiles coffescript files into Javascript files,
+and is itself written in Coffeescript and therefore needs a Javascript engine
+to run.  http://nodejs.org/#download[nodejs] provides that Javascript engine on
+the server and 'nodejs' has a package manager called http://npmjs.org[npm].
+Both should be installed on the developer's workstation.
 
-* http://jashkenas.github.com/docco/[docco],
-http://pygments.org/download/[pygments], and Python.
-Source code files are processed by 'docco' into HTML documentation.
-'docco' is a 'nodejs' module that can be installed using 'npm'.
-'docco' requires the use of 'pygments' to do syntax highlighting.
-'pygments' is written in Python.
+* 'closure' converts regular Javascript files into minified files for
+production use and is written in Java, which should be installed on the
+developer's workstation.
 
-* http://closure-compiler.googlecode.com/files/compiler-latest.zip[closure] and Java.
-'closure' turns regular Javascript files into minified files for production use.
-'closure' is written in Java.
-'closure' does not need to be installed on the designer's workstation
-as a recent version is pre-installed in the dev/ folder.
-However, the designer's workstation needs to have a recent version of Java installed.
-
-* http://www.methods.co.nz/asciidoc/INSTALL.html[asciidoc] and Python.
-High-level documentation, such as this document, is written in 'asciidoc' format.
-'asciidoc' is written in Python.
-'asciidoc' does not need to be installed on the designer's workstation
-as a recent version is pre-installed in the dev/ folder.
-However, the designer's workstation needs to have a recent version of Python installed.
+* 'asciidoc' and 'docco'.
+High-level documentation, such as this document, is written in 'asciidoc'
+format.  Source code files are processed by 'docco' into HTML files.  'docco'
+is a 'nodejs' module that can be installed using 'npm'.  'docco' requires the
+use of http://pygments.org/download/[pygments] to do syntax highlighting.
+'asciidoc' and 'pygments' are written in Python.  Both 'pygments' and 'Python'
+should be installed on the developer's workstation.
 
 * http://httpd.apache.org/download.cgi[Apache] or a similar web server.
-In order to test software under development,
-the mobile opac is displayed on a web browser on the designer's workstation
-which then makes requests for services on an Evergreen server.
-However, modern browsers implement the
-http://en.wikipedia.org/wiki/Same_origin_policy[same origin policy],
-which prevents the server from properly responding.
-In order to circumvent the policy,
-the workstation should operate a web server operating in
+In order to test software under development, the mobile opac is displayed on a
+web browser on the developer's workstation which then makes requests for
+services on an Evergreen server.  However, modern browsers implement the
+http://en.wikipedia.org/wiki/Same_origin_policy[same origin policy], which
+prevents the server from properly responding.  In order to circumvent the
+policy, the workstation should operate a web server operating in
 http://en.wikipedia.org/wiki/Reverse_proxy[reverse proxy mode].
 +
 An example of the reverse proxy configuration clause
@@ -529,8 +521,3 @@ for Apache web server is as follows.
   </Proxy>
 </IfModule>
 ----
-
-* http://cygwin.com[cygwin].
-If the designer's workstation uses Windows, then 'cygwin' needs to be installed on it
-to allow 'nodejs' and therefore Coffeescript to run.
-There are native installations of Java and Python for Windows.
