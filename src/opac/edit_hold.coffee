@@ -26,7 +26,7 @@ module 'opac.edit_hold', imports(
 
 		# We will format title details as a jQuery Mobile list view of one list element.
 		tpl_content = _.template '''
-		<li class="title_details" id="target_id_<%= target_id %>">
+		<li id="target_id_<%= target_id %>">
 			<div class="info_box">
 				<div>Title:                <span class="value"><%= b.title            %></span></div>
 				<div>Author:               <span class="value"><%= b.author           %></span></div>
@@ -106,12 +106,12 @@ module 'opac.edit_hold', imports(
 				$(@).parent().empty() unless $(@).text()
 				# > FIXME: empty divs may be left behind
 
+			# We add the given thumbnail image.
+			if $img.get(0).naturalHeight > 0
+				$('li', @).prepend $img.prop('title', '')
+
 			@listview 'refresh'
 			return
-
-		# We add the given thumbnail image.
-		if $img.get(0).naturalHeight > 0
-			$('.title_details', @).prepend $img.prop('title', '')
 
 		# Upon the user clicking the thumbnail image,
 		# we will show the large image in a jQuery Mobile dialogue.
