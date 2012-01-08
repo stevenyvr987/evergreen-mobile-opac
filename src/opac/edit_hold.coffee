@@ -382,7 +382,7 @@ module 'opac.edit_hold', imports(
 
 
 	# ***
-	# We define the master jQuery plugin to show the edit hold dialog,
+	# We define the master jQuery plugin to show the edit hold page,
 	# which includes title details, holdings details, and hold details.
 	# The plugin will refresh its content
 	#
