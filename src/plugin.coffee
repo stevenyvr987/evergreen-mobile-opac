@@ -36,10 +36,16 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 				sub.subscriber = null
 				continue
 			# If the publisher is also the subscriber, we will not process this channel's data.
+			# > FIXME: unfortunately, plugins that do not supply an ID won't
+			# benefit from this piece of logic.
 			continue if sub.subscriber.prop('id') is @.prop('id')
 			ret = if data? then sub.cb.apply sub.subscriber, data else sub.cb.apply sub.subscriber
 			# If the callback does not return false, we will refresh the subscriber plugin.
 			sub.subscriber.trigger '_', [ret] if ret isnt false
+
+			# Log a signature on the console log to indicate who published what to who.
+			# It's best to comment this line out before deploying for production service.
+			console.log @, (if ret is false then " |#{channel}> " else " |#{channel}>> "), sub.subscriber
 		return @
 
 	# >FIXME; the above publish/subscribe mechanism should be replaced by jQuery's custom event mechanism.
