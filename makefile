@@ -1,16 +1,22 @@
 # Makefile for building Mobile OPAC software.
 #
-# Recommended sequence...
+# Recommended sequences...
 #
-# ...for rebuilding all software.
+# ...while developing code as coffeescript files
+# make coffee
+#
+# ...for rebuilding all software and documentation
 # make clean
 # make
-# make build
 #
-# ...for rebuilding just the minimized software.
-# make clean-build
-# make build
+# ...for rebuilding minimized software for installing remotely
+# make clean-build build
 #
+# ...for rebuilding source-level HTML documentation
+# make clean-docs docs
+#
+# ...for updating remote source-code repository
+# make mirror push
 
 
 # Source directory contains coffeescript, unminified javascript,
@@ -33,7 +39,7 @@ CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
 # Minify javascript using Google closure compiler.
 JStoMAP = java -jar $(dirDev)/closure/compiler.jar
 # Prepare build directory containing minified javascript and other files using rsync.
-Build = rsync -av --del --delete --exclude=zzz/ --exclude=*~ --exclude=.DS_Store
+Build = rsync -av --del --delete --exclude=.DS_Store
 # Generate HTML documentation.
 CStoHTML = node $(dirDev)/node_modules/docco/bin/docco
 TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
@@ -50,60 +56,33 @@ TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
 %.html : %.txt    ; $(TXTtoHTML) $< > $@
 
 
-# Main modules.
-Main = \
-	$(dirSrc)/settings_sitka.map \
-	$(dirSrc)/settings_kcls.map \
-	$(dirSrc)/mobile_opac.map
+# Main modules
+Main = $(dirSrc)/*.map
 
-# Utility modules.
-Utility = \
-	$(dirSrc)/plugin.map \
-	$(dirSrc)/template.map \
-	$(dirSrc)/messages.map \
-	$(dirSrc)/load_spinner.map \
-	$(dirSrc)/login_bar.map \
-	$(dirSrc)/login_window.map
+# Modules for searching public catalogue
+Opac = $(dirSrc)/opac/*.map
 
-# Modules for searching public catalogue.
-Opac = \
-	$(dirSrc)/opac/search_bar.map \
-	$(dirSrc)/opac/search_result.map \
-	$(dirSrc)/opac/edit_hold.map \
-	$(dirSrc)/opac/ou_tree.map \
-	$(dirSrc)/opac/sort.map
+# Modules for handling my account
+Account = $(dirSrc)/account/*.map
 
-# Modules for handling my account.
-Account = \
-	$(dirSrc)/account/summary.map \
-	$(dirSrc)/account/fines.map \
-	$(dirSrc)/account/checkouts.map \
-	$(dirSrc)/account/holds.map
+# Modules for wrapping up Evergreen API layer
+Eg = $(dirSrc)/eg/*.map $(dirSrc)/dojo/fieldmapper/*.map
 
-# Modules for wrapping up Evergreen API layer.
-Eg = \
-	$(dirSrc)/eg/eg_api.map \
-	$(dirSrc)/eg/fieldmapper.map \
-	$(dirSrc)/eg/date.map \
-	$(dirSrc)/eg/fm_datatypes.map \
-	$(dirSrc)/dojo/fieldmapper/fmall_1_6.map \
-	$(dirSrc)/dojo/fieldmapper/fmall_2_0.map
-
-# External javascript libraries.
-Lib = \
-	$(dirSrc)/lib/jmod.map \
-	$(dirSrc)/lib/jquery_blockUI.map \
-	$(dirSrc)/lib/jsdeferred.map \
-	$(dirSrc)/lib/json2.map \
-	$(dirSrc)/lib/md5.map
+# External javascript libraries
+Lib = $(dirSrc)/lib/*.map
 
 
-# Default rule to compile all .coffee files to .js files
-# and to minified .js files
-all : $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib)
+# Default rule to convert .coffee files to
+# * minified .js files ready for testing locally
+# * minified .js files ready for installing remotely
+# * HTML documentation
+all : min build docs doc
+
+# Compile .coffee files to minified .js files
+min : $(Main) $(Opac) $(Account) $(Eg) $(Lib)
 
 
-.PHONY : all build clean clean-source clean-min clean-build docs coffee
+.PHONY : all min build docs doc clean clean-source clean-min clean-build coffee
 
 # Declare the important suffixes for this makefile
 .SUFFIXES:
@@ -116,7 +95,7 @@ all : $(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib)
 #
 # Transform javascript files to source map files in the source directory
 # and minified javascript files in the min directory.
-$(Main) $(Utility) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
+$(Main) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 	$(JStoMAP) --js=$< --create_source_map $@ --js_output_file=$(subst $(dirSrc),$(dirMin),$<)
 
 
@@ -134,12 +113,12 @@ docs :
 	-rm -rf $(dirDocs)
 	$(CStoHTML) $(dirSrc)/*.coffee $(dirSrc)/opac/*.coffee $(dirSrc)/account/*.coffee $(dirSrc)/eg/*.coffee
 
-clean_docs :
+clean-docs :
 	-rm $(dirDoc)/*.html
 	-rm -rf $(dirDocs)
 
 # Build all minified .js files and other files to the build directory.
-build :
+build : min
 	-mkdir $(dirBuild)
 	$(Build) --exclude=dojo/ --include=.js  $(dirMin)/ $(dirBuild)/js
 	$(Build)                 --include=.css       css  $(dirBuild)
@@ -149,8 +128,8 @@ build :
 clean-build :
 	-rm -rf $(dirBuild)
 
-# Remove compiled files in source/ and min/ and build/ directories.
-clean : clean-source clean-min clean-build
+# Remove compiled files in the various target directories.
+clean : clean-source clean-min clean-build clean-docs
 
 # Remove source map files in source/.
 # Ignore errors in the process.
@@ -176,7 +155,7 @@ clean-min :
 	-mkdir -p $(dirMin)/dojo/fieldmapper
 
 
-kcls : all
+kcls : min
 	-rm index.html
 	ln -s index_kcls.html index.html
 	-rm build/index.html
@@ -187,7 +166,7 @@ kcls : all
 	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 
 
-sitka : all
+sitka : min
 	-rm index.html
 	ln -s index_sitka.html index.html
 	-rm build/index.html
