@@ -6,7 +6,7 @@
 # 2. Copies of the title
 # 3. An interactive form for the user to place a hold on the title
 #
-# Possible extensions to the plugin are as follows.
+# Extensions to the plugin, as follows.
 #
 # * Place other types of holds, eg, on the title's copies or volumes
 # * Edit an already placed hold
@@ -39,6 +39,7 @@ module 'opac.edit_hold', imports(
 				<div>Physical Description: <span class="value"><%= b.phy_descr        %></span></div>
 				<div>Edition:              <span class="value"><%= b.edition          %></span></div>
 				<div>Frequency:            <span class="value"><%= b.frequency        %></span></div>
+				<div>Online Resources: <span class="value"><a href="<%= b.eresource_u %>"><%= b.eresource_z %></a></span></div>
 			</div>
 		</li>
 		'''
@@ -63,6 +64,8 @@ module 'opac.edit_hold', imports(
 			phy_descr:        { '300':'' }
 			edition:          { '250':'' }
 			frequency:        { '310':'' }
+			eresource_u:      { '856':'u' }
+			eresource_z:      { '856':'z' }
 
 		marc_text = (html) ->
 			marctext = []
@@ -436,10 +439,6 @@ module 'opac.edit_hold', imports(
 
 
 		# Define the container for the three main areas of content.
-		# >FIXME:
-		#
-		# * Add option for user to see all tags of MARC record
-		# * Add class name 'marctag'
 		content = '''
 		<ul class="title_details" data-role="listview" data-inset="true"></ul>
 		<h3>Copies available for this title</h3>

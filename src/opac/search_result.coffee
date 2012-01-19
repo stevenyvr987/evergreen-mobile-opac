@@ -41,14 +41,15 @@ module 'opac.search_result', imports(
 			<div class="info_box">
 				<h3 class="info_line">
 					<span class="title"></span>
-					<span title="Publication date" class="pub_date"></span>
-					<span title="Format" class="resource_types"></span>
 					<div class="author"></div>
 				</h3>
-				<p class="status_line">
-					<span title="Location and call number of this title" class="callnumber"></span>
-					<p><span class="counts_avail"></span> of <span class="counts_total"></span> available</p>
+				<p>
+					<span title="Publication date" class="pub_date"></span>
+					<span title="Physical description" class="physical"></span>
+					<span title="Format" class="resource_types"></span>
 				</p>
+				<p title="Location and call number of this title" class="callnumber"></p>
+				<p class="copy_counts ui-li-count"><span class="counts_avail"></span> of <span class="counts_total"></span> available</p>
 			</div>
 		</a>
 		<a class="author">Search other titles by this author</a>
@@ -68,6 +69,7 @@ module 'opac.search_result', imports(
 		$('span.title', @).text(mvr.title).prop 'title', mvr.title if mvr.title
 		$('div.author', @).text(mvr.author).prop 'title', mvr.author if mvr.author
 		$('.pub_date', @).text mvr.pubdate if mvr.pubdate
+		$('.physical', @).text mvr.physical_description if mvr.physical_description
 		$('.resource_types', @).text mvr.types_of_resource.join ', ' if mvr.types_of_resource.length
 
 		# > The ISBN string will be used as a key to getting the thumbnail image.
@@ -87,7 +89,7 @@ module 'opac.search_result', imports(
 
 	# ***
 	# Define a function to show the status line.
-	show_status_line = (nc, depth) ->
+	show_copy_counts = (nc, depth) ->
 		counts = (v for n, v of nc when Number(v.depth) is depth)[0]
 		$('.counts_avail', @).text counts.available
 		$('.counts_total', @).text counts.count
@@ -235,7 +237,7 @@ module 'opac.search_result', imports(
 							location: ou_id
 						, (nc) ->
 							return unless nc
-							show_status_line.call @, nc, request.depth
+							show_copy_counts.call @, nc, request.depth
 							$result_list.listview 'refresh'
 
 						$x.openils 'call numbers', 'search.biblio.copy_location_counts.summary.retrieve',
@@ -265,7 +267,7 @@ module 'opac.search_result', imports(
 							)
 						, (y) ->
 							show_summary_info.call @, y.mvr if y.mvr
-							show_status_line.call @, y.nc, request.depth if y.nc
+							show_copy_counts.call @, y.nc, request.depth if y.nc
 							show_callnumber.call @, y.cns, x.ou_tree if y.cns
 							$result_list.listview 'refresh'
 
