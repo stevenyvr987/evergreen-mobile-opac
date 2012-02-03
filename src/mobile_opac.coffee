@@ -31,7 +31,7 @@ Deferred.define()
 
 # We define the main module.
 module 'mobile_opac', imports(
-	'messages'
+	'messages2'
 	'load_spinner'
 	'login_bar'
 ), ->
