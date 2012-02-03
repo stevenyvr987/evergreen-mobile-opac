@@ -44,7 +44,7 @@ module 'mobile_opac', imports(
 
 		# We will apply a load spinner to the body,
 		# which will indicate that data is being transferred across the network.
-		$('body').load_spinner()
+		$('#main').load_spinner()
 
 		# We will prepare a container for enabling the user to log in or log out.
 		$('#login_bar').login_bar()
