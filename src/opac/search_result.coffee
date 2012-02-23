@@ -28,16 +28,15 @@ module 'opac.search_result', imports(
 	<div class="page_bar"></div>
 	'''
 
-	# Define the template for a title summary.
-	# The first anchor defines the summary content,
-	# consisting of a thumbnail of the jacket cover,
-	# a line of title information,
-	# and a line of holding and circulation status.
-	# The second anchor provides a way for the user to try searching for the author.
+	# Define the template for a title summary.  The first anchor defines the
+	# summary content, consisting of a thumbnail of the jacket cover, a line of
+	# title information, and a line of holding and circulation status.  Note
+	# that the img element for the thumbnail will be added dynamically and is
+	# not part of the template.  The second anchor provides a way for the user
+	# to try searching for the author.
 	tpl_summary_info = _.template '''
 	<li id="title_id_<%= title_id %>">
 		<a href="#" class="title">
-			<img class="cover_art"></img>
 			<div class="info_box">
 				<h3 class="info_line">
 					<span class="title"></span>
@@ -72,20 +71,30 @@ module 'opac.search_result', imports(
 		$('.physical', @).text mvr.physical_description if mvr.physical_description
 		$('.resource_types', @).text mvr.types_of_resource.join ', ' if mvr.types_of_resource.length
 
-		# > The ISBN string will be used as a key to getting the thumbnail image.
-		# But the ISBN may be empty, or it may contain annotations or multiple values.
-		# As a coping strategy, we will pick the first ISBN value, if there is one.
-		# We will use it to get the corresponding thumbnail
-		# and build an image element out of it.
-		# If we get back a one-by-one pixel image, we will discard it.
-		$img = $('img', @)
-		if isbn = /^(\d+)\D/.exec mvr.isbn
-			img = $img.prop('src', "/opac/extras/ac/jacket/small/#{isbn[1]}").get(0)
-			# >FIXME: natural dimensions are not available until the image is retrieved.
-			# $img.remove() if (not img) or (img.naturalHeight is 1 and img.naturalWidth is 1)
-		else
-			# $img.remove()
-
+		# The ISBN string will be used as a key to getting the thumbnail image.
+		# But the ISBN may be empty, or it may contain annotations or multiple
+		# values.  As a coping strategy, we will pick the first ISBN value, if
+		# there is one.  We will use it to get the corresponding thumbnail and
+		# create an image element out of it.
+		if isbn = mvr.isbn?.match /^(\d+)\D/
+			imgsrc = "/opac/extras/ac/jacket/small/#{isbn[1]}"
+			# > We will create the img element only if it is possibly needed.
+			img = ($img = $('<img class="cover_art">')).get(0)
+			$img
+				.load( =>
+					# > If we get back an image larger than one-by-one pixel,
+					# we will accept it, otherwise we will remove it.
+					if img.naturalHeight > 1 and img.naturalWidth > 1
+						@parent().listview('refresh')
+					else
+						$img.remove()
+					return false
+				)
+				.prependTo( $('a.title', @) )
+				# > We will set the src property as the last operation of the
+				# chain, because the presence of the src will trigger an HTTP GET.
+				.prop('src', imgsrc)
+		return
 
 	# ***
 	# Define a function to show the status line.
