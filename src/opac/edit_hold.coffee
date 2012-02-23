@@ -110,7 +110,7 @@ module 'opac.edit_hold', imports(
 				# > FIXME: empty divs may be left behind
 
 			# We add the given thumbnail image.
-			if $img.get(0).naturalHeight > 0
+			if $img.get(0)?.naturalHeight > 0
 				$('li', @).prepend $img.prop('title', '')
 
 			@listview 'refresh'
