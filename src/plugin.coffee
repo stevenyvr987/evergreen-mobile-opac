@@ -45,7 +45,7 @@ module 'plugin', imports('eg.eg_api'), (eg) ->
 
 			# Log a signature on the console log to indicate who published what to who.
 			# It's best to comment this line out before deploying for production service.
-			console.log @, (if ret is false then " |#{channel}> " else " |#{channel}>> "), sub.subscriber
+			#console.log @, (if ret is false then " |#{channel}> " else " |#{channel}>> "), sub.subscriber
 		return @
 
 	# >FIXME; the above publish/subscribe mechanism should be replaced by jQuery's custom event mechanism.
