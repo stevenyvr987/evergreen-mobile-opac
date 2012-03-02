@@ -17,6 +17,7 @@ module 'opac.search_result', imports(
 	'eg.eg_api'
 	'template'
 	'plugin'
+	'cover_art'
 ), (eg, _) ->
 
 	# ***
@@ -75,25 +76,9 @@ module 'opac.search_result', imports(
 		# But the ISBN may be empty, or it may contain annotations or multiple
 		# values.  As a coping strategy, we will pick the first ISBN value, if
 		# there is one.  We will use it to get the corresponding thumbnail and
-		# create an image element out of it.
-		if isbn = mvr.isbn?.match /^(\d+)\D/
-			imgsrc = "/opac/extras/ac/jacket/small/#{isbn[1]}"
-			# > We will create the img element only if it is possibly needed.
-			img = ($img = $('<img class="cover_art">')).get(0)
-			$img
-				.load( =>
-					# > If we get back an image larger than one-by-one pixel,
-					# we will accept it, otherwise we will remove it.
-					if img.naturalHeight > 1 and img.naturalWidth > 1
-						@parent().listview('refresh')
-					else
-						$img.remove()
-					return false
-				)
-				.prependTo( $('a.title', @) )
-				# > We will set the src property as the last operation of the
-				# chain, because the presence of the src will trigger an HTTP GET.
-				.prop('src', imgsrc)
+		# create an image element out of it.  We will create the img element
+		# only if it is possibly needed.
+		$('a.title', @).thumbnail_art(isbn[0]) if isbn = mvr.isbn?.match /^(\d+)\D/
 		return
 
 	# ***
@@ -301,13 +286,6 @@ module 'opac.search_result', imports(
 			switch e.keyCode
 				# Click the link if enter key was release.
 				when 13 then $(@).click()
-			return false
-
-		# Upon the user clicking a thumbnail image,
-		# we will show a larger version of it.
-		@delegate 'img`', 'click', (e) ->
-			src = e.target.src.replace 'small', 'large'
-			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
 			return false
 
 		# Upon the user clicking a title summary area,

@@ -16,6 +16,7 @@ module 'opac.edit_hold', imports(
 	'template'
 	'plugin'
 	'opac.ou_tree'
+	'cover_art'
 ), (eg, _) ->
 
 	# ***
@@ -110,18 +111,10 @@ module 'opac.edit_hold', imports(
 				# > FIXME: empty divs may be left behind
 
 			# We add the given thumbnail image.
-			if $img.get(0)?.naturalHeight > 0
-				$('li', @).prepend $img.prop('title', '')
+			$img.prependTo $('li', @) if $img.get(0)?.naturalHeight > 0
 
 			@listview 'refresh'
 			return
-
-		# Upon the user clicking the thumbnail image,
-		# we will show the large image in a jQuery Mobile dialogue.
-		@delegate 'img`', 'click', (e) ->
-			src = e.target.src.replace 'small', 'large'
-			$.mobile.changePage $('#cover_art').find('.content').html("<img src=#{src}>").end()
-			return false
 
 
 	# ***
@@ -468,7 +461,7 @@ module 'opac.edit_hold', imports(
 				.data('status_names', x.copy_status_map)
 
 				# Upon success, we will show the content by applying the three child plugins.
-				$('.title_details', @).title_details $img
+				$('.title_details', @).title_details($img).cover_art()
 				$('.holding_details', @).holding_details()
 				$('.hold_details', @).hold_details()
 			# >FIXME:

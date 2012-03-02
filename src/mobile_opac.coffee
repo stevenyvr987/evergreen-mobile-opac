@@ -66,7 +66,7 @@ module 'mobile_opac', imports(
 		# The search bar will be customized by values found in _window.settings_.
 		$('#opac_search').one 'click', ->
 			thunk imports('opac.search_bar'), -> $('#search_bar').search_bar(window.settings)
-			thunk imports('opac.search_result'), -> $('#result_summary').result_summary()
+			thunk imports('opac.search_result', 'cover_art'), -> $('#result_summary').result_summary().cover_art()
 			return # We allow the click event to bubble up to the accordion link.
 
 		# Whenever the user expands the search bar,
