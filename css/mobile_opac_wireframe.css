@@ -60,91 +60,6 @@ dd {
 }
 */
 
-/* Styles for jQuery.blockUI
- */
-.blockUI {
-	width: 80%;
-	top: 0%;
-	left: 0%;
-	border:	3px solid #aaa;
-	text-align:	left;
-	color: #000;
-	background: #fff;
-	cursor:	default;
-	padding-top: 10px;
-	padding-left: 5px;
-	padding-bottom: 15px;
-	padding-right: 10px;
-	margin-top: 1%;
-	margin-left: 10%;
-	margin-right: 10%;
-}
-
-/* Styles for the jQuery.blockUI overlay.
- */
-.blockOverlay {
-	background: #000;
-	opacity:	0.6;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
-	filter:		alpha(opacity=60);
-	cursor:		default;
-}
-
-/* Styles applied when using jQuery.growlUI.
- */
-.growlUI {
-	width:  	350px;
-	top:		10px;
-	left:   	0px;
-	right:  	10px;
-	border: 	none;
-	padding:	5px;
-	opacity:	0.6;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
-	filter:		alpha(opacity=60);
-	cursor: 	default;
-	color:		#fff;
-	background: #000;
-	-webkit-border-radius: 10px;
-	-moz-border-radius:	 10px;
-}
-.promptUI {
-	width:  	350px;
-	top:		10px;
-	left:   	0px;
-	right:  	10px;
-	border: 	none;
-	padding:	5px;
-	opacity:	0.9;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
-	filter:		alpha(opacity=90);
-	cursor: 	default;
-	color:		#fff;
-	background: #000;
-	-webkit-border-radius: 10px;
-	-moz-border-radius:	 10px;
-}
-
-
-/*
-.cover_art {
-	height: 80px;
-	width: auto;
-	margin-right: 10px;
-}
-.art_box {
-	float: left;
-}
-.summary_info {
-	clear: left;
-}
-.clear {
-	clear: left;
-}
-.nav_bar {
-	clear: left;
-}
-*/
 
 .summary_info .info_line > span {
 	padding: 0 5px 0 5px;
@@ -168,12 +83,6 @@ dd {
 .account_summary .status_line span, .account_summary .info_line span, .account_summary .info_line > a, .holding.status_line > span {
 	padding: 0 12px 0 0;
 }
-
-/*
-.logout {
-	margin: 0 50% 0 50%;
-}
-*/
 
 /* Perform auto-scaling of cover art images
  */
