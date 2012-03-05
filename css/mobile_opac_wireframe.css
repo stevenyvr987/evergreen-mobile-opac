@@ -180,8 +180,7 @@ dd {
 #cover_art .content {
 	width: 100%;
 	text-align: center;
-	margin-right: 0;
-	margin-left: 0;
+	margin: 0;
 	padding: 0;
 }
 #cover_art .content img.cover_art {
