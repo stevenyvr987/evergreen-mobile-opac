@@ -103,7 +103,7 @@ $(Main) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc $(dirSrc)
+	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc $(dirSrc) $(dirSrc)/lib
 
 # Make main design document.
 doc : $(dirDoc)/design.html
