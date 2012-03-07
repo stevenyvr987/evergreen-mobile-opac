@@ -1,3 +1,5 @@
+window.ga_uid = 'UA-29733331-1'
+
 window.settings =
 
 	item_type:
@@ -28,4 +30,3 @@ window.settings =
 		pau: 'Palauan'
 		swe: 'Swedish'
 		nav: 'Navajo'
-

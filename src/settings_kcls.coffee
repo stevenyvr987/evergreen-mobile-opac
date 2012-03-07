@@ -1,3 +1,5 @@
+window.ga_uid = 'UA-3018520-11'
+
 window.settings =
 
 	facets:

@@ -16,6 +16,11 @@ Deferred.define()
 # Deferred.onerror = (e) -> alert e + "\n" + JSON.stringify e, null, '  '
 
 
+# We will prepare Google Analytics tracking if an account ID is specified.
+if window.ga_uid?
+	thunk imports('lib.jquery_ga'), -> $.ga window.ga_uid
+
+
 # The mobile OPAC can be passed run-time parameters in the query string.
 # We parse it for any such parameters and make them available in _window.query_.
 ( (q) ->
