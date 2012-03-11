@@ -1,14 +1,14 @@
 # date.coffee
 #
-# A jMod module providing convenience functions for the Date class.
+# A module providing convenience functions for the Date class.
 
-module 'eg.date', ->
+define ->
 
-	@now = -> new Date().getTime()
+	now: -> new Date().getTime()
 
-	@year = -> new Date().getFullYear()
+	year: -> new Date().getFullYear()
 
-	@current = ->
+	current: ->
 
 		zero_pad = (num) ->
 			# Taken from date.js, MIT/GPL
@@ -18,4 +18,3 @@ module 'eg.date', ->
 		date = new Date()
 		date.getFullYear() + '-' + zero_pad(date.getMonth() + 1) + '-' + date.getDate()
 
-	return @

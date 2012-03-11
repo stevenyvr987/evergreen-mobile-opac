@@ -12,12 +12,12 @@
 # * Publish an object representing the form input values upon the user submitting the form
 # * Receive an object and modify the search form accordingly
 
-module 'opac.search_bar', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'plugin'
-	'opac.ou_tree'
-), (eg) ->
-
+	'opac/ou_tree'
+], ($, eg) ->
 	# ***
 	# Define the search form.
 	# The form contains input and selector elements that are named after request parameters.

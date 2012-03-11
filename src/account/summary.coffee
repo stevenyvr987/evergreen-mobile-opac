@@ -21,14 +21,15 @@
 #
 # If the plugin receives *refresh*, it will refresh all summary lines.
 
-module 'account.summary', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
-	'account.fines'
-	'account.checkouts'
-	'account.holds'
-), (eg, _) ->
+	'account/fines'
+	'account/checkouts'
+	'account/holds'
+], ($, eg, _) ->
 
 	# ***
 	# Each summary line is implemented by a template,

@@ -6,11 +6,12 @@
 # * Refresh the list upon receiving *refresh*
 # * Publish *holds_summary* to synchronize its summary line
 
-module 'account.holds', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
-), (eg, _) ->
+], ($, eg, _) ->
 
 
 	# ***

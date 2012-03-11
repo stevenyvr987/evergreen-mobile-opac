@@ -14,13 +14,16 @@
 # The converse operation is accomplished by the *mapfield* function.
 
 # The module is dependent on Javascript files that are not packaged as modules.
-# Here, we synchronously load them into the module for use.
 # *fmall* will supply a global object *fmclasses* that defines
 # a mapping between position indices and field names.
 # *fm_datatypes* will supply another global object that maps between fields and data types.
-jMod.include 'dojo.fieldmapper.fmall', 'eg.fm_datatypes'
+define [
+	'js/dojo/fieldmapper/fmall.js'
+	'js/eg/fm_datatypes.js'
+], ->
 
-module 'eg.fieldmapper', ->
+	# Define an export object to reference the exported functions.
+	expo = {}
 
 	# ***
 	# Define a helper function to guard a given function
@@ -37,7 +40,7 @@ module 'eg.fieldmapper', ->
 				return fn.apply @, arguments
 
 	# Define a public object to cast data types.
-	@ret_types =
+	expo.ret_types =
 
 		# We type cast a given input as a number or string
 		# except if it is a null value.
@@ -77,7 +80,7 @@ module 'eg.fieldmapper', ->
 	# Define a public function to 'flatten' a given tree of objects.
 	# *opac_visible* objects are returned in a list.
 	# > FIXME: this could be integrated into *ret_types()* as another type cast operation,
-	@flatten_tree = (o) ->
+	expo.flatten_tree = (o) ->
 
 		_flatten_tree = (os) ->
 			a = []
@@ -98,9 +101,9 @@ module 'eg.fieldmapper', ->
 	# We define a helper object for use by the public *fieldmap* function
 	# to cast data types for client use.
 	# We have to guard against casting only null values.
-	typemap =
+	expo.typemap =
 		'':        (x) -> x
-		'fm':      guard_null (x) => if typeof x is 'object' then @fieldmap x else x
+		'fm':      guard_null (x) => if typeof x is 'object' then expo.fieldmap x else x
 		'number':  guard_null Number
 		'string':  guard_null String
 
@@ -131,7 +134,7 @@ module 'eg.fieldmapper', ->
 		o = {}
 		if (ts = fm_datatypes[c])?
 			for name, n in fmclasses[c]
-				o[name] = if t = ts[name] then typemap[t] p[n] else p[n]
+				o[name] = if t = ts[name] then expo.typemap[t] p[n] else p[n]
 		else
 			for name, n in fmclasses[c]
 				o[name] = p[n]
@@ -149,7 +152,7 @@ module 'eg.fieldmapper', ->
 	# 	fmclasses         =  {        classhint:        ['a',   'b',   'c'   ] }
 	# 	ys = fieldmap(x) // [{                           'a':1, 'b':2, 'c':3   }]
 	#
-	@fieldmap = (x) ->
+	expo.fieldmap = (x) ->
 		if $.isArray x
 			return x unless x.length
 			_fieldmap(a.__c, a.__p) for a in x when a.__c
@@ -162,9 +165,9 @@ module 'eg.fieldmapper', ->
 	# a helper object for use by *mapfield()*
 	# to cast data types for server use.
 	# We have to guard against only null types.
-	maptype =
+	expo.maptype =
 		'':        (x) -> x
-		'fm':      guard_null (x, cls) => if typeof x is 'object' then @mapfield { cls:x } else x
+		'fm':      guard_null (x, cls) => if typeof x is 'object' then expo.mapfield { cls:x } else x
 		'number':  guard_null Number
 		'string':  guard_null String
 		'date':    (x) -> x
@@ -179,17 +182,16 @@ module 'eg.fieldmapper', ->
 	# 	fmclasses          =  {        classhint:        ['a',   'b',   'c'   ] }
 	# 	ys = mapfield(xs) // [{ '__c': classhint, '__p': [    1,     2,     3 ] }]
 	#
-	@mapfield = (xs) ->
+	expo.mapfield = (xs) ->
 		p = []
 		for c, o of xs
 			class_hint = c
 			if (ts = fm_datatypes[c])?
 				for name, n in fmclasses[c]
-					p[n] = if t = ts[name] then maptype[t] o[name], c else o[name]
+					p[n] = if t = ts[name] then expo.maptype[t] o[name], c else o[name]
 			else
 				for name, n in fmclasses[c]
 					p[n] = o[name]
 		__c: class_hint, __p: p
 
-	return @
-
+	return expo

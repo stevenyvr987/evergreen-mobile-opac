@@ -10,21 +10,19 @@
 # $.ga 'UA-12345678-9', ['_trackPageview', 'url'], ['_trackEvent', 'name', value]
 
 _gaq = []
-module 'lib.jquery_ga', ->
-	( ($) ->
-		$.ga = (uid, commands...) ->
-			protocol = if document.location.protocol is 'https:' then 'https://ssl' else 'http://www'
-			$.ajax
-				type: 'GET'
-				url: "#{protocol}.google-analytics.com/ga.js"
-				dataType: 'script'
-				data: null
-				cache: true
-				success: ->
-					# Add the setAccount command to the command stream
-					len = commands.unshift ['_setAccount', uid]
-					# Default the command stream to trackPageview if there are no other commands
-					commands.push ['_trackPageview'] if len is 1
-					_gaq.push commands
-					return
-	)(jQuery)
+define ['jquery'], ($) ->
+	$.ga = (uid, commands...) ->
+		protocol = if document.location.protocol is 'https:' then 'https://ssl' else 'http://www'
+		$.ajax
+			type: 'GET'
+			url: "#{protocol}.google-analytics.com/ga.js"
+			dataType: 'script'
+			data: null
+			cache: true
+			success: ->
+				# Add the setAccount command to the command stream
+				len = commands.unshift ['_setAccount', uid]
+				# Default the command stream to trackPageview if there are no other commands
+				commands.push ['_trackPageview'] if len is 1
+				_gaq.push commands
+				return

@@ -7,11 +7,12 @@
 # * Refresh the list upon receiving *refresh*
 # * Publish *checkouts_summary* to synchronize its summary line
 
-module 'account.checkouts', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
-), (eg, _) ->
+], ($, eg, _) ->
 
 
 	# ***

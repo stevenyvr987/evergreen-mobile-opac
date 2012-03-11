@@ -13,12 +13,13 @@
 # * As a scrolling analogue, response 3 will also occur
 # upon the plugin receiving an ID value and a plus or minus step indicator on *title*
 
-module 'opac.search_result', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
 	'cover_art'
-), (eg, _) ->
+], ($, eg, _) ->
 
 	# ***
 	# Define the plugin content, a list view of title summaries.
@@ -302,7 +303,7 @@ module 'opac.search_result', imports(
 			if $li and (id = get_id $li) and request
 				count = offset + 1 + $('li').index $li
 				# >FIXME: it would be better for the main js file to load the required modules.
-				thunk imports('login_window', 'opac.edit_hold'), ->
+				require ['login_window', 'opac/edit_hold'], ->
 					$('#edit_hold').edit_hold() unless $('#edit_hold').plugin()
 					$('#login_window').login_window() unless $('#login_window').plugin()
 					$this.publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
@@ -401,7 +402,7 @@ module 'opac.search_result', imports(
 # ***
 # We define the *page_bar* module
 # to contain a jQuery plugin to navigate between pages of search results.
-module 'opac.page_bar', imports('template'), (_) ->
+#module 'opac.page_bar', imports('template'), (_) ->
 
 	nav_start = '<span data-role="button" data-icon="arrow-l" data-inline="true" class="start">Start</span>'
 	nav_prev =  '<span data-role="button" data-icon="arrow-u" data-inline="true" class="prev">Previous</span>'

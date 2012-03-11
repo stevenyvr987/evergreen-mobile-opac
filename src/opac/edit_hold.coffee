@@ -11,13 +11,14 @@
 # * Place other types of holds, eg, on the title's copies or volumes
 # * Edit an already placed hold
 
-module 'opac.edit_hold', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
-	'opac.ou_tree'
+	'opac/ou_tree'
 	'cover_art'
-), (eg, _) ->
+], ($, eg, _) ->
 
 	# ***
 	# Define a jQuery plugin to show title details of a possible hold target.

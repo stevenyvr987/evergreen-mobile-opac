@@ -2,7 +2,10 @@
 # The module defines a variety of custom jQuery methods
 # that can be applied to custom-defined plugins.
 
-module 'plugin', imports('eg.eg_api'), (eg) ->
+define [
+	'jquery'
+	'eg/eg_api'
+], ($, eg) ->
 
 	# ### Define a _plugin_ method
 	# Use the method to label custom plugins with a given classname

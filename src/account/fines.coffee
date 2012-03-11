@@ -3,11 +3,12 @@
 # The plugin will refresh the list upon receiving *refresh*.
 # Currently, the plugin will not enable the user to interactively select bills and pay them.
 
-module 'account.fines', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'template'
 	'plugin'
-), (eg, _) ->
+], ($, eg, _) ->
 
 
 	# ***

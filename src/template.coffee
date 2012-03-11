@@ -1,8 +1,8 @@
-# We define a jMod version of the template method from underscore.js.
+# We define a module for the template method from underscore.js.
 # Templates are used extensively in jQuery plugins
 # to define areas of display and interactivity on the screen.
 
-module 'template', ->
+define ->
 
 	# By default, Underscore uses ERB-style template delimiters.
 	# Here, we change the following template settings to use alternative delimiters.
@@ -21,7 +21,7 @@ module 'template', ->
 	# "Secrets of the JavaScript Ninja", page 83.
 	# Single-quote fix from Rick Strahl's version.
 	# With alterations for arbitrary delimiters.
-	this.template = (str, data) ->
+	template: (str, data) ->
 
 		x = str.replace(/[\r\t\n]/g, " ")
 			.replace(endMatch, "\t")
@@ -34,5 +34,3 @@ module 'template', ->
 		x = "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('#{x}');}return p.join('');"
 		fn = new Function 'obj', x
 		if data then fn data else fn
-
-	return

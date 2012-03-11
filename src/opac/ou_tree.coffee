@@ -3,7 +3,7 @@
 # If an originating library system has been chosen by the query string,
 # we will narrow the option list to the system branches.
 
-module 'opac.ou_tree', imports('eg.eg_api'), (eg) ->
+define ['jquery', 'eg/eg_api'], ($, eg) ->
 
 	# We define a default configuration for the plugin.
 	defaults = {

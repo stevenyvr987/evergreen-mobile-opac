@@ -19,10 +19,11 @@
 # Once a login session has been started,
 # the plugin will publish the username on *login_event*.
 
-module 'login_window', imports(
-	'eg.eg_api'
+define [
+	'jquery'
+	'eg/eg_api'
 	'plugin'
-), (eg) ->
+], ($, eg) ->
 
 	# ---
 	# Define the content of the form for inputting user credentials,

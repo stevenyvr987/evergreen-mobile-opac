@@ -4,10 +4,11 @@
 # and will indicate who is currently logged in.
 # The plugin will respond to click events from the user,
 # and will subscribe to custom login and logout events.
-module 'login_bar', imports(
+define [
+	'jquery'
 	'template'
 	'plugin'
-), (_) ->
+], ($, _) ->
 
 	# Define the HTML template for the login button.
 	tpl_login = _.template '''
@@ -46,7 +47,7 @@ module 'login_bar', imports(
 			# > FIXME: we are referencing the login window by its id.
 			# However, the id of a plugin should not be known by another plugin,
 			# and so is not good coding practise.
-			thunk imports('login_window'), ->
+			require ['login_window'], ->
 				$x = $('#login_window')
 				$x.login_window() unless $x.plugin()
 				$.mobile.changePage $x
@@ -62,7 +63,7 @@ module 'login_bar', imports(
 		# we try to delete the user session by making the relevant service call.
 		.delegate '.logout', 'click', ->
 			# A service call requires the Evergreen API module, which is imported upon demand.
-			thunk imports('eg.eg_api'), (eg) -> eg.openils 'auth.session.delete'
+			require ['eg/eg_api'], (eg) -> eg.openils 'auth.session.delete'
 			return false
 
 		# Upon receiving a logout event,
