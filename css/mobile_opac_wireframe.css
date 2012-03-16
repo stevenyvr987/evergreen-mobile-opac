@@ -95,3 +95,6 @@ dd {
 #cover_art .content img.cover_art {
 	width: 100%;
 }
+.message {
+	text-align: center;
+}
