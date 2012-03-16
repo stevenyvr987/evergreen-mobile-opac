@@ -103,6 +103,7 @@ define [
 
 	# ***
 	# Define a function to make a service call to try to renew an item given a copy ID.
+	$plugin = {}
 	renew = (xid) ->
 		eg.openils 'circ.renew', parseInt(xid), (result) ->
 			# >FIXME:
@@ -110,22 +111,13 @@ define [
 			# we will have *result.circ*, *result.copy*, and *result.record* objects on hand.
 			# Using their information, we could refresh individual status lines
 			# rather than refreshing the entire list.
+			$plugin.refresh().publish('checkouts_summary')
 
 
 	# ***
 	# Define the jQuery plugin to show and control a list of items.
 	$.fn.checkouts = ->
 		$plugin = @plugin('acct_checkouts').trigger('create')
-
-		# Define a function to refresh details list and summary line.
-		# We will refresh the list by issuing *refresh*;
-		# we will refresh the summary line by publishing *checkouts_summary*.
-		refresh = ->
-			$plugin.ajaxStop ->
-				$(@).unbind('ajaxStop')
-				.refresh()
-				.publish('checkouts_summary')
-				return false
 
 		# Upon receiving *refresh*,
 		# we will recreate and refresh the list.
@@ -182,7 +174,6 @@ define [
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				renew xid.value for xid in xids
-				refresh()
 			else
 				$(@).publish 'notice', ['Nothing was done because no items were selected.']
 			return false
@@ -194,7 +185,6 @@ define [
 			$xs = $(@).closest('form').find('input:checkbox:enabled')
 			if $xs.length
 				$xs.each -> renew $(@).val()
-				refresh()
 			else
 				$(@).publish 'notice', ['Nothing was done because no items can be renewed.']
 			return false

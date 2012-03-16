@@ -120,9 +120,11 @@ define [
 	# to try to cancel a hold given its transaction id.
 	# If the cancellation request failed,
 	# we will publish a prompt to the user.
+	$plugin = {}
 	cancel = (hold) ->
 		eg.openils 'circ.hold.cancel', hold, (status) ->
 			if status is 1
+				$plugin.refresh().publish 'holds_summary'
 				return
 			else
 				$().publish 'prompt', ['Hold was not cancelled', status]
@@ -140,6 +142,7 @@ define [
 				# Upon success, the original ID will be returned.
 				# We could update the individual status lines
 				# rather than refreshing the holds list.
+				$plugin.refresh().publish 'holds_summary'
 				return id
 			else
 				$().publish 'prompt', ['Hold was not updated', id]
@@ -153,16 +156,6 @@ define [
 
 		# Define a list of current holds for logged-in user.
 		holds = []
-
-		# Define a function to refresh details list and summary line.
-		# We will refresh the list by issuing *refresh*;
-		# we will refresh the summary line by publishing *holds_summary*.
-		refresh = ->
-			$plugin.ajaxStop ->
-				$(@).unbind('ajaxStop')
-				.refresh()
-				.publish 'holds_summary'
-				return false
 
 		# Upon receiving *refresh*,
 		# we will recreate and refresh the list.
@@ -248,7 +241,6 @@ define [
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				cancel xid.value for xid in xids
-				refresh()
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
@@ -261,7 +253,6 @@ define [
 						hold.frozen = suspend
 						update hold
 						break
-				refresh()
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
@@ -274,7 +265,6 @@ define [
 			$xs = $(@).closest('form').find('input:checkbox')
 			if $xs.length
 				$xs.each -> cancel $(@).val()
-				refresh()
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds can be cancelled.']
 			return false
@@ -289,7 +279,6 @@ define [
 						hold.frozen = suspend
 						update hold
 						break
-				refresh()
 			else
 				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to activate.']
 			return false
