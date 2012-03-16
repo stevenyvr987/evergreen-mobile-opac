@@ -26,7 +26,7 @@ require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
 
 	# We will prepare Google Analytics tracking if an account ID is specified.
 	if window.ga_uid?
-		require ['js/lib/jquery_ga.js'], -> $.ga window.ga_uid
+		require ['jquery_ga'], -> $.ga window.ga_uid
 
 
 	# The mobile OPAC can be passed run-time parameters in the query string.
