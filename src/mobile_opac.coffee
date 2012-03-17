@@ -69,8 +69,13 @@ require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
 		# we will load and apply the search bar and result summary plugins.
 		# The search bar will be customized by values found in _window.settings_.
 		$('#opac_search').one 'click', ->
-			require ['opac/search_bar'], -> $('#search_bar').search_bar(window.settings)
-			require ['opac/search_result', 'cover_art'], -> $('#result_summary').result_summary().cover_art()
+			require [
+				'opac/search_bar'
+				'opac/search_result'
+				'cover_art'
+			], ->
+				$('#search_bar').search_bar(window.settings)
+				$('#result_summary').result_summary().cover_art()
 			return # We allow the click event to bubble up to the accordion link.
 
 		# Whenever the user expands the search bar,
