@@ -12,9 +12,9 @@ require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
 
 	# The mobile OPAC uses _jQuery Mobile_.
 	# We customize some jQM options.
-	jQuery.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false
+	$.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false
 	# We disable jQM's ajax mechanism since we are using the one in jQuery.
-	jQuery.mobile.ajaxEnabled = false
+	$.mobile.ajaxEnabled = false
 
 	# The mobile OPAC uses _JSDeferred_ to manage deferrments.
 	# We initialize the service for use.
@@ -41,7 +41,6 @@ require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
 		window['query'] = query
 	)(window.location.search.substring(1))
 
-	# Upon document is ready...
 	$ ->
 		# We will apply a load spinner to the body.  The load spinner will
 		# indicate that data is being transferred across the network.
