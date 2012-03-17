@@ -1,6 +1,5 @@
 # We define a module to contain a jQuery plugin
 # to show an interactive form for inputting user credentials.
-# The form will be shown inside a jQuery Mobile dialog page.
 # The plugin will respond to submit and cancel events from the user.
 #
 # The plugin will also respond to 'login_required'.
@@ -73,7 +72,7 @@ define [
 	$.fn.login_window = ->
 		$plugin = @plugin('login_window')
 
-		# Upon the plugin's initial use, we build the content of the login dialog.
+		# Upon the plugin's initial use, we build the content of the login page.
 		@find('.content').html(content).trigger('refresh')
 
 		# Upon the user submitting the form,
@@ -104,8 +103,8 @@ define [
 					# it would be nicer if this operation was part of the session.create operation;
 					# search service in eg.api needs auth.session.settings if logged in.
 					eg.openils 'auth.session.retrieve', ->
-						# Upon success, we close the login dialog and empty its content.
-						$plugin.dialog 'close'
+						# Upon success, we close the login page and empty its content.
+						history.back()
 						$f
 						.find('input[name=username]').val('').end()
 						.find('input[name=password]').val('').end()
@@ -123,10 +122,10 @@ define [
 
 		# Upon the user cancelling the form,
 		# ie, clicking the cancel button or pressing the escape key in input boxes,
-		# we close the login dialog and empty its content.
+		# we close the login page and empty its content.
 		.delegate 'button[type=reset]', 'click', cancel = =>
-			@dialog('close')
-			.find('input[name=username]').val('').end()
+			history.back()
+			@find('input[name=username]').val('').end()
 			.find('input[name=password]').val('').end()
 			# We should also empty the list of deferments.
 			deferreds = []
@@ -137,7 +136,7 @@ define [
 			return false
 
 		# Upon the plugin being notified that a login is required,
-		# we open the login dialog.
+		# we open the login page.
 		$plugin.bind 'login_required', (e, d) ->
 			$.mobile.changePage $(@)
 			# We should also add any deferred service callback to our list.

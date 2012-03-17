@@ -43,13 +43,13 @@ require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
 
 	# Upon document is ready...
 	$ ->
-		# We will apply a message box and a load spinner to the main container,
-		# The message box will display error or progress messages.  The load
-		# spinner will indicate that data is being transferred across the
-		# network.
-		$('#main')
-			.messages()
-			.load_spinner()
+		# We will apply a load spinner to the body.  The load spinner will
+		# indicate that data is being transferred across the network.
+		$('body').load_spinner()
+
+		# We will apply a message box.  The message box will display error or
+		# progress messages.
+		$('#messages').messages()
 
 		# We will prepare a container for enabling the user to log in or log out.
 		$('#login_bar').login_bar()

@@ -35,21 +35,19 @@ define [
 		@plugin('messages')
 
 		# Upon receving a notice, show any messages for a brief time.
-		.subscribe 'notice', (xs) =>
+		.subscribe 'notice', (xs) ->
 			setTimeout((-> $.mobile.sdCurrentDialog.close()), 2000)
-			$.mobile.changePage @
 			(xs = [xs]) unless $.isArray xs
 			for x in xs
-				@simpledialog2 $.extend {}, sd_behaviour,
+				$('<div>').simpledialog2 $.extend {}, sd_behaviour,
 					blankContent: "<h3 class='message'>#{the_message x}</h3>"
 			return false
 
 		# Upon receiving a prompt, show any messages until the user clicks the button.
-		.subscribe 'prompt', (type, xs) =>
-			$.mobile.changePage @
+		.subscribe 'prompt', (type, xs) ->
 			(xs = [xs]) unless $.isArray xs
 			for x in xs
-				@simpledialog2 $.extend {}, sd_behaviour,
+				$('<div>').simpledialog2 $.extend {}, sd_behaviour,
 					headerText: type
 					headerClose: true
 					blankContent: "<h3 class='message'>#{the_message x}</h3>"
