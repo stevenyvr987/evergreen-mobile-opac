@@ -9,7 +9,7 @@
 
 define [
 	'jquery'
-	'js/lib/md5.js'
+	'md5'
 	'eg/fieldmapper'
 	'eg/date'
 ], ($, md5, fm, date) ->

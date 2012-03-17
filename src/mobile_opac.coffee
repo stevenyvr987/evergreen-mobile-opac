@@ -4,9 +4,14 @@ require.config
 		jqm:    'http://code.jquery.com/mobile/1.1.0-rc.1/jquery.mobile-1.1.0-rc.1.min'
 		json2:  'http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2'
 		jsd:    'lib/jsdeferred'
+		md5:    'lib/md5'
+		jqm_sd: 'lib/jquery.mobile.simpledialog2'
+		fmall:  'dojo/fieldmapper/fmall'
+		fmd:    'eg/fm_datatypes'
+	priority: ['jquery', 'jqm', 'json2', 'jsd']
 
-require priority: ['jquery', 'jqm', 'json2', 'jsd'], [
-	'jquery'
+require [
+	'jquery', 'jqm', 'json2', 'jsd'
 	'messages2', 'load_spinner', 'login_bar'
 ], ($) ->
 

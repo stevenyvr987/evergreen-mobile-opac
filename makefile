@@ -22,6 +22,8 @@
 # Source directory contains coffeescript, unminified javascript,
 # and map files compiled as a result of minification.
 dirSrc = src
+# JS directory contains javascript files compiled from coffeescript files
+dirJS = js-compile
 # Min directory contains minified javascript files.
 dirMin = min
 # Build directory contains javascript and other files intended to be installed on target system.
@@ -103,7 +105,7 @@ $(Main) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc $(dirSrc) $(dirSrc)/lib
+	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc -o $(dirJS) $(dirSrc)
 
 # Make main design document.
 doc : $(dirDoc)/design.html

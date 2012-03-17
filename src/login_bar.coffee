@@ -6,9 +6,10 @@
 # and will subscribe to custom login and logout events.
 define [
 	'jquery'
+	'jqm'
 	'template'
 	'plugin'
-], ($, _) ->
+], ($, jqm, _) ->
 
 	# Define the HTML template for the login button.
 	tpl_login = _.template '''

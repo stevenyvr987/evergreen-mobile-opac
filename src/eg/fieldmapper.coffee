@@ -17,10 +17,7 @@
 # *fmall* will supply a global object *fmclasses* that defines
 # a mapping between position indices and field names.
 # *fm_datatypes* will supply another global object that maps between fields and data types.
-define [
-	'js/dojo/fieldmapper/fmall.js'
-	'js/eg/fm_datatypes.js'
-], ->
+define ['fmall', 'fmd'], ->
 
 	# Define an export object to reference the exported functions.
 	expo = {}

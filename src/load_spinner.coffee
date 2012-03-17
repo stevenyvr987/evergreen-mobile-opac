@@ -1,5 +1,5 @@
 # We define a module called 'load_spinner'.
-define ['jquery', 'plugin'], ($) ->
+define ['jquery', 'jqm', 'plugin'], ($) ->
 
 	# The module defines a jQuery plugin to show or hide a spinner graphic.
 	# It is actually a wrapper to use jQuery Mobile's 'page loading message' as the graphic.
