@@ -2,10 +2,7 @@
 # The module defines a variety of custom jQuery methods
 # that can be applied to custom-defined plugins.
 
-define [
-	'jquery'
-	'eg/eg_api'
-], ($, eg) ->
+define ['jquery'], ($) ->
 
 	# ### Define a _plugin_ method
 	# Use the method to label custom plugins with a given classname
@@ -97,43 +94,6 @@ define [
 
 	# FIXME: Not used.
 	@.isEmpty = isEmpty = (o) -> not (1 for p of o).length
-
-
-	# ### Define a jQuery method of _eg.openils()_
-	# Use the method to make service calls in the context of jQuery objects.
-	# While waiting for the server response, the method will show a loading message to the user.
-	# If the server responds, the method will call the service callback with the response.
-	# Otherwise, the method will show a failed message to the user.
-	$.fn.openils = (usage, svc) ->
-
-		# Define the service callback,
-		# which is specified in the 3rd or 4th position of the argument list.
-		cb = ->
-
-		# Define a helper to determine whether to call cb() or failed().
-		succeeded_or_failed = (res) =>
-			# >FIXME: we ought to fix eg.api so that the ilsevent object need not be used here.
-			if res.ilsevent? or res instanceof Error
-				@failed usage
-			else
-				cb.call @succeeded(), res
-
-		@loading usage
-		switch arguments.length
-			when 4
-				cb = arguments[3]
-				d = eg.openils svc, arguments[2], succeeded_or_failed
-			when 3
-				cb = arguments[2]
-				d = eg.openils svc, succeeded_or_failed
-			else
-				# We catch a possible coding error in the OPAC:
-				# there should be at least three entries in the argument list.
-				return @failed(usage).publish 'prompt', ['Client error', "Malformed service method #{svc}"]
-		# We catch another possible coding error in the OPAC:
-		# eg.openils() normally returns a deferred object, not an array.
-		@failed(usage).publish 'prompt', ['Client error', "Undefined service method #{svc}"] if $.isArray d
-		return @
 
 
 	# ### Define a jQuery method of _parallel()_
