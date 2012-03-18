@@ -304,8 +304,8 @@ define [
 				count = offset + 1 + $('li').index $li
 				# >FIXME: it would be better for the main js file to load the required modules.
 				require ['login_window', 'opac/edit_hold'], ->
-					$('#edit_hold').edit_hold() unless $('#edit_hold').plugin()
-					$('#login_window').login_window() unless $('#login_window').plugin()
+					$('#edit_hold').edit_hold()
+					$('#login_window').login_window()
 					$this.publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
 			return false
 

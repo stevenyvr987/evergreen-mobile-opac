@@ -87,6 +87,7 @@ define [
 	# ***
 	# Define a jQuery plugin to show account summary lines.
 	$.fn.acct_summary = ->
+		return @ if @plugin()
 		@plugin('acct_summary')
 		# > FIXME:
 		# The main div may be inadvertently shown after a session timeout.

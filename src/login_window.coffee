@@ -70,6 +70,7 @@ define [
 	# ---
 	# Define the login window plugin.
 	$.fn.login_window = ->
+		return @ if @plugin()
 		$plugin = @plugin('login_window')
 
 		# Upon the plugin's initial use, we build the content of the login page.

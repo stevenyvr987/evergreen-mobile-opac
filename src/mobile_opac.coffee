@@ -67,7 +67,7 @@ require [
 			$('.account_summary', @).show()
 			# We will also load and apply the account summary plugin
 			# if it hasn't been applied before.
-			require ['account/summary'], => @acct_summary() unless @plugin()
+			require ['account/summary'], => @acct_summary()
 			return false
 
 		# Upon starting an OPAC search for first time,

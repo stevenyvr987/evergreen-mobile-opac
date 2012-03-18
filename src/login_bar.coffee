@@ -45,13 +45,10 @@ define [
 			# Since the user may not log in at all during an OPAC session,
 			# we import the module on demand.
 			#
-			# > FIXME: we are referencing the login window by its id.
-			# However, the id of a plugin should not be known by another plugin,
-			# and so is not good coding practise.
-			require ['login_window'], ->
-				$x = $('#login_window')
-				$x.login_window() unless $x.plugin()
-				$.mobile.changePage $x
+			# > FIXME: this plugin is referencing the login window, which is
+			# another plugin, by its id, but for better maintainability, a
+			# plugin should not know another plugin's id.
+			require ['login_window'], -> $.mobile.changePage $('#login_window').login_window()
 			return false
 
 		# Upon receiving a login event,

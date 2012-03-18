@@ -387,6 +387,7 @@ define [
 	# * If the user presses next or previous links on the nav bar
 	#
 	$.fn.edit_hold = ->
+		return @ if @plugin()
 
 		# One of the responsibility of the master plugin
 		# is to define a navigation bar to allow the user
