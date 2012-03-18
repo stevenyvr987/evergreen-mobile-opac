@@ -70,18 +70,11 @@ require [
 			require ['account/summary'], => @acct_summary()
 			return false
 
-		# Upon starting an OPAC search for first time,
-		# we will load and apply the search bar and result summary plugins.
-		# The search bar will be customized by values found in _window.settings_.
+		# Upon starting an OPAC search for first time, we will load and apply
+		# the opac search page.
 		$('#opac_search').one 'click', ->
-			require [
-				'opac/search_bar'
-				'opac/search_result'
-				'cover_art'
-			], ->
-				$('#search_bar').search_bar(window.settings)
-				$('#result_summary').result_summary().cover_art()
-			return # We allow the click event to bubble up to the accordion link.
+			require ['opac/search'], => $(@).opac_search()
+			return # need to bubble up click event for jQM
 
 		# Whenever the user expands the search bar,
 		# my account summary bars should collapse, and vice versa.
