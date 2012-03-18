@@ -1,9 +1,8 @@
-# We define a jMod module called 'login_bar'.
-# The module is a jQuery plugin to define an interactive login bar.
-# The plugin will show a button to either log in or log out
-# and will indicate who is currently logged in.
-# The plugin will respond to click events from the user,
-# and will subscribe to custom login and logout events.
+# We define a custom jQuery plugin to define an interactive login bar.  The
+# plugin will show a button to either log in or log out and will indicate who
+# is currently logged in.  The plugin will respond to click events from the
+# user, and will subscribe to custom login and logout events.
+
 define [
 	'jquery'
 	'jqm'
