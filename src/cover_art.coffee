@@ -35,7 +35,7 @@ define ['jquery'], ($) ->
 				.find('.content')
 				.empty().append($img)
 				.end()
-			$.mobile.changePage $page
+			$.mobile.changePage $page # #cover_art
 			$page.refresh
 			return false
 

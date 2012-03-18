@@ -71,7 +71,7 @@ define [
 	# Define the login window plugin.
 	$.fn.login_window = ->
 		return @ if @plugin()
-		$plugin = @plugin('login_window')
+		$login_w = @plugin('login_window')
 
 		# Upon the plugin's initial use, we build the content of the login page.
 		@find('.content').html(content).trigger('refresh')
@@ -138,8 +138,8 @@ define [
 
 		# Upon the plugin being notified that a login is required,
 		# we open the login page.
-		$plugin.bind 'login_required', (e, d) ->
-			$.mobile.changePage $(@)
+		$login_w.bind 'login_required', (e, d) ->
+			$.mobile.changePage $(@) # #login_window
 			# We should also add any deferred service callback to our list.
 			deferreds.push d
 			return false
