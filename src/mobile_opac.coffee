@@ -8,10 +8,11 @@ require.config
 		jqm_sd: 'lib/jquery.mobile.simpledialog2'
 		fmall:  'dojo/fieldmapper/fmall'
 		fmd:    'eg/fm_datatypes'
-	priority: ['jquery', 'jqm', 'json2', 'jsd']
+
+	priority: ['jquery', 'jqm', 'base']
 
 require [
-	'jquery', 'jqm', 'json2', 'jsd'
+	'jquery', 'jqm', 'base'
 	'messages2', 'load_spinner', 'login_bar'
 ], ($) ->
 
