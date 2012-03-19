@@ -6,7 +6,7 @@ define [
 	'jquery'
 	'opac/search_bar'
 	'opac/search_result'
-	'cover_art'
+	'opac/cover_art'
 	'plugin'
 ], ($) ->
 	$.fn.opac_search = ->

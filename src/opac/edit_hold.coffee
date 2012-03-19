@@ -17,7 +17,7 @@ define [
 	'template'
 	'plugin'
 	'opac/ou_tree'
-	'cover_art'
+	'opac/cover_art'
 ], ($, eg, _) ->
 
 	# ***

@@ -18,7 +18,7 @@ define [
 	'eg/eg_api'
 	'template'
 	'plugin'
-	'cover_art'
+	'opac/cover_art'
 ], ($, eg, _) ->
 
 	# ***
