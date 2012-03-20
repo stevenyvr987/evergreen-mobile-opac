@@ -17,9 +17,10 @@ define [
 	'jquery'
 	'eg/eg_api'
 	'template'
+	'settings'
 	'plugin'
 	'opac/cover_art'
-], ($, eg, _) ->
+], ($, eg, _, rc) ->
 
 	# ***
 	# Define the plugin content, a list view of title summaries.
@@ -193,7 +194,7 @@ define [
 				# we will show a *zero_hits* message and an optional *search_tips* message.
 				if x.result.count is 0
 					@append tpl_zero_hits query: x.result.query
-					@append window.search_tips if window.search_tips
+					@append rc.search_tips if rc.search_tips
 					return
 
 				# Otherwise, we will build page bars to indicate the length of the result list.

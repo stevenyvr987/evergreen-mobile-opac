@@ -12,9 +12,9 @@ require.config
 	priority: ['jquery', 'jqm', 'base']
 
 require [
-	'jquery', 'jqm', 'base'
+	'jquery', 'base', 'jqm'
 	'messages2', 'load_spinner', 'login_bar'
-], ($) ->
+], ($, rc) ->
 
 	# The mobile OPAC uses _jQuery Mobile_.
 	# We customize some jQM options.
@@ -31,8 +31,8 @@ require [
 
 
 	# We will prepare Google Analytics tracking if an account ID is specified.
-	if window.ga_uid?
-		require ['jquery_ga'], -> $.ga window.ga_uid
+	if rc.ga_uid?
+		require ['jquery_ga'], -> $.ga rc.ga_uid
 
 
 	# The mobile OPAC can be passed run-time parameters in the query string.
