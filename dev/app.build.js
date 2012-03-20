@@ -3,7 +3,7 @@
 	baseUrl: '../js-compile',
 	dir: '../js-build',
 	modules: [
-		  { name: 'mobile_opac' }
+		  { name: 'main' }
 		, { name: 'opac/search', exclude: ['base'] }
 		, { name: 'account/summary', exclude: ['base'] }
 	],
