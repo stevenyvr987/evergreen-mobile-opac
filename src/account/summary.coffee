@@ -24,12 +24,13 @@
 define [
 	'jquery'
 	'eg/eg_api'
+	'eg/auth'
 	'template'
 	'plugin'
 	'account/fines'
 	'account/checkouts'
 	'account/holds'
-], ($, eg, _) ->
+], ($, eg, auth, _) ->
 
 	# ***
 	# Each summary line is implemented by a template,
@@ -103,7 +104,7 @@ define [
 
 		# We will refresh the summary lines if the user is already logged in,
 		# otherwise, we will retrieve a session object before we refresh.
-		if eg.logged_in()
+		if auth.logged_in()
 			refresh_all()
 		else
 			@openils 'account summaries', 'auth.session.retrieve', refresh_all

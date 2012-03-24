@@ -14,11 +14,12 @@
 define [
 	'jquery'
 	'eg/eg_api'
+	'eg/auth'
 	'template'
 	'plugin'
 	'opac/ou_tree'
 	'opac/cover_art'
-], ($, eg, _) ->
+], ($, eg, auth, _) ->
 
 	# ***
 	# Define a jQuery plugin to show title details of a possible hold target.
@@ -486,7 +487,7 @@ define [
 				titleid: title_id # version 2.0 software
 				hold_type: 'T' # default type is 'title-level'
 				selection_depth: 0
-				pickup_lib: Number eg.auth.session.user.home_ou
+				pickup_lib: Number auth.session.user.home_ou
 
 			# We will show content based on the hold request.
 			show_content.call @, hold, search_ou, search_depth, $img
