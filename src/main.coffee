@@ -12,9 +12,9 @@ require.config
 	priority: ['jquery', 'jqm', 'base']
 
 require [
-	'jquery', 'base', 'jqm'
+	'jquery', 'jgm', 'base'
 	'messages2', 'load_spinner', 'login_bar'
-], ($, rc) ->
+], ($) ->
 
 	# The mobile OPAC uses _jQuery Mobile_.
 	# We customize some jQM options.
@@ -25,15 +25,8 @@ require [
 	# The mobile OPAC uses _JSDeferred_ to manage deferrments.
 	# We initialize the service for use.
 	Deferred.define()
-
 	# >For debugging: catch errors thrown by Deferred callbacks and show them as alert messages.
 	# Deferred.onerror = (e) -> alert e + "\n" + JSON.stringify e, null, '  '
-
-
-	# We will prepare Google Analytics tracking if an account ID is specified.
-	if rc.ga_uid?
-		require ['jquery_ga'], -> $.ga rc.ga_uid
-
 
 	# The mobile OPAC can be passed run-time parameters in the query string.
 	# We parse it for any such parameters and make them available in _window.query_.

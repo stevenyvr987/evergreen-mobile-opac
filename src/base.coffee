@@ -1,6 +1,5 @@
 # Define a placeholder module to require the common modules used across web
-# pages. For conveninece, it returns a reference to the settings module
-# which contains run-time configurations.
+# pages.
 
 define [
 	'settings'
@@ -9,4 +8,6 @@ define [
 	'eg/eg_api'
 	'plugin'
 	'template'
-], (settings) -> settings
+], (rc) ->
+	# We will prepare Google Analytics tracking if an account ID is specified.
+	require(['jquery_ga'], -> $.ga rc.ga_uid) if rc.ga_uid?
