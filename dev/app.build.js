@@ -4,8 +4,9 @@
 	dir: '../js-build',
 	modules: [
 		  { name: 'main' }
-		, { name: 'opac/search', exclude: ['base'] }
-		, { name: 'account/summary', exclude: ['base'] }
+		, { name: 'eg/eg_api' }
+		, { name: 'opac/search', exclude: ['base', 'eg/eg_api'] }
+		, { name: 'account/summary', exclude: ['base', 'eg/eg_api'] }
 	],
 	paths: {
 		jquery: 'empty:',
