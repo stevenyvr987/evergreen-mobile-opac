@@ -1,7 +1,8 @@
 
 ({
-	baseUrl: '../js-compile',
-	dir: '../js-build',
+	appDir: '../app',
+	dir: '../build',
+	baseUrl: 'scripts',
 	modules: [
 		  { name: 'main' }
 		, { name: 'eg/eg_api' }

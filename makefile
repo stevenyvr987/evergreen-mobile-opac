@@ -10,7 +10,7 @@
 # make
 #
 # ...for rebuilding minimized software for installing remotely
-# make clean-build build
+# make build
 #
 # ...for rebuilding source-level HTML documentation
 # make clean-docs docs
@@ -19,18 +19,17 @@
 # make mirror push
 
 
-# Source directory contains coffeescript, unminified javascript,
-# and map files compiled as a result of minification.
+# Directory containing coffeescript files
 dirSrc = src
-# JS directory contains javascript files compiled from coffeescript files
-dirJS = js-compile
-# Min directory contains minified javascript files.
-dirMin = min
-# Build directory contains javascript and other files intended to be installed on target system.
+# Directory containing uncompressed javascript files
+# and javascript files compiled from coffeescript files
+dirJS = app/scripts
+# Directory containing all application files,
+# including compressed javascript and css files for deployment
 dirBuild = build
-# Directory containing main design document.
+# Directory containing main design document
 dirDoc = doc
-# Directory containing source code documents.
+# Directory containing source code documents
 dirDocs = docs
 # Directory containing locally installed development tools
 dirDev = dev
@@ -38,10 +37,8 @@ dirDev = dev
 
 # Compile coffeescript to javascript using the coffee compiler.
 CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
-# Minify javascript using Google closure compiler.
-JStoMAP = java -jar $(dirDev)/closure/compiler.jar
-# Prepare build directory containing minified javascript and other files using rsync.
-Build = rsync -av --del --delete --exclude=.DS_Store
+# Command to optimize javascript files
+Build = node $(dirDev)/node_modules/.bin/r.js
 # Generate HTML documentation.
 CStoHTML = node $(dirDev)/node_modules/docco/bin/docco
 TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
@@ -58,33 +55,11 @@ TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
 %.html : %.txt    ; $(TXTtoHTML) $< > $@
 
 
-# Main modules
-Main = $(dirSrc)/*.map
-
-# Modules for searching public catalogue
-Opac = $(dirSrc)/opac/*.map
-
-# Modules for handling my account
-Account = $(dirSrc)/account/*.map
-
-# Modules for wrapping up Evergreen API layer
-Eg = $(dirSrc)/eg/*.map $(dirSrc)/dojo/fieldmapper/*.map
-
-# External javascript libraries
-Lib = $(dirSrc)/lib/*.map
+# Default rule to build optimized application files and HTML documentation
+all : build docs doc
 
 
-# Default rule to convert .coffee files to
-# * minified .js files ready for testing locally
-# * minified .js files ready for installing remotely
-# * HTML documentation
-all : min build docs doc
-
-# Compile .coffee files to minified .js files
-min : $(Main) $(Opac) $(Account) $(Eg) $(Lib)
-
-
-.PHONY : all min build docs doc clean clean-source clean-min clean-build coffee
+.PHONY : all build docs doc clean clean-build coffee mirror push
 
 # Declare the important suffixes for this makefile
 .SUFFIXES:
@@ -93,19 +68,11 @@ min : $(Main) $(Opac) $(Account) $(Eg) $(Lib)
 .PRECIOUS : %.js
 
 
-# Pattern rules
-#
-# Transform javascript files to source map files in the source directory
-# and minified javascript files in the min directory.
-$(Main) $(Opac) $(Account) $(Eg) $(Lib) : %.map : %.js
-	$(JStoMAP) --js=$< --create_source_map $@ --js_output_file=$(subst $(dirSrc),$(dirMin),$<)
-
-
 # Run the coffeescript compiler in watch mode on the src folder so that as
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	node $(dirDev)/node_modules/coffee-script/bin/coffee -wbc -o $(dirJS) $(dirSrc)
+	$(CStoJS) -w -o $(dirJS) $(dirSrc)
 
 # Make main design document.
 doc : $(dirDoc)/design.html
@@ -119,45 +86,18 @@ clean-docs :
 	-rm $(dirDoc)/*.html
 	-rm -rf $(dirDocs)
 
-# Build all minified .js files and other files to the build directory.
-build : min
-	-mkdir $(dirBuild)
-	$(Build) --exclude=dojo/ --include=.js  $(dirMin)/ $(dirBuild)/js
-	$(Build)                 --include=.css       css  $(dirBuild)
-	$(Build)                 --include=.gif    images  $(dirBuild)
-	$(Build)                                   *.html  $(dirBuild)
-	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
+# Build all compressed .js files and .css files in the build directory
+build :
+	$(Build) -o $(dirDev)/app.build.js
+	#-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
 clean-build :
 	-rm -rf $(dirBuild)
 
 # Remove compiled files in the various target directories.
-clean : clean-source clean-min clean-build clean-docs
-
-# Remove source map files in source/.
-# Ignore errors in the process.
-clean-source :
-	-rm $(dirSrc)/*.js
-	-rm $(dirSrc)/opac/*.js
-	-rm $(dirSrc)/account/*.js
-	-rm $(dirSrc)/eg/*.map
-	-rm $(dirSrc)/eg/date.js
-	-rm $(dirSrc)/eg/eg_api.js
-	-rm $(dirSrc)/eg/fieldmapper.js
-	-rm $(dirSrc)/lib/*.map
-	-rm $(dirSrc)/dojo/fieldmapper/*.map
-
-# Remove the minified javascript files in min/.
-# Ignore errors in the process.
-clean-min :
-	-rm -rf $(dirMin)
-	-mkdir -p $(dirMin)/opac
-	-mkdir -p $(dirMin)/account
-	-mkdir -p $(dirMin)/eg
-	-mkdir -p $(dirMin)/lib
-	-mkdir -p $(dirMin)/dojo/fieldmapper
+clean : clean-build clean-docs
 
 
-kcls : min
+kcls :
 	-rm index.html
 	ln -s index_kcls.html index.html
 	-rm build/index.html
@@ -168,7 +108,7 @@ kcls : min
 	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
 
 
-sitka : min
+sitka :
 	-rm index.html
 	ln -s index_sitka.html index.html
 	-rm build/index.html
