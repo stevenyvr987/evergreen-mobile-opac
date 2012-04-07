@@ -1,5 +1,7 @@
 define ->
-	ga_uid: 'UA-29733331-1'
+
+	# Supply a Google Analytics UID to trigger a download and installation of GA module
+	ga_uid: 'UA-12345678-1'
 
 	settings:
 
