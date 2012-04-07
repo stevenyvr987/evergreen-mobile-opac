@@ -5,12 +5,15 @@
 # ...while developing code as coffeescript files
 # make coffee
 #
-# ...for rebuilding all software and documentation
+# ...for rebuilding all software and documentation for deployment
 # make clean
 # make
 #
-# ...for rebuilding minimized software for installing remotely
+# ...for rebuilding minimized software for testing locally
 # make build
+#
+# ...for rebuilding minimized software for installing remotely
+# make deply
 #
 # ...for rebuilding source-level HTML documentation
 # make clean-docs docs
@@ -56,10 +59,10 @@ TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
 
 
 # Default rule to build optimized application files and HTML documentation
-all : build docs doc
+all : deploy docs doc
 
 
-.PHONY : all build docs doc clean clean-build coffee mirror push
+.PHONY : all build deploy docs doc clean clean-build coffee mirror push
 
 # Declare the important suffixes for this makefile
 .SUFFIXES:
@@ -86,10 +89,13 @@ clean-docs :
 	-rm $(dirDoc)/*.html
 	-rm -rf $(dirDocs)
 
-# Build all compressed .js files and .css files in the build directory
+# Optimize .js files and .css files in the build directory for development testing
 build :
 	$(Build) -o $(dirDev)/app.build.js
-	#-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
+# Optimize .js files and .css files in the build directory for deployment
+deploy :
+	$(Build) -o $(dirDev)/app.build.js
+	-ln -s ../../../../js/dojo $(dirBuild)/scripts/dojo
 clean-build :
 	-rm -rf $(dirBuild)
 
