@@ -471,7 +471,7 @@ Developing the mobile opac requires the use of software tools to compile the
 coffeescript files into javascript, to minimize the javascript files, and to
 build documentation.  Recent versions of the software tools are included as
 part of the mobile opac software in the folder called 'dev'.  However, the
-tools need to be runned under certain program languages and runtime
+tools run under certain program languages and runtime
 environments that need to be installed on a developer's workstation.  In the
 following, we outline the tools and their runtime environments.  The tools and
 languages are open-source software that can be installed on all platforms,
@@ -483,9 +483,9 @@ to run.  http://nodejs.org/#download[nodejs] provides that Javascript engine on
 the server and 'nodejs' has a package manager called http://npmjs.org[npm].
 Both should be installed on the developer's workstation.
 
-* 'closure' converts regular Javascript files into minified files for
-production use and is written in Java, which should be installed on the
-developer's workstation.
+* 'Requirejs' comes with a tool to convert Javascript files into minified files
+for production use.  'Requirejs' is a 'nodejs' module that can be installed
+using 'npm'.
 
 * 'asciidoc' and 'docco'.
 High-level documentation, such as this document, is written in 'asciidoc'
