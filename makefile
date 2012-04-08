@@ -77,7 +77,7 @@ all : deploy docs doc
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	$(CStoJS) -w -o $(dirApp)/scripts $(dirSrc)
+	$(CStoJS) -w -o $(dirApp)/js $(dirSrc)
 
 # Make main design document.
 doc : $(dirDoc)/design.html
@@ -99,7 +99,7 @@ build :
 deploy :
 	$(Build) -o $(dirDev)/app.build.js
 	$(BuildDate) < $(dirApp)/index.html > $(dirBuild)/index.html
-	-ln -s ../../../../js/dojo $(dirBuild)/scripts/dojo
+	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
 clean-build :
 	-rm -rf $(dirBuild)
 

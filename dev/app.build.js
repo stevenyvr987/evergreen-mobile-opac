@@ -2,7 +2,7 @@
 ({
 	appDir: '../app',
 	dir: '../build',
-	baseUrl: 'scripts',
+	baseUrl: 'js',
 	modules: [
 		  { name: 'main' }
 		, { name: 'eg/eg_api' }
