@@ -24,9 +24,9 @@
 
 # Directory containing coffeescript files
 dirSrc = src
-# Directory containing uncompressed javascript files
-# and javascript files compiled from coffeescript files
-dirJS = app/scripts
+# Directory containing application files, including html, css, images, and
+# javascript files
+dirApp = app
 # Directory containing all application files,
 # including compressed javascript and css files for deployment
 dirBuild = build
@@ -42,6 +42,8 @@ dirDev = dev
 CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
 # Command to optimize javascript files
 Build = node $(dirDev)/node_modules/.bin/r.js
+# Command to generate a datestamp
+BuildDate = node $(dirDev)/build_date.js
 # Generate HTML documentation.
 CStoHTML = node $(dirDev)/node_modules/docco/bin/docco
 TXTtoHTML = python $(dirDev)/asciidoc/asciidoc.py
@@ -75,7 +77,7 @@ all : deploy docs doc
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	$(CStoJS) -w -o $(dirJS) $(dirSrc)
+	$(CStoJS) -w -o $(dirApp)/scripts $(dirSrc)
 
 # Make main design document.
 doc : $(dirDoc)/design.html
@@ -92,9 +94,11 @@ clean-docs :
 # Optimize .js files and .css files in the build directory for development testing
 build :
 	$(Build) -o $(dirDev)/app.build.js
+	$(BuildDate) < $(dirApp)/index.html > $(dirBuild)/index.html
 # Optimize .js files and .css files in the build directory for deployment
 deploy :
 	$(Build) -o $(dirDev)/app.build.js
+	$(BuildDate) < $(dirApp)/index.html > $(dirBuild)/index.html
 	-ln -s ../../../../js/dojo $(dirBuild)/scripts/dojo
 clean-build :
 	-rm -rf $(dirBuild)
