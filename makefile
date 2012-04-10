@@ -41,7 +41,7 @@ dirDev = dev
 # Compile coffeescript to javascript using the coffee compiler.
 CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
 # Command to optimize javascript files
-Build = node $(dirDev)/node_modules/.bin/r.js
+Build = node $(dirDev)/node_modules/requirejs/bin/r.js
 # Command to generate a datestamp
 BuildDate = node $(dirDev)/build_date.js
 # Generate HTML documentation.
