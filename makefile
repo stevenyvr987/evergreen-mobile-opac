@@ -92,13 +92,13 @@ clean-docs :
 	-rm -rf $(dirDocs)
 
 # Optimize .js files and .css files in the build directory for development testing
-build :
+build : $(dirDev)/build_date.js
 	$(Build) -o $(dirDev)/app.build.js
-	$(BuildDate) < $(dirApp)/index.html > $(dirBuild)/index.html
+	node $< < $(dirApp)/index.html > $(dirBuild)/index.html
 # Optimize .js files and .css files in the build directory for deployment
-deploy :
+deploy : $(dirDev)/build_date.js
 	$(Build) -o $(dirDev)/app.build.js
-	$(BuildDate) < $(dirApp)/index.html > $(dirBuild)/index.html
+	node $< < $(dirApp)/index.html > $(dirBuild)/index.html
 	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
 clean-build :
 	-rm -rf $(dirBuild)
