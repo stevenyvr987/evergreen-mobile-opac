@@ -99,7 +99,8 @@ build : $(dirDev)/build_date.js
 deploy : $(dirDev)/build_date.js
 	$(Build) -o $(dirDev)/app.build.js
 	node $< < $(dirApp)/index.html > $(dirBuild)/index.html
-	-ln -s ../../../../js/dojo $(dirBuild)/js/dojo
+	-rm -rf $(dirBuild)/js/dojo
+	-ln -s ../../../../js/dojo $(dirBuild)/js
 clean-build :
 	-rm -rf $(dirBuild)
 
