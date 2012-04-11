@@ -106,28 +106,6 @@ clean-build :
 # Remove compiled files in the various target directories.
 clean : clean-build clean-docs
 
-
-kcls :
-	-rm index.html
-	ln -s index_kcls.html index.html
-	-rm build/index.html
-	(cd build; ln -s index_kcls.html index.html)
-	-rm src/dojo/fieldmapper/fmall.js
-	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
-	-rm min/dojo/fieldmapper/fmall.js
-	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
-
-
-sitka :
-	-rm index.html
-	ln -s index_sitka.html index.html
-	-rm build/index.html
-	(cd build; ln -s index_sitka.html index.html)
-	-rm src/dojo/fieldmapper/fmall.js
-	(cd src/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
-	-rm min/dojo/fieldmapper/fmall.js
-	(cd min/dojo/fieldmapper; ln -s fmall_2_0.js fmall.js)
-
 # Mirror local darcs repository to local git repository
 mirror :
 	dev/git_mirror.sh
