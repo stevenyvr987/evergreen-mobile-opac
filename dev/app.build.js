@@ -7,6 +7,7 @@
 		  { name: 'main' }
 		, { name: 'eg/eg_api' }
 		, { name: 'opac/search', exclude: ['base', 'eg/eg_api'] }
+		, { name: 'opac/edit_hold', exclude: ['base', 'eg/eg_api', 'opac/ou_tree', 'opac/cover_art'] }
 		, { name: 'account/summary', exclude: ['base', 'eg/eg_api'] }
 	],
 	paths: {
