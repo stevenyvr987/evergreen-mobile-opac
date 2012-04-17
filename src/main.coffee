@@ -1,7 +1,7 @@
 require.config
 	paths:
 		jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min'
-		jqm:    'http://code.jquery.com/mobile/1.1.0-rc.1/jquery.mobile-1.1.0-rc.1.min'
+		jqm:    'http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min'
 		json2:  'http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2'
 		jsd:    'lib/jsdeferred'
 		md5:    'lib/md5'

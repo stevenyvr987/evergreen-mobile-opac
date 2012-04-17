@@ -98,3 +98,6 @@ dd {
 .message {
 	text-align: center;
 }
+.search_bar .ui-slider-switch {
+	width: 12em;
+}
