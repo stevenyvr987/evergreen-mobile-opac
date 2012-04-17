@@ -284,7 +284,7 @@ define [
 				return false
 
 		# Handle keyups for title or author links.
-		@delegate '.title, .author', 'keyup', (e) ->
+		@on 'keyup', '.title, .author', (e) ->
 			switch e.keyCode
 				# Click the link if enter key was release.
 				when 13 then $(@).click()
@@ -292,7 +292,7 @@ define [
 
 		# Upon the user clicking a title summary area,
 		# we will publish a request to create a hold.
-		@delegate 'li`', 'click', (e) =>
+		@on 'click', 'li`', (e) =>
 			$this = $(@)
 			request = $this.data 'request'
 			result = $this.data 'result'
@@ -348,7 +348,7 @@ define [
 		# Upon the user clicking an author link,
 		# we will extend the recent request with an author search term at zero page offset.
 		# We will publish it and try searching the public catalogue with it.
-		@delegate 'a.author', 'click', (e) =>
+		@on 'click', 'a.author', (e) =>
 			$this = $(@)
 			request = $this.data 'request'
 			author = $('div.author', $(e.currentTarget).closest('li')).text()

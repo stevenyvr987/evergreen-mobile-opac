@@ -124,14 +124,14 @@ define [
 		# Upon the user cancelling the form,
 		# ie, clicking the cancel button or pressing the escape key in input boxes,
 		# we close the login page and empty its content.
-		.delegate 'button[type=reset]', 'click', cancel = =>
+		.on 'click', 'button[type=reset]', cancel = =>
 			history.back()
 			@find('input[name=username]').val('').end()
 			.find('input[name=password]').val('').end()
 			# We should also empty the list of deferments.
 			deferreds = []
 			return false
-		.delegate 'input', 'keyup', (e) =>
+		.on 'keyup', 'input', (e) =>
 			switch e.keyCode
 				when 27 then cancel.call @
 			return false

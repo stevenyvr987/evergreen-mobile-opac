@@ -237,14 +237,14 @@ define [
 		# We also will refresh the list.
 		# If the user clicked the button without making a selection,
 		# we will publish a notice instead.
-		@delegate '.cancel.some', 'click', ->
+		@on 'click', '.cancel.some', ->
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				cancel xid.value for xid in xids
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
-		@delegate '.suspend.some', 'click', update_some = ->
+		@on 'click', '.suspend.some', update_some = ->
 			suspend = $(@).hasClass 'suspend'
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
@@ -256,19 +256,19 @@ define [
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds were selected.']
 			return false
-		@delegate '.resume.some', 'click', update_some
+		@on 'click', '.resume.some', update_some
 
 		# Upon the user clicking one of the *all* buttons,
 		# we do as above, except the details of finding holds differ.
 		# Here, we will find the set as jQuery objects.
-		@delegate '.cancel.all', 'click', ->
+		@on 'click', '.cancel.all', ->
 			$xs = $(@).closest('form').find('input:checkbox')
 			if $xs.length
 				$xs.each -> cancel $(@).val()
 			else
 				$(@).publish 'notice', ['Nothing was done because no holds can be cancelled.']
 			return false
-		@delegate '.suspend.all', 'click', update_all = ->
+		@on 'click', '.suspend.all', update_all = ->
 			suspend = $(@).hasClass 'suspend'
 			$xs = $(@).closest('form')
 				.find(".my_hold #{if suspend then '.active' else '.inactive'}")
@@ -282,4 +282,4 @@ define [
 			else
 				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to activate.']
 			return false
-		@delegate '.resume.all', 'click', update_all
+		@on 'click', '.resume.all', update_all

@@ -239,16 +239,16 @@ define [
 
 		# Upon a change in the flip switch,
 		# we will flip between basic and advanced modes of the search form.
-		.delegate '.search.type', 'change', (e) =>
+		.on 'change', '.search.type', (e) =>
 			flip_to.call @, $(e.target).val()
 
 		# Upon the user clicking the buttons to add or delete search rows
-		.delegate 'button.add', 'click', (e) =>
+		.on 'click', 'button.add', (e) =>
 			$p = $(e.target).closest 'fieldset'
 			$p.after $p.clone true
 			@find('select', $p).each -> build_options.call @
 			return false
-		.delegate 'button.delete', 'click', (e) =>
+		.on 'click', 'button.delete', (e) =>
 			$p = $(e.target).closest 'fieldset'
 			$n = $('div.advanced fieldset.search.row', @)
 			$p.remove() unless $n.length is 1
@@ -256,7 +256,7 @@ define [
 
 		# Upon the user clicking the publish year end input,
 		# we will show or hide the text box for year end depending on verb chosen by user.
-		.delegate 'input[name=pub_year_verb]', 'click', (e) =>
+		.on 'click', 'input[name=pub_year_verb]', (e) =>
 			between = $(e.target).val() is 'between'
 			$yr_end = $('.year_end', @)
 			if between then $yr_end.show() else $yr_end.hide()
@@ -264,7 +264,7 @@ define [
 
 		# Upon the user clicking the reset button or the esc key,
 		# we will nullify all input and select values.
-		.delegate 'button[type=reset]', 'click', =>
+		.on 'click', 'button[type=reset]', =>
 			reset_search_form.call @
 		.keyup (e) =>
 			switch e.keyCode

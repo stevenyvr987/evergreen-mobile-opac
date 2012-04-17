@@ -170,7 +170,7 @@ define [
 		# We also will refresh the list.
 		# If the user clicked the button without making a selection,
 		# we will publish a notice instead.
-		@delegate '.renew.some', 'click', ->
+		@on 'click', '.renew.some', ->
 			xids = $(@).closest('form').serializeArray()
 			if xids.length
 				renew xid.value for xid in xids
@@ -181,7 +181,7 @@ define [
 		# Upon the user clicking the *renew all* button,
 		# we do as above, except the details of finding items differ.
 		# Here, we will find the set as jQuery objects.
-		@delegate '.renew.all', 'click', ->
+		@on 'click', '.renew.all', ->
 			$xs = $(@).closest('form').find('input:checkbox:enabled')
 			if $xs.length
 				$xs.each -> renew $(@).val()

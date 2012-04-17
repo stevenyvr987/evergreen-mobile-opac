@@ -39,7 +39,7 @@ define [
 
 		# Upon the user clicking the login button,
 		# we show a login window.
-		.delegate '.login', 'click', ->
+		.on 'click', '.login', ->
 			# > The login window is defined as a separate jQuery plugin module.
 			# Since the user may not log in at all during an OPAC session,
 			# we import the module on demand.
@@ -58,7 +58,7 @@ define [
 
 		# Upon the user clicking the logout button,
 		# we try to delete the user session by making the relevant service call.
-		.delegate '.logout', 'click', ->
+		.on 'click', '.logout', ->
 			# A service call requires the Evergreen API module, which is imported upon demand.
 			require ['eg/eg_api'], (eg) -> eg.openils 'auth.session.delete'
 			return false

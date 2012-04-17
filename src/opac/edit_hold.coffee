@@ -46,7 +46,7 @@ define [
 		# we will publish the current *title_id* and a step indicator (+1 or -1) on *title* channel.
 		# We will also ensure that the count is properly adjusted
 		# and that it will stop adjusting if it reaches the bottom or top boundary.
-		.delegate 'div', 'click', (e) =>
+		.on 'click', 'div', (e) =>
 			title_id = @closest('.plugin').data('hold').titleid
 			$target = $(e.currentTarget)
 

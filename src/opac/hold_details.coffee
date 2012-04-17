@@ -108,13 +108,13 @@ define [
 		$('a.submit', @).bind 'click', => place_hold.call @
 
 		# >FIXME: esc key does not work for jQM
-		@delegate 'form.place_hold', 'keyup', (e) =>
+		@on 'keyup', 'form.place_hold', (e) =>
 			switch e.keyCode
 				when 27 then hide_form.call @
 			return false
 
 		# We define some keyboard shortcuts:
-		@delegate 'button', 'keyup', (e) =>
+		@on 'keyup', 'button', (e) =>
 			switch e.keyCode
 				# * Upon the user pressing the esc key,
 				# we will ensure it has same the effect as clicking the reset button.

@@ -29,7 +29,7 @@ define ['jquery', 'jqm'], ($) ->
 	# the user clicking a thumbnail image. The image will auto-scale to fit
 	# within its container using CSS techniques.
 	$.fn.cover_art = ->
-		@delegate 'img`', 'click', (e) ->
+		@on 'click', 'img`', (e) ->
 			src = e.target.src.replace 'small', 'large'
 			$img = $('<img class="cover_art">').prop('src', src)
 			$page = $('#cover_art')
