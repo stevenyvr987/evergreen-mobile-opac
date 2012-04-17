@@ -14,5 +14,5 @@ define [
 		return @ if @plugin()
 		@plugin 'opac_search'
 		$('#search_bar').search_bar(rc.settings)
-		$('#result_summary').result_summary().cover_art()
+		$('#search_result').search_result().cover_art()
 		return @

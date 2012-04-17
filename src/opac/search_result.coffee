@@ -1,5 +1,4 @@
-# We define the *search_result* module
-# to contain a *result_summary* jQuery plugin that will behave as follows.
+# We define a custom jQuery plugin that will behave as follows.
 #
 # * Try searching the public catalogue upon receiving a *search* object
 # * Publish title summaries on *search_results* and show them to the user
@@ -133,9 +132,7 @@ define [
 		return
 
 
-	# ***
-	# Define the *result_summary* plugin.
-	$.fn.result_summary = ->
+	$.fn.search_result = ->
 
 		current_location = ''
 		current_name = ''
