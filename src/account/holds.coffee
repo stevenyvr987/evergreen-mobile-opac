@@ -212,15 +212,15 @@ define [
 							holds.push o.hold
 
 							$('.info_line', $item).append tpl_info_line
-								title: o.mvr.title if o.mvr.title
-								author: "#{o.mvr.author}" if o.mvr.author
-								types: "#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource
+								title: (o.mvr.title if o.mvr.title)
+								author: ("#{o.mvr.author}" if o.mvr.author)
+								types: ("#{(o.mvr.types_of_resource).join ', '}" if o.mvr.types_of_resource)
 							$('.status_line', $item).append (tpl_status_line o)
-								status: o.status if o.status
+								status: (o.status if o.status)
 								posn:	o.queue_position
 								total:	o.total_holds
 								avail:	o.potential_copies
-								pickup: "#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib
+								pickup: ("#{x.ouTree[o.hold.pickup_lib].name}" if o.hold.pickup_lib)
 								expire: if o.hold.expire_time then "#{mmyydd o.hold.expire_time}" else ''
 								shelf: if o.hold.shelf_time then "#{mmyydd o.hold.shelf_time}" else ''
 
