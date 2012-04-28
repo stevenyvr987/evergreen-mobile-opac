@@ -137,14 +137,14 @@ define [
 
 		# Upon the user expanding a summary line,
 		# we will refresh the line and its inner plugins.
-		.live 'expand', (e, ui) ->
+		.on 'expand', (e, ui) ->
 			$(@).publish $('h3', @).prop 'id' # The h3 element id is the name of the data channel to publish on
 			$('.plugin', @).refresh()
 			return false
 
 		# Upon the user collapsing a summary line,
 		# we will empty its inner plugin content.
-		.live 'collapse', (e, ui) ->
+		.on 'collapse', (e, ui) ->
 			$('.plugin', @).empty()
 			return false
 
