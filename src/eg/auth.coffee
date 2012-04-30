@@ -7,7 +7,7 @@ define [
 	'eg/date'
 ], ($, eg, date) ->
 
-	sessionTO = 10 # seconds
+	sessionTO = 60 # seconds
 	auth = {}
 	no_session =
 		session:
