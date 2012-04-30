@@ -11,46 +11,6 @@ define ['jquery'], ($) ->
 		if x then @addClass "plugin #{x}" else @hasClass "plugin"
 
 
-	# ### Define a _subscribe_ method
-	# Use the method to subscribe custom plugins to a given data channel.
-	subscriptions = {}
-	$.fn.subscribe = (channel, cb) ->
-		# Subscriptions will be stored
-		# as a pair of plugin and callback objects
-		# under the channel name.
-		subscriptions[channel] ?= []
-		subscriptions[channel].push
-			'subscriber': @
-			'cb': cb
-		return @
-
-	# ### Define a _publish_ method
-	# Use the method to enable custom plugins
-	# to publish a given data object to a given data channel.
-	# The callbacks for all subscriptions on the data channel
-	# will be applied to the subscribers with the given data object.
-	$.fn.publish = (channel, data) ->
-		return @ if subscriptions[channel] is undefined
-		for sub in subscriptions[channel] when sub.subscriber
-			unless $.contains document, sub.subscriber.get(0)
-				sub.subscriber = null
-				continue
-			# If the publisher is also the subscriber, we will not process this channel's data.
-			# > FIXME: unfortunately, plugins that do not supply an ID won't
-			# benefit from this piece of logic.
-			continue if sub.subscriber.prop('id') is @.prop('id')
-			ret = if data? then sub.cb.apply sub.subscriber, data else sub.cb.apply sub.subscriber
-			# If the callback does not return false, we will refresh the subscriber plugin.
-			sub.subscriber.trigger '_', [ret] if ret isnt false
-
-			# Log a signature on the console log to indicate who published what to who.
-			# It's best to comment this line out before deploying for production service.
-			#console.log @, (if ret is false then " |#{channel}> " else " |#{channel}>> "), sub.subscriber
-		return @
-
-	# >FIXME; the above publish/subscribe mechanism should be replaced by jQuery's custom event mechanism.
-
-
 	# ### Define a _refresh_ method
 	# Use the method to refresh the content of custom plugins.
 	# Bind an element to the refresh event, or trigger a refresh. Once the handler

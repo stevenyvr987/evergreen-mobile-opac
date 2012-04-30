@@ -6,6 +6,7 @@ define [
 	'json2'
 	'jsd'
 	'plugin'
+	'publish'
 	'template'
 ], (rc) ->
 	# We will prepare Google Analytics tracking if an account ID is specified.
