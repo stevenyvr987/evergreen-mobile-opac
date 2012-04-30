@@ -2,7 +2,7 @@
 #
 # * Try searching the public catalogue upon receiving a *search* object
 # * Publish title summaries on *search_results* and show them to the user
-# * Empty the result list upon receiving *clear_data*
+# * Empty the result list upon receiving *opac.reset*
 # * Respond to three user actions in the list of title summaries
 #
 #   1. Show a jacket cover upon the user clicking a thumbnail image
@@ -390,8 +390,8 @@ define [
 
 			return false
 
-		# Upon receiving *clear_data*, we will empty the plugin's content.
-		@subscribe 'clear_data', -> @empty()
+		# Upon receiving *opac.reset*, we will empty the plugin's content.
+		@subscribe 'opac.reset', -> @empty()
 
 		# Upon receiving *refresh*, we simply consume it;
 		# the content will not change because it is static.

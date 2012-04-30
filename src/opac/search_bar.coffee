@@ -195,7 +195,7 @@ define [
 		# * Hide the visible year end elements
 		$('.year_end:visible', $form).hide()
 		# * Publish the event to other interested plugins
-		$(@).publish 'clear_data'
+		$form.closest('.plugin').publish 'opac.reset'
 		return
 
 
@@ -231,15 +231,16 @@ define [
 			'indent': '_ '
 		# We build option lists for the other selectors.
 		$('select', $form).each -> build_options.call @
-		# Initially, we show the 'basic' search form.
-		flip_to.call $form, 'basic'
-		# But we hide the year end elements.
-		$('.year_end', $form).hide()
 		@append($form).trigger('create')
+
+		# Initially, we show the 'basic' search form.
+		flip_to.call @, 'basic'
+		# But we hide the year end elements.
+		$('.year_end', @).hide()
 
 		# Upon a change in the flip switch,
 		# we will flip between basic and advanced modes of the search form.
-		.on 'change', '.search.type', (e) =>
+		@on 'change', '.search.type', (e) =>
 			flip_to.call @, $(e.target).val()
 
 		# Upon the user clicking the buttons to add or delete search rows
