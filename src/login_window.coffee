@@ -118,7 +118,7 @@ define [
 						$().publish 'login_event', [un]
 
 						# > FIXME; not sure whether this is needed anymore.
-						get_defaults()
+						#get_defaults()
 			return false
 
 		# Upon the user cancelling the form,
