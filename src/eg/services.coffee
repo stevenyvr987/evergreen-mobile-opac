@@ -223,8 +223,6 @@ define [
 				}
 
 				auth.setup_timeout response.authtime
-				#$().publish 'login_event', [attempted_username]
-				#attempted_username = ''
 				return response
 			login_required: false
 
