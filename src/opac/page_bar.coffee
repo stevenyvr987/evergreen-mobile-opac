@@ -44,23 +44,26 @@ define [
 
 		if (pgtotal > 1) and (offset isnt 0)
 			@each ->
-				$(@).append $(nav_start).click ->
+				$this = $(@)
+				$this.append $(nav_start).click ->
 					x = $.extend {}, x.request, offset: 0
-					$(@).publish 'search', [x]
+					$this.publish 'search', [x]
 					return false
 
 		if (pgtotal > 1) and (offset isnt 0)
 			@each ->
-				$(@).append $(nav_prev).click ->
+				$this = $(@)
+				$this.append $(nav_prev).click ->
 					x = $.extend {}, x.request, offset: offset - limit
-					$(@).publish 'search', [x]
+					$this.publish 'search', [x]
 					return false
 
 		if (pgtotal > 1) and ((total - offset) > limit)
 			@each ->
-				$(@).append $(nav_next).click ->
+				$this = $(@)
+				$this.append $(nav_next).click ->
 					x = $.extend {}, x.request, offset: offset + limit
-					$(@).publish 'search', [x]
+					$this.publish 'search', [x]
 					return false
 
 		# Group all buttons on page bar horizontally.

@@ -26,9 +26,9 @@ define [
 	# Define the plugin content, a list view of title summaries.
 	# At the top and bottom of the list will be a *page_bar* the user can use to paginate.
 	content = '''
-	<div class="page_bar"></div>
+	<div id="top_page_bar" class="page_bar"></div>
 	<ul data-role="listview" data-inset="true" data-split-icon="gear" class="result_list"></ul>
-	<div class="page_bar"></div>
+	<div id="bottom_page_bar" class="page_bar"></div>
 	'''
 
 	# Define the template for a title summary.  The first anchor defines the
@@ -196,7 +196,7 @@ define [
 					return
 
 				# Otherwise, we will build page bars to indicate the length of the result list.
-				$('.page_bar', @).page_bar {
+				$('#top_page_bar, #bottom_page_bar', @).page_bar {
 					request: request
 					result:  x.result
 				}
