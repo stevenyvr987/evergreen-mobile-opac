@@ -47,7 +47,7 @@ define [
 				$this = $(@)
 				$this.append $(nav_start).click ->
 					x = $.extend {}, x.request, offset: 0
-					$this.publish 'search', [x]
+					$this.publish 'opac.search', [x]
 					return false
 
 		if (pgtotal > 1) and (offset isnt 0)
@@ -55,7 +55,7 @@ define [
 				$this = $(@)
 				$this.append $(nav_prev).click ->
 					x = $.extend {}, x.request, offset: offset - limit
-					$this.publish 'search', [x]
+					$this.publish 'opac.search', [x]
 					return false
 
 		if (pgtotal > 1) and ((total - offset) > limit)
@@ -63,7 +63,7 @@ define [
 				$this = $(@)
 				$this.append $(nav_next).click ->
 					x = $.extend {}, x.request, offset: offset + limit
-					$this.publish 'search', [x]
+					$this.publish 'opac.search', [x]
 					return false
 
 		# Group all buttons on page bar horizontally.

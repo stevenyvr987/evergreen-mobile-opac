@@ -60,16 +60,16 @@ define [
 
 			# Request to update or create a hold.
 			# >FIXME: need better success message.
-			$plugin = @
+			$plugin = @closest '.plugin'
 			if hold.id
 				eg.openils 'circ.hold.update', hold, (result) =>
 					if ok = typeof result isnt 'object'
 						# Publish notice of successful hold update to user
-						@publish 'notice', ['Hold updated']
+						$plugin.publish 'notice', ['Hold updated']
 						# and to other plugins.
-						@publish 'holds_summary', [hold.id]
+						$plugin.publish 'account.holds_summary', [hold.id]
 					else
-						@publish 'prompt', ['Hold update failed', "#{result[0].desc}"]
+						$plugin.publish 'prompt', ['Hold update failed', "#{result[0].desc}"]
 
 			else
 				eg.openils 'circ.title_hold.is_possible', hold, (possible) =>
@@ -77,16 +77,16 @@ define [
 						eg.openils 'circ.holds.create', hold, (result) =>
 							if ok = typeof result isnt 'object'
 								# Publish notice of successful hold creation to user
-								@publish 'notice', ['Hold created']
+								$plugin.publish 'notice', ['Hold created']
 								# and to other plugins.
-								@publish 'holds_summary', [hold]
+								$plugin.publish 'account.holds_summary', [hold]
 							else
-								@publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
+								$plugin.publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
 					else
 						if possible?.last_event?.desc
-							@publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
+							$plugin.publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
 						else
-							@publish 'prompt', [
+							$plugin.publish 'prompt', [
 								'This title is not eligible for a hold.'
 								'Please ask your friendly library staff for assistance.'
 							]

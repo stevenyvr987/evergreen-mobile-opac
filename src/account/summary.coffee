@@ -111,7 +111,7 @@ define [
 
 		# Upon the user logging in,
 		# we will show the summary lines and refresh their content.
-		@subscribe 'login_event', =>
+		@subscribe 'session.login', =>
 			$('.account_summary', @).show()
 			refresh_all()
 			return false
@@ -120,15 +120,15 @@ define [
 		# when it dynamically loads this module.
 
 		# Upon the user logging out, we will hide the summary lines.
-		.subscribe 'logout_event', =>
+		.subscribe 'session.logout', =>
 			$('.account_summary', @).hide()
 			return false
 
 		# Upon receiving a notice to a summary line, we will refresh it.
-		.subscribe('fines_summary', refresh_fines_summary)
-		.subscribe('checkouts_summary', refresh_checkouts_summary)
-		.subscribe('holds_summary', refresh_holds_summary)
-		.subscribe('bookbags_summary', refresh_bookbags_summary)
+		.subscribe('account.fines_summary', refresh_fines_summary)
+		.subscribe('account.checkouts_summary', refresh_checkouts_summary)
+		.subscribe('account.holds_summary', refresh_holds_summary)
+		.subscribe('account.bookbags_summary', refresh_bookbags_summary)
 
 		# Upon a plugin refresh, we will refresh all summary lines.
 		.refresh refresh_all
@@ -150,13 +150,13 @@ define [
 
 		# Upon the user logging in,
 		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
-		.subscribe 'login_event', ->
+		.subscribe 'session.login', ->
 			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 
 		# Upon the user logging out,
 		# we will empty a summary line's inner plugin content if the summary line is not collapsed.
-		.subscribe 'logout_event', ->
+		.subscribe 'session.logout', ->
 			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
 			return false
 

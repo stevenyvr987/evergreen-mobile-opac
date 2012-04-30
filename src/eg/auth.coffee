@@ -29,7 +29,7 @@ define [
 		timeouts.push wait(authtime).next ->
 			unless clicked_in_time
 				eg.openils 'auth.session.delete'
-				$().publish 'display_home'
+				$().publish 'session.timeout'
 
 		timeouts.push wait(authtime - sessionTO).next ->
 			relogin = ->

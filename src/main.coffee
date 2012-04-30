@@ -57,7 +57,7 @@ require [
 		$('.account_summary').hide()
 
 		# Upon user login, we will show account summary lines.
-		$('#account_summary').subscribe 'login_event', ->
+		$('#account_summary').subscribe 'session.login', ->
 			$('.account_summary', @).show()
 			# We will also load and apply the account summary plugin
 			# if it hasn't been applied before.

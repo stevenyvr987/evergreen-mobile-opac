@@ -251,7 +251,7 @@ define [
 			o: (data) ->
 				$.extend true, auth, auth.no_session
 				$.ajaxSetup eg.ajaxOptions
-				$().publish 'logout_event'
+				$().publish 'session.logout'
 				auth.setup_timeout 0
 				data.payload[0]
 			login_required: false # Logging out multiple times is OK

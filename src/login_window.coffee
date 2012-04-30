@@ -16,7 +16,7 @@
 # that will be called when the user logs in successfully.
 #
 # Once a login session has been started,
-# the plugin will publish the username on *login_event*.
+# the plugin will publish the username on *session.login*.
 
 define [
 	'jquery'
@@ -64,7 +64,7 @@ define [
 			org_unit = x.settings['opac.default_search_location'] or 1
 			org_name = x.ouTree[org_unit].name
 			org_type = x.ouTree[org_unit].ou_type
-			$().publish 'library', [org_unit, org_name, depth, org_type]
+			$().publish 'opac.library', [org_unit, org_name, depth, org_type]
 
 
 	# ---
@@ -115,7 +115,7 @@ define [
 							deferreds.pop().call()
 
 						# We should also notify other plugins that a login has occurred with the given username.
-						$().publish 'login_event', [un]
+						$().publish 'session.login', [un]
 
 						# > FIXME; not sure whether this is needed anymore.
 						#get_defaults()

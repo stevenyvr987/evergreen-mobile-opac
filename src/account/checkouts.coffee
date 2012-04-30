@@ -111,7 +111,7 @@ define [
 			# we will have *result.circ*, *result.copy*, and *result.record* objects on hand.
 			# Using their information, we could refresh individual status lines
 			# rather than refreshing the entire list.
-			$plugin.refresh().publish('checkouts_summary')
+			$plugin.refresh().publish 'account.checkouts_summary'
 
 
 	# ***
@@ -138,7 +138,7 @@ define [
 			# Moreover, we will modify the visibility of the list and its buttons
 			# according to the circ status.
 			$('fieldset', @).openils 'checkout details', 'actor.user.checked_out.authoritative', (co) ->
-				$plugin.publish 'items_checked_out', [co]
+				$plugin.publish 'account.items_checked_out', [co]
 				for type, checkouts of co
 					for circ_id in checkouts
 

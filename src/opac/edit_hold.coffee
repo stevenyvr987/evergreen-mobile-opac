@@ -56,12 +56,12 @@ define [
 				unless count is 1
 					count -= 1
 					$('.count', @).text count
-				@publish 'title', [title_id, -1]
+				@publish 'opac.title', [title_id, -1]
 			else if $target.hasClass 'next'
 				unless count is total
 					count += 1
 					$('.count', @).text count
-				@publish 'title', [title_id, +1]
+				@publish 'opac.title', [title_id, +1]
 			return false
 
 
@@ -107,7 +107,7 @@ define [
 		@plugin('edit_hold')
 
 		# Upon receiving a potential request on *hold_create* channel
-		.subscribe 'hold_create', (title_id, search_ou, search_depth, $img, titles_total, titles_count) =>
+		.subscribe 'opac.hold_create', (title_id, search_ou, search_depth, $img, titles_total, titles_count) =>
 
 			# We will build a title-level hold request
 			# and set the default pickup library
@@ -132,5 +132,5 @@ define [
 
 		# Upon receiving a potential request on *hold_update* channel,
 		# we will show its content, but currently the plugin doesn't have controls to update holds.
-		.subscribe 'hold_update', (hold) =>
+		.subscribe 'opac.hold_update', (hold) =>
 			show_content.call @, hold

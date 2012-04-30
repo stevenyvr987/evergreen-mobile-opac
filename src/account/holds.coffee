@@ -124,7 +124,7 @@ define [
 	cancel = (hold) ->
 		eg.openils 'circ.hold.cancel', hold, (status) ->
 			if status is 1
-				$plugin.refresh().publish 'holds_summary'
+				$plugin.refresh().publish 'account.holds_summary'
 				return
 			else
 				$().publish 'prompt', ['Hold was not cancelled', status]
@@ -142,7 +142,7 @@ define [
 				# Upon success, the original ID will be returned.
 				# We could update the individual status lines
 				# rather than refreshing the holds list.
-				$plugin.refresh().publish 'holds_summary'
+				$plugin.refresh().publish 'account.holds_summary'
 				return id
 			else
 				$().publish 'prompt', ['Hold was not updated', id]

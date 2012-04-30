@@ -186,7 +186,7 @@ define [
 				# Upon success or not,
 				# we will cache the result object and publish it to other plugins.
 				@data 'result', x.result
-				@publish 'search_results', [x.result]
+				@publish 'opac.result', [x.result]
 
 				# If there are no results,
 				# we will show a *zero_hits* message and an optional *search_tips* message.
@@ -278,7 +278,7 @@ define [
 				id = get_id $li
 				count = 1 + Number(request.offset) + $('li').index $li
 				if id and request
-					$this.publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), x.result.count, count]
+					$this.publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), x.result.count, count]
 				return false
 
 		# Handle keyups for title or author links.
@@ -305,11 +305,11 @@ define [
 				require ['login_window', 'opac/edit_hold'], ->
 					$('#edit_hold').edit_hold()
 					$('#login_window').login_window()
-					$this.publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
+					$this.publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
 			return false
 
 		# Upon the plugin receiving an ID (and a possible direction) on *title*
-		@subscribe 'title', (title_id, direction) ->
+		@subscribe 'opac.title', (title_id, direction) ->
 			request = @data 'request'
 			result = @data 'result'
 			total =  result.count
@@ -340,7 +340,7 @@ define [
 
 			if $li and (id = get_id $li) and request
 				count = offset + 1 + $('li').index $li
-				@publish 'hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total], count
+				@publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total], count
 			return false
 
 		# Upon the user clicking an author link,
@@ -358,15 +358,15 @@ define [
 					offset: '0'
 					type: 'advanced'
 
-				$this.publish 'search', [request]
+				$this.publish 'opac.search', [request]
 				trySearching.call $this, request
 			return false
 
 		# Upon receiving a *search* object, we will try searching the public catalogue.
-		@subscribe 'search', trySearching
+		@subscribe 'opac.search', trySearching
 
 		# Upon receiving a change notice in the search scope,
-		@subscribe 'ou', (ou) ->
+		@subscribe 'opac.ou', (ou) ->
 
 			# * Cache the new scope parameters
 			$.pushState { library: JSON.stringify [ou.id, ou.name, ou.depth, ou.type] }
@@ -386,7 +386,7 @@ define [
 					org_name: ou.name
 					depth:    ou.depth
 					org_type: ou.type
-				@publish 'search', [request]
+				@publish 'opac.search', [request]
 
 			return false
 

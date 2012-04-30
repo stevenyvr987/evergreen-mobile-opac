@@ -301,12 +301,12 @@ define [
 			# We calculate the search depth from the indentation of the selected ou name.
 			o.depth = $('select[name=org_unit]', @).find(':selected').text().match(/\_ /g)?.length or 0
 
-			$this.publish 'search', [o]
+			$this.publish 'opac.search', [o]
 			return false
 
 		# Upon receiving a data object on the *search* channel published by other plugins,
 		# we will handle it if it corresponds to an author search.
-		.subscribe 'search', (o) ->
+		.subscribe 'opac.search', (o) ->
 			return unless o.default_class is 'author'
 			# We revert to the basic search form,
 			# and modify the search term in the form.
@@ -318,7 +318,7 @@ define [
 ### Commented out
 		# If there are other plugins publishing on the same channel,
 		# subscribing to the channel will update this search object.
-		.subscribe 'search', (o) ->
+		.subscribe 'opac.search', (o) ->
 			for x in $(':input', @)
 				n = x.name
 				switch n

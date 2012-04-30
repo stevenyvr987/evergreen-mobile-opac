@@ -50,9 +50,9 @@ define [
 			require ['login_window'], -> $.mobile.changePage $('#login_window').login_window()
 			return false
 
-		# Upon receiving a login event,
+		# Upon the start of a session,
 		# we show the logout button with the username as the login status.
-		.subscribe 'login_event', (un) ->
+		.subscribe 'session.login', (un) ->
 			$(@).html(tpl_logout username: un).trigger 'create'
 			return false
 
@@ -63,8 +63,8 @@ define [
 			require ['eg/eg_api'], (eg) -> eg.openils 'auth.session.delete'
 			return false
 
-		# Upon receiving a logout event,
+		# Upon the end of a session,
 		# we show the login button again.
-		.subscribe 'logout_event', ->
+		.subscribe 'session.logout', ->
 			$(@).html(tpl_login {}).trigger 'create'
 			return false
