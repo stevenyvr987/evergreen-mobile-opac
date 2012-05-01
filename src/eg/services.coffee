@@ -228,7 +228,7 @@ define [
 
 		# Combine authenticate.init and authenticate.complete
 		'auth.session.create':
-			action: (d, method, o) ->
+			action: (method, o, d) ->
 				# FIXME: the following two openils requests can be done in parallel.
 				eg.openils('auth.authenticate.init', o.username)
 				.next ->
@@ -264,7 +264,7 @@ define [
 
 		# input, hostname and client version ID; output, HTML page
 		'auth.authenticate.confirm_the_server':
-			action: (d, method, obj) ->
+			action: (method, obj, d) ->
 				$.ajax
 					url: "/xul/rel_#{obj.client}/server"
 					type: 'get'
@@ -695,7 +695,7 @@ define [
 			cache: 5
 
 		'search':
-			action: (d, m, search) ->
+			action: (m, search, d) ->
 				# FIXME: eg api presumes patron.settings.retrieve while session.create.
 				limit = if auth.logged_in() then auth.session.settings['opac.hits_per_page'] else 10
 
@@ -738,7 +738,7 @@ define [
 		'search.google_books':
 			cache: 24 * 60
 			login_required: false
-			action: (d, method, isbn) ->
+			action: (method, isbn, d) ->
 				isbn = isbn.match(/^\d+/)[0]
 				$.getJSON "http://books.google.com/books?jscmd=viewapi&bibkeys=#{isbn}&callback=?", (info) ->
 					return unless info = info[isbn]
@@ -748,7 +748,7 @@ define [
 		'search.google_books_rating':
 			cache: 24 * 60
 			login_required: false
-			action: (d, method, isbn) ->
+			action: (method, isbn, d) ->
 				eg.openils 'search.google_books', isbn, (info) ->
 					id = info.info_url.split('id=')[1].split('&')[0]
 					$.getJSON "http://www.google.com/books/feeds/volumes/#{id}?alt=json-in-script&callback=?", (info) ->
@@ -760,7 +760,7 @@ define [
 		'search.extras':
 			cache: 24 * 60
 			login_required: false
-			action: (d, method, request) ->
+			action: (method, request, d) ->
 				$.ajax
 					dataType: 'html'
 					success: (data) -> d.call data

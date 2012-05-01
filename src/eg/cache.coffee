@@ -36,9 +36,8 @@ define [
 			a.join '|'
 		method + '|' + stringify request
 
-	(d, method, request) ->
+	(method, request, d) ->
 		lookup = services[method]
-		action = lookup.action or eg.make_request
 		k = key method, request
 		entry = cache[k]
 		expiry = lookup.cache
@@ -67,6 +66,6 @@ define [
 			while queue[k]?.length > 0
 				queue[k].pop().fail textStatus
 			delete cache[k]
-		action req_deferred, method, request
+		(lookup.action or eg.default_action) method, request, req_deferred
 		clean_cache()
 		return d

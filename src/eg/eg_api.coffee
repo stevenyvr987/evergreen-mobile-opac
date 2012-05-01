@@ -63,15 +63,13 @@ define [
 		if typeof success is 'function'
 			d = d.next success
 
-		action = lookup.action or make_request
-		if lookup.cache and not lookup.login_required
-			cache d, method, request
-		else
-			action d, method, request
+		# Make the service request. The result is either already cached, via
+		# the looked up action, or via the default action.
+		action = if lookup.cache and not lookup.login_required then cache else (lookup.action or default_action)
+		action method, request, d
 		return d
 
-	# FIXME: rename to default_action, move d to last pos'n of argument list.
-	make_request = (d, method, request) ->
+	default_action = (method, request, d) ->
 
 		lookup = services[method]
 
@@ -79,7 +77,7 @@ define [
 		# trigger the login window.
 		if lookup.login_required
 			unless auth.session.id and auth.session.timeout > date.now()
-				$('.login_window').trigger 'login_required', [new Deferred().next -> make_request d, method, request]
+				$('.login_window').trigger 'login_required', [new Deferred().next -> default_action method, request, d]
 				return
 
 		# preprocess input parameters and convert to JSON format
@@ -201,6 +199,6 @@ define [
 
 	$.extend true, eg,
 		ajaxOptions: ajaxOptions
-		make_request: make_request
+		default_action: default_action
 		openils: openils
 	return
