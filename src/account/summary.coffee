@@ -133,20 +133,21 @@ define [
 		# Upon a plugin refresh, we will refresh all summary lines.
 		.refresh refresh_all
 
-		$('.account_summary', @)
-
-		# Upon the user expanding a summary line,
-		# we will refresh the line and its inner plugins.
-		.on 'expand', (e, ui) ->
-			$(@).publish $('h3', @).prop 'id' # The h3 element id is the name of the data channel to publish on
-			$('.plugin', @).refresh()
-			return false
-
-		# Upon the user collapsing a summary line,
-		# we will empty its inner plugin content.
-		.on 'collapse', (e, ui) ->
-			$('.plugin', @).empty()
-			return false
+		# Upon the user expanding/collapsing a summary line,
+		# we will refresh/empty its inner plugins.
+		# FIXME: even though 'live' is deprecated in favour of 'on', using 'on'
+		# doesn't collapse.
+		$('.account_summary', @).live
+			expand: ->
+				$('.plugin', @).refresh()
+				# When expanding, the summary line itself should be refreshed,
+				# by having the inner plugin publish on a topic name that is
+				# determined by the h3 element id.
+				.publish "account.#{$('h3', @).prop 'id'}"
+				return false
+			collapse: ->
+				$('.plugin', @).empty()
+				return false
 
 		# Upon the user logging in,
 		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
