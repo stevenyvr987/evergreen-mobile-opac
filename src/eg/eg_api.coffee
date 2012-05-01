@@ -1,11 +1,4 @@
 # Dictionary of ajax calls keyed by name of Evergreen service method
-#
-# To do:
-# User session cookie
-# Exception handling
-# Extend jQ with an eg object? For example, $.eg.session, $.eg.search, $.eg.openils()
-# Define i/o using functional compositions
-# Define object methods for user session
 
 define [
 	'jquery'
