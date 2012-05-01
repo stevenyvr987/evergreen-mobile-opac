@@ -1,4 +1,6 @@
 require.config
+	waitSeconds: 20
+
 	paths:
 		jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min'
 		jqm:    'http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min'
