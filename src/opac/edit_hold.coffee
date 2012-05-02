@@ -95,7 +95,7 @@ define [
 				.data('status_names', x.copy_status_map)
 
 				# Upon success, we will show the content by applying the three child plugins.
-				$('.title_details', @).title_details($img).cover_art()
+				$('.title_details', @).title_details(hold.titleid, $img).cover_art()
 				$('.holding_details', @).holding_details()
 				$('.hold_details', @).hold_details()
 			# >FIXME:

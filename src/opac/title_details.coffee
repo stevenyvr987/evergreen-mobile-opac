@@ -1,5 +1,4 @@
-# Define a custom jQuery plugin to show title details of a possible hold target.
-# The hold object will have been stored in the plugin's data *hold* object.
+# Define a custom jQuery plugin to show details of a title.
 
 define [
 	'jquery'
@@ -8,11 +7,11 @@ define [
 	'plugin'
 ], ($, _) ->
 
-	$.fn.title_details = ($img) ->
+	$.fn.title_details = (title_id, $img) ->
 
 		# We will format title details as a jQuery Mobile list view of one list element.
 		tpl_content = _.template '''
-		<li id="target_id_<%= target_id %>">
+		<li id="title_id_<%= title_id %>">
 			<div class="info_box">
 				<div>Title:                <span class="value"><%= b.title            %></span></div>
 				<div>Author:               <span class="value"><%= b.author           %></span></div>
@@ -78,19 +77,17 @@ define [
 				if text.length then tags2text[name] = text else delete tags2text[name]
 			return tags2text
 
-		# We get the hold request object,
-		# which has been stored in the plugin's data *hold* object.
-		hold = @closest('.plugin').data 'hold'
+		# Empty out any previous title details
+		@empty()
 
-		# We try to get the MARC HTML record of the hold target.
-		@openils "title details ##{hold.target}", 'search.biblio.record.html', hold.target, (htmlmarc) ->
+		# We try to get the MARC HTML record of a title ID.
+		@openils "title details ##{title_id}", 'search.biblio.record.html', title_id, (htmlmarc) ->
 
 			# Upon success, we will fill in the content template with data from the MARC object,
 			# and remove the empty parts of the template.
 			@html(tpl_content
+				title_id: title_id
 				b: marc_text htmlmarc
-				target_id: hold.target
-				hold_id: hold.id or 0
 			).find('.value').each ->
 				$(@).parent().empty() unless $(@).text()
 				# > FIXME: empty divs may be left behind
