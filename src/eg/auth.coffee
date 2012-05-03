@@ -15,6 +15,7 @@ define [
 			id: null
 			time: null
 			user: {}
+			settings: {}
 	$.extend true, auth, no_session
 	auth.no_session = no_session
 
