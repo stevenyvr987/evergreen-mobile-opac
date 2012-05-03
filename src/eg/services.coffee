@@ -198,7 +198,6 @@ define [
 		# output, {authtoken: sessionID, authtime: sessiontime}
 		'auth.authenticate.complete':
 			i: (o) ->
-				#attempted_username = o.username
 				o.password = hex_md5 auth.session.cryptkey + hex_md5 o.password
 				[o]
 			o: (data) ->
@@ -206,11 +205,9 @@ define [
 
 				if data.status isnt undefined and data.status isnt 200
 					auth.session.id = 0
-					#attempted_username = ''
 					throw data
 				if response.ilsevent isnt undefined and response.ilsevent isnt 0
 					auth.session.id = 0
-					#attempted_username = ''
 					throw response
 
 				response = response.payload; # there is an inner payload!
@@ -218,9 +215,8 @@ define [
 				auth.session.time = response.authtime
 				auth.session.timeout = date.now() + (response.authtime * 1000)
 
-				$.ajaxSetup $.extend {}, eg.ajaxOptions, {
+				$.ajaxSetup $.extend {}, eg.ajaxOptions,
 					beforeSend: (xhr) -> xhr.setRequestHeader 'X-OILS-Authtoken', auth.session.id
-				}
 
 				auth.setup_timeout response.authtime
 				return response
