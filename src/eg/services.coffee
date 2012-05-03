@@ -2,13 +2,13 @@
 
 define [
 	'jquery'
-	'md5'
 	'eg/fieldmapper'
 	'eg/date'
 	'eg/eg_api'
 	'eg/auth'
 	'exports'
-], ($, md5, fm, date, eg, auth, services) ->
+	'md5'
+], ($, fm, date, eg, auth, services) ->
 
 	# common I/O signatures for eg_services
 	i0 = -> [auth.session.id]

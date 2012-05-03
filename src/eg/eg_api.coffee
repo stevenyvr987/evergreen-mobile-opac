@@ -2,14 +2,13 @@
 
 define [
 	'jquery'
-	'md5'
 	'eg/fieldmapper'
 	'eg/date'
 	'eg/services'
 	'eg/cache'
 	'eg/auth'
 	'exports'
-], ($, md5, fm, date, services, cache, auth, eg) ->
+], ($, fm, date, services, cache, auth, eg) ->
 
 	ajaxOptions =
 		url: '/osrf-gateway-v1'
