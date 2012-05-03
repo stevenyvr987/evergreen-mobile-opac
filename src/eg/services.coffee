@@ -99,7 +99,7 @@ define [
 		'actor.patron.settings.retrieve':
 			i: i3
 			o: (data) ->
-				auth.session.settings = data.payload[0]
+				auth.session.settings = o1 data
 				auth.session.settings
 			type: 'prefs'
 			login_required: true
@@ -179,7 +179,7 @@ define [
 
 		'actor.user.transactions.have_charge.fleshed':
 			i: i3
-			o: (data) -> fm.fieldmap $.map data.payload[0], (x) -> x.transaction
+			o: (data) -> fm.fieldmap $.map o1(data), (x) -> x.transaction
 			login_required: true
 
 		'actor.username.exists':
@@ -202,7 +202,7 @@ define [
 				o.password = hex_md5 auth.session.cryptkey + hex_md5 o.password
 				[o]
 			o: (data) ->
-				response = data.payload[0]
+				response = o1 data
 
 				if data.status isnt undefined and data.status isnt 200
 					auth.session.id = 0
@@ -253,7 +253,7 @@ define [
 				$.ajaxSetup eg.ajaxOptions
 				$().publish 'session.logout'
 				auth.setup_timeout 0
-				data.payload[0]
+				o1 data
 			login_required: false # Logging out multiple times is OK
 
 		'auth.session.retrieve':
@@ -315,7 +315,7 @@ define [
 		'circ.hold.status.retrieve':
 			i: i2
 			o: (data) ->
-				switch Number data.payload[0]
+				switch Number o1 data
 					when 1 then [1, 'Waiting for copy to become available']
 					when 2 then [2, 'Waiting for copy capture']
 					when 3 then [3, 'In transit']
@@ -585,7 +585,7 @@ define [
 				]
 				[o, term, 1]
 			o: (data) ->
-				x = data.payload[0]
+				x = o1 data
 				# flatten the list of ids
 				x.ids = $.map x.ids, (v) -> v
 				return x
@@ -614,7 +614,7 @@ define [
 		'search.biblio.record.copy_count':
 			i: (o) -> [o.location, o.id]
 			o: (data) ->
-				x = data.payload[0]
+				x = o1 data
 				y = {}
 				$.each x, (i, xi) ->
 					y[i] = {
@@ -635,7 +635,7 @@ define [
 		'search.biblio.copy_counts.summary.retrieve':
 			i: i1
 			o: (data) ->
-				data = data.payload[0]
+				data = o1 data
 				# [ [org_id, callnumber_label, {status1=>count1, status2=>count2}], ]
 				# [ {org_id=>{callnumber_label=>{status1=>count1, status2=>count2}}}, ]
 				# where statusn is asset.copy.status which is an FK to config.copy_status
@@ -652,7 +652,7 @@ define [
 		'search.biblio.copy_location_counts.summary.retrieve':
 			i: (o) -> [o.id, o.org_id, o.depth]
 			o: (data) ->
-				data = data.payload[0]
+				data = o1 data
 				# [ [org_id, callnumber_label, copy_location, {status1=>count1, status2=>count2}], ]
 				$.each data, (n) ->
 					data[n] =
@@ -673,10 +673,10 @@ define [
 		'search.callnumber.browse':
 			i: (o) -> [o.callnumber or '', o.org_id or 1, o.size or 9, o.offset or 0]
 			o: (data) ->
-				$.each data.payload[0], (n, data) ->
+				$.each o1 data, (n, data) ->
 					data.cn = fm.fieldmap(data.cn)
 					data.mods = fm.fieldmap(data.mods)
-				data.payload[0]
+				o1 data
 			login_required: false
 			cache: 5
 
@@ -688,7 +688,7 @@ define [
 		'search.metabib.record_to_descriptors':
 			i: (id) -> [{'record': id}]
 			o: (data) ->
-				x = data.payload[0]
+				x = o1 data
 				x.descriptors = fm.fieldmap x.descriptors
 				return x
 			login_required: false
