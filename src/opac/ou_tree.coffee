@@ -6,21 +6,20 @@
 define ['jquery', 'eg/eg_api'], ($, eg) ->
 
 	# We define a default configuration for the plugin.
-	defaults = {
+	defaults =
 		# What is the property name of the selector container?
-		'name': 'org_unit'
+		name: 'org_unit'
 		# Should ou nodes which cannot have users also be listed as options?
-		'all': true
+		all: true
 		# What is the indicator for each level of indention?
-		'indent': '. '
+		indent: '. '
 		# Which option is the selected default?
 		# If a number, then the option element with that value will be selected by default.
 		# If a string, then the first option will be the default element and will be renamed with the string.
 		# If null, then first option will be default and will not be renamed.
-		'selected': 0
+		selected: 0
 		# Should the selector have focus?
-		'focus': false
-	}
+		focus: false
 
 	$.fn.ou_tree = (o) ->
 

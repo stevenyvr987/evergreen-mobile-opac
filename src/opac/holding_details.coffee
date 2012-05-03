@@ -100,12 +100,11 @@ define [
 
 		# We try to build the view of holdings of a possible hold target.
 		# If a holding is checked out, we will try to get its due date.
-		@empty().loading "holding details ##{hold.target}"
-		eg.openils 'search.biblio.copy_location_counts.summary.retrieve',
+		@empty().openils "holding details ##{hold.target}", 'search.biblio.copy_location_counts.summary.retrieve',
 			id: hold.target
 			org_id: search_ou
 			depth: search_depth
-		, (copy_location) =>
+		, (copy_location) ->
 			if copy_location instanceof Error then return @failed 'holding details' else @succeeded()
 
 			# Upon successfully receving a list of *copy* objects from the server
@@ -139,4 +138,3 @@ define [
 						, (ids) ->
 							for copy_id in ids
 								$holding.openils "due dates ##{copy_id}", 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
-		return @

@@ -33,9 +33,7 @@ define [
 		</form>
 		'''
 
-		hide_form = ->
-			#@closest('.ui-dialog').dialog 'close'
-			return false
+		hide_form = -> false
 
 		# Define a function to handle the submit event.
 		place_hold = ->
@@ -96,13 +94,12 @@ define [
 		@html($form).trigger 'create'
 
 		# We build a selector for the form to show a list of pickup libraries.
-		$('.org_unit_selector', @).ou_tree(
-			'name': 'pickup_lib'
-			'all': false
-			'selected': Number hold.pickup_lib
-			'indent': '. '
-			'focus': true
-		)
+		$('.org_unit_selector', @).ou_tree
+			name: 'pickup_lib'
+			all: false
+			selected: Number hold.pickup_lib
+			indent: '. '
+			focus: true
 
 		# Upon the user clicking the submit button, we will place a hold.
 		$('a.submit', @).bind 'click', => place_hold.call @

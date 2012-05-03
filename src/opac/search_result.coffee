@@ -278,7 +278,12 @@ define [
 				id = get_id $li
 				count = 1 + Number(request.offset) + $('li').index $li
 				if id and request
-					$this.publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), x.result.count, count]
+					$this.publish 'opac.hold_create', [
+						id
+						request.org_unit, request.depth
+						$('img', $li).clone()
+						x.result.count, count
+					]
 				return false
 
 		# Handle keyups for title or author links.
