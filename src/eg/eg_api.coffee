@@ -112,6 +112,8 @@ define [
 				            if data.payload[0].ilsevent isnt "5000"
 				              $().publish 'prompt', ['Server error', data.payload[0]]
 
+							# We leave it up to the service callback to handle
+							# abnormal ILS events.
 				            d.call data.payload[0]
 				            auth.reset_timeout()
 				            return

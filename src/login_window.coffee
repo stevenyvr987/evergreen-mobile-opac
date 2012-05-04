@@ -52,20 +52,6 @@ define [
 	# we will collect them in an array.
 	deferreds = []
 
-	# ---
-	# Define a function for the submit event handler to get defaults.
-	# > FIXME: there doesn't seem to be any subscribers to *library*.
-	get_defaults = ->
-		parallel(
-			settings: eg.openils 'actor.patron.settings.retrieve'
-			ouTree:   eg.openils 'actor.org_tree.retrieve'
-		).next (x) ->
-			depth    = x.settings['opac.default_search_depth'] or 0
-			org_unit = x.settings['opac.default_search_location'] or 1
-			org_name = x.ouTree[org_unit].name
-			org_type = x.ouTree[org_unit].ou_type
-			$().publish 'opac.library', [org_unit, org_name, depth, org_type]
-
 
 	# ---
 	# Define the login window plugin.
@@ -88,37 +74,26 @@ define [
 			return false unless pw and (pw.replace /\s+/, "").length
 
 			# and then make a service call with the credentials to try to create a session.
-			eg.openils 'auth.session.create', {
+			eg.openils 'auth.session.create',
 				username: un
 				password: pw
 				type: 'opac'
 				org: 1 # TODO: remove hardcode
-			}, (session) ->
+			, (resp) ->
+				# Upon success, we close the login page and empty its content.
+				history.back()
+				$f
+				.find('input[name=username]').val('').end()
+				.find('input[name=password]').val('').end()
 
-				# Upon success,
-				# ie, session.ilsevent isn't 1000 or session.textcode isn't 'LOGIN_FAILED'
-				# we make another service call to try to retrieve the session object
-				# (primarily, the patron account info)
-				unless session.ilsevent?
-					# > FIXME:
-					# it would be nicer if this operation was part of the session.create operation;
-					# search service in eg.api needs auth.session.settings if logged in.
-					eg.openils 'auth.session.retrieve', ->
-						# Upon success, we close the login page and empty its content.
-						history.back()
-						$f
-						.find('input[name=username]').val('').end()
-						.find('input[name=password]').val('').end()
+				# We should also call any deferred service callbacks.
+				while deferreds.length > 0
+					deferreds.pop().call()
 
-						# We should also call any deferred service callbacks.
-						while deferreds.length > 0
-							deferreds.pop().call()
-
-						# We should also notify other plugins that a login has occurred with the given username.
-						$().publish 'session.login', [un]
-
-						# > FIXME; not sure whether this is needed anymore.
-						get_defaults()
+				# We should also notify other plugins that a login has occurred
+				# with the given username.
+				$().publish 'session.login', [un]
+				return
 			return false
 
 		# Upon the user cancelling the form,
@@ -139,7 +114,7 @@ define [
 		# Upon the plugin being notified that a login is required,
 		# we open the login page.
 		$login_w.bind 'login_required', (e, d) ->
-			$.mobile.changePage $(@) # #login_window
+			$.mobile.changePage $(@)
 			# We should also add any deferred service callback to our list.
 			deferreds.push d
 			return false

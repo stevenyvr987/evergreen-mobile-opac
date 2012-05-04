@@ -225,21 +225,33 @@ define [
 		# Combine authenticate.init and authenticate.complete
 		'auth.session.create':
 			action: (method, o, d) ->
-				# FIXME: the following two openils requests can be done in parallel.
-				eg.openils('auth.authenticate.init', o.username)
-				.next ->
-					eg.openils 'actor.ou_setting.ancestor_default', 'opac.barcode_regex'
-				.next (x) ->
-						# If username is a barcode then convert username property to barcode property.
-						# Barcode is determined by a regex defined by local sys admin
-						# or by usernames beginning with a number.
-						barcode = new RegExp if x?.value then "^#{x.value}$" else '^\\d+'
-						if o.username.match barcode
-							o.barcode = o.username
-							delete o.username
-				.next ->
-					eg.openils 'auth.authenticate.complete', o
-				.next (data) -> d.call data
+				parallel(
+					cryptkey: eg.openils 'auth.authenticate.init', o.username
+					regex: eg.openils 'actor.ou_setting.ancestor_default', 'opac.barcode_regex'
+				).next (x) ->
+					# If username is a barcode then convert username property to barcode property.
+					# Barcode is determined by a regex defined by local sys admin
+					# or by usernames beginning with a number.
+					barcode = new RegExp if x.regex?.value then "^#{x.regex.value}$" else '^\\d+'
+					if o.username.match barcode
+						o.barcode = o.username
+						delete o.username
+
+					eg.openils 'auth.authenticate.complete', o, (resp) ->
+
+						# Response handler is called even when authentication
+						# fails because of bad credentials.
+						return if resp.ilsevent?
+
+						parallel([
+							eg.openils 'actor.patron.settings.retrieve'
+							eg.openils 'auth.session.retrieve'
+						]).next ->
+							d.call resp
+							return
+						return
+					return
+				return
 
 		# input, sessionid; output, sessionid
 		'auth.session.delete':
