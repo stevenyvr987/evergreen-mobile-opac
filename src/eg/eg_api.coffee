@@ -76,7 +76,7 @@ define [
 		# trigger the login window.
 		if lookup.login_required
 			unless auth.session.id and auth.session.timeout > date.now()
-				$('.login_window').trigger 'login_required', [new Deferred().next -> default_action method, request, d]
+				$().publish 'session.required', [new Deferred().next -> default_action method, request, d]
 				return
 
 		# preprocess input parameters and convert to JSON format

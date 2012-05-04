@@ -1,22 +1,15 @@
-# We define a module to contain a jQuery plugin
-# to show an interactive form for inputting user credentials.
-# The plugin will respond to submit and cancel events from the user.
+# We define a jQuery plugin to show an interactive form for inputting user
+# credentials.  The plugin will respond to submit and cancel events from the
+# user.
 #
-# The plugin will also respond to 'login_required'.
-# Behind the scenes,
-# if another plugin makes a service request that requires the user to be logged in,
-# the *eg_api* layer will defer the service callback and will trigger the event.
-# The plugin will then execute the service callback only if the user successfully logs in.
+# The plugin will also subscribe to 'session.required'.  Behind the scenes, if
+# another plugin makes a service request that requires the user to be logged
+# in, the *eg_api* module will defer the service callback and will publish the
+# deferred callback to the topic.  The plugin will then execute the service
+# callback only if the user successfully logs in.
 #
-# The login window can be triggered as follows:
-#
-#  $('.login\_window').trigger('login\_required', [d]);
-#
-# where d is an optional deferred object
-# that will be called when the user logs in successfully.
-#
-# Once a login session has been started,
-# the plugin will publish the username on *session.login*.
+# Once a session has been started, the plugin will publish the username on
+# *session.login*.
 
 define [
 	'jquery'
@@ -48,7 +41,7 @@ define [
 		</form>
 	'''
 
-	# Deferred objects (service callbacks) may number more than one;
+	# Deferred service callbacks may number more than one;
 	# we will collect them in an array.
 	deferreds = []
 
@@ -113,7 +106,7 @@ define [
 
 		# Upon the plugin being notified that a login is required,
 		# we open the login page.
-		$login_w.bind 'login_required', (e, d) ->
+		$login_w.subscribe 'session.required', (d) ->
 			$.mobile.changePage $(@)
 			# We should also add any deferred service callback to our list.
 			deferreds.push d
