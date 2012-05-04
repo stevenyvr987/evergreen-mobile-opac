@@ -40,7 +40,7 @@ define [
 		lookup = services[method]
 		k = key method, request
 		entry = cache[k]
-		expiry = lookup.cache
+		expiry = lookup.c
 		expiry *= cacheTO * 1000
 
 		if (entry?.timestamp + expiry) > date.now()

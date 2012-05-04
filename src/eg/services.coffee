@@ -41,93 +41,84 @@ define [
 					owner: auth.session.user.id
 					pub: false
 				[auth.session.id, 'biblio', fm.mapfield { cbreb: $.extend cbreb, x }]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.container.full_delete':
 			i: (id) -> [auth.session.id, 'biblio', id]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.container.retrieve_by_class':
 			i: (id) -> [auth.session.id, id or auth.session.user.id, 'biblio', 'bookbag']
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.container.flesh':
 			i: (bucket_id) -> [auth.session.id, 'biblio', bucket_id]
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.container.item.create':
 			i: (item) -> [auth.session.id, 'biblio', fm.mapfield {cbrebi:item}]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.container.item.delete':
 			i: (id) -> [auth.session.id, 'biblio', id]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.container.update':
 			i: (cbreb) -> [auth.session.id, 'biblio', fm.mapfield {cbreb:cbreb}]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.org_types.retrieve':
 			o: o4
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		# Gets all opac_visible ou nodes.
 		'actor.org_tree.retrieve':
 			o: o5
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'actor.org_tree.descendants.retrieve':
 			i: (id) -> [id or 1]
 			o: o6
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'actor.patron.settings.retrieve':
 			i: i3
 			o: (data) ->
 				auth.session.settings = o1 data
 				auth.session.settings
-			type: 'prefs'
-			login_required: true
+			t: 'prefs'
+			s: true
 
 		'actor.patron.settings.update':
 			i: (obj) -> [auth.session.id, auth.session.user.id, obj]
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.note.retrieve.all':
 			i: (id) -> [auth.session.id, { patronid: id or auth.session.user.id, pub: 1 }]
-			login_required: true
+			s: true
 
 		'actor.ou_setting.ancestor_default':
 			i: (request) -> [1, request] # [org_id, request]
-			o: o1
 
 		'actor.user.checked_out':
 			i: i3
-			login_required: true
+			s: true
 
 		'actor.user.checked_out.authoritative':
 			i: i3
-			login_required: true
+			s: true
 
 		'actor.user.checked_out.count':
 			i: i3
-			login_required: true
+			s: true
 			# Ensure that response has a zero total property.
 			o: (data) ->
 				o = o1 data
@@ -136,7 +127,7 @@ define [
 
 		'actor.user.checked_out.count.authoritative':
 			i: i3
-			login_required: true
+			s: true
 			o: (data) ->
 				o = o1 data
 				o.total = 0 unless o.total?
@@ -144,55 +135,54 @@ define [
 
 		'actor.user.email.update':
 			i: i2
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.user.password.update':
 			i: (pw) -> [auth.session.id, pw.new_password, pw.old_password]
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.user.username.update':
 			i: i2
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'actor.user.fleshed.retrieve':
 			i: i3
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.user.fleshed.retrieve_by_barcode':
 			i: i2
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.user.fines.summary':
 			i: i3
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.user.fines.summary.authoritative':
 			i: i3
 			o: o3
-			login_required: true
+			s: true
 
 		'actor.user.transactions.have_charge.fleshed':
 			i: i3
 			o: (data) -> fm.fieldmap $.map o1(data), (x) -> x.transaction
-			login_required: true
+			s: true
 
 		'actor.username.exists':
 			i: i2
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 
 		# input, username; output, encryption key
 		'auth.authenticate.init':
 			i: i1
 			o: (data) -> auth.session.cryptkey = o1 data
-			login_required: false
 
 		# input, {username: un, password: pw, type: 'staff', org: ou_id}
 		# output, {authtoken: sessionID, authtime: sessiontime}
@@ -220,7 +210,6 @@ define [
 
 				auth.setup_timeout response.authtime
 				return response
-			login_required: false
 
 		# Combine authenticate.init and authenticate.complete
 		'auth.session.create':
@@ -262,12 +251,11 @@ define [
 				$().publish 'session.logout'
 				auth.setup_timeout 0
 				o1 data
-			login_required: false # Logging out multiple times is OK
 
 		'auth.session.retrieve':
 			i: i0
 			o: (data) -> auth.session.user = o3 data
-			login_required: true
+			s: true
 
 
 		# input, hostname and client version ID; output, HTML page
@@ -275,7 +263,7 @@ define [
 			action: (method, obj, d) ->
 				$.ajax
 					url: "/xul/rel_#{obj.client}/server"
-					type: 'get'
+					t: 'get'
 					dataType: 'html'
 					success: (data) -> d.call data
 
@@ -284,13 +272,12 @@ define [
 
 		'circ.holds.id_list.retrieve.authoritative':
 			i: i3
-			o: o1
-			login_required: true
+			s: true
 
 		'circ.holds.retrieve':
 			i: i3
 			o: o3
-			login_required: true
+			s: true
 
 		'circ.hold.details.retrieve.authoritative':
 			i: i2
@@ -305,7 +292,7 @@ define [
 					when 4 then 'Ready for Pickup'
 					else 'Error'
 				o
-			login_required: true
+			s: true
 
 		'circ.hold.queue_stats.retrieve':
 			i: i2
@@ -318,7 +305,7 @@ define [
 					when 4 then 'Ready for Pickup'
 					else 'Error'
 				o
-			login_required: true
+			s: true
 
 		'circ.hold.status.retrieve':
 			i: i2
@@ -329,7 +316,7 @@ define [
 					when 3 then [3, 'In transit']
 					when 4 then [4, 'Ready for Pickup']
 					else ['-1', 'Error']
-			login_required: true
+			s: true
 
 		'circ.holds.create':
 			i: (ahr) ->
@@ -339,21 +326,18 @@ define [
 					hold_type: 'T'
 				}, ahr
 				[auth.session.id, fm.mapfield {ahr:a}]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'circ.hold.update':
 			i: (ahr) -> [auth.session.id, fm.mapfield {ahr:ahr}]
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'circ.hold.cancel':
 			i: i2
-			o: o1
-			type: 'number'
-			login_required: true
+			t: 'number'
+			s: true
 
 		'circ.title_hold.is_possible':
 			i: (x) ->
@@ -366,23 +350,22 @@ define [
 				}
 				$.extend obj, x # input x does not need to extend hold_type nor patronid
 				[auth.session.id, obj]
-			o: o1
-			login_required: true
+			s: true
 
 		'circ.money.billing.retrieve.all':
 			i: i2
 			o: o3
-			login_required: true
+			s: true
 
 		'circ.retrieve':
 			i: i2
 			o: o3
-			login_required: true
+			s: true
 
 		'circ.retrieve.authoritative':
 			i: i2
 			o: o3
-			login_required: true
+			s: true
 
 		'circ.renew':
 			i: (copy) ->
@@ -399,7 +382,7 @@ define [
 					result.copy = fm.fieldmap result.copy
 					result.record = fm.fieldmap result.record
 				result
-			login_required: true
+			s: true
 
 
 		'ingest.full.biblio.record.readonly':
@@ -408,31 +391,26 @@ define [
 		'search.asset.call_number.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.asset.copy.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.asset.copy.retrieve_by_cn_label':
 			i: (o) -> [o.id, o.cn, o.org_id]
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.asset.copy.fleshed2.find_by_barcode':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.asset.copy.fleshed2.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.authority.crossref.batch':
 			i: (obj, callback) ->
@@ -441,51 +419,42 @@ define [
 					$.each obj2, (n) ->
 						input.push [type, n]
 				[input]
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.bib_id.by_barcode':
 			i: i1
-			type: 'number'
-			login_required: false
-			cache: 5
+			t: 'number'
+			c: 5
 
 		'search.biblio.bib_level_map.retrieve.all':
 			o: o3
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.biblio.lit_form_map.retrieve.all':
 			o: o3
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.biblio.item_form_map.retrieve.all':
 			o: o3
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.biblio.item_type_map.retrieve.all':
 			o: o3
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.biblio.audience_map.retrieve.all':
 			o: o3
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.biblio.isbn':
 			i: s1
-			type: 'search'
-			login_required: false,
-			cache: 5
+			t: 'search'
+			c: 5
 
 		'search.biblio.issn':
 			i: s1
-			type: 'search'
-			login_required: false
-			cache: 5
+			t: 'search'
+			c: 5
 
 		'search.biblio.marc':
 			i: (search) ->
@@ -501,21 +470,18 @@ define [
 					search.limit
 					search.offset
 				]
-			type: 'search'
-			login_required: false
-			cache: 5
+			t: 'search'
+			c: 5
 
 		'search.biblio.mods_from_copy':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.tcn':
 			i: s1
-			type: 'search'
-			login_required: false
-			cache: 5
+			t: 'search'
+			c: 5
 
 		'search.biblio.multiclass.query':
 			i: (o) ->
@@ -597,27 +563,23 @@ define [
 				# flatten the list of ids
 				x.ids = $.map x.ids, (v) -> v
 				return x
-			type: 'search'
-			login_required: false
-			cache: 5
+			t: 'search'
+			c: 5
 
 		'search.biblio.record_entry.slim.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.record.mods_slim.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.metarecord.mods_slim.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.record.copy_count':
 			i: (o) -> [o.location, o.id]
@@ -632,13 +594,11 @@ define [
 						org_unit: xi.org_unit
 					}
 				return y
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.record.html':
 			i: i1
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.copy_counts.summary.retrieve':
 			i: i1
@@ -654,8 +614,7 @@ define [
 						callnumber: @[1]
 						available: @[2]
 				return data
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.biblio.copy_location_counts.summary.retrieve':
 			i: (o) -> [o.id, o.org_id, o.depth]
@@ -669,14 +628,12 @@ define [
 						copylocation: @[2]
 						available: @[3]
 				return data
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.callnumber.retrieve':
 			i: i1
 			o: o3
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.callnumber.browse':
 			i: (o) -> [o.callnumber or '', o.org_id or 1, o.size or 9, o.offset or 0]
@@ -685,13 +642,11 @@ define [
 					data.cn = fm.fieldmap(data.cn)
 					data.mods = fm.fieldmap(data.mods)
 				o1 data
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search.config.copy_status.retrieve.all':
 			o: o4
-			login_required: false
-			cache: 24 * 60
+			c: 24 * 60
 
 		'search.metabib.record_to_descriptors':
 			i: (id) -> [{'record': id}]
@@ -699,8 +654,7 @@ define [
 				x = o1 data
 				x.descriptors = fm.fieldmap x.descriptors
 				return x
-			login_required: false
-			cache: 5
+			c: 5
 
 		'search':
 			action: (m, search, d) ->
@@ -744,8 +698,7 @@ define [
 				eg.openils method, request, (result) -> d.call result
 
 		'search.google_books':
-			cache: 24 * 60
-			login_required: false
+			c: 24 * 60
 			action: (method, isbn, d) ->
 				isbn = isbn.match(/^\d+/)[0]
 				$.getJSON "http://books.google.com/books?jscmd=viewapi&bibkeys=#{isbn}&callback=?", (info) ->
@@ -754,8 +707,7 @@ define [
 					d.call info
 
 		'search.google_books_rating':
-			cache: 24 * 60
-			login_required: false
+			c: 24 * 60
 			action: (method, isbn, d) ->
 				eg.openils 'search.google_books', isbn, (info) ->
 					id = info.info_url.split('id=')[1].split('&')[0]
@@ -766,8 +718,7 @@ define [
 						d.call ret
 
 		'search.extras':
-			cache: 24 * 60
-			login_required: false
+			c: 24 * 60
 			action: (method, request, d) ->
 				$.ajax
 					dataType: 'html'

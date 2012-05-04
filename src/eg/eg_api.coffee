@@ -64,7 +64,7 @@ define [
 
 		# Make the service request. The result is either already cached, via
 		# the looked up action, or via the default action.
-		action = if lookup.cache and not lookup.login_required then cache else (lookup.action or default_action)
+		action = if lookup.c and not lookup.s? then cache else (lookup.action or default_action)
 		action method, request, d
 		return d
 
@@ -74,7 +74,7 @@ define [
 
 		# If the call requires the user to be logged in, and the user isn't,
 		# trigger the login window.
-		if lookup.login_required
+		if lookup.s?
 			unless auth.session.id and auth.session.timeout > date.now()
 				$().publish 'session.required', [new Deferred().next -> default_action method, request, d]
 				return
@@ -122,7 +122,7 @@ define [
 				cb_data = {}
 				try
 					cb_data = if lookup.o then lookup.o data else data.payload[0]
-					cb_data = fm.ret_types[lookup.type](cb_data) if lookup.type
+					cb_data = fm.ret_types[lookup.t](cb_data) if lookup.t
 				catch e
 					console.log e if e.type
 					$().publish 'prompt', ['Client error', e.debug] if e.status and e.status isnt 200
