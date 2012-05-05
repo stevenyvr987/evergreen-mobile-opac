@@ -170,7 +170,14 @@ define [
 
 		'actor.user.transactions.have_charge.fleshed':
 			i: i3
-			o: (data) -> fm.fieldmap $.map o1(data), (x) -> x.transaction
+			o: (data) ->
+				$.map o1(data), (x) ->
+					x.circ = fm.fieldmap x.circ or {}
+					x.mvr = fm.fieldmap x.record or {}
+					x.mbts = fm.fieldmap x.transaction or {}
+					delete x.record
+					delete x.transaction
+					return x
 			s: true
 
 		'actor.username.exists':

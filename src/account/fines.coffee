@@ -56,17 +56,20 @@ define [
 			@html(tpl_list) # replace with a fresh template
 			.trigger('create') # recreate it using jQM plugins
 			.find('fieldset') # focus on the container of dynamic content
-			.openils 'fines details', 'actor.user.transactions.have_charge.fleshed', (mbts) ->
+			.openils 'fines details', 'actor.user.transactions.have_charge.fleshed', (data) ->
 				# Upon getting an *mbts* object, we will refresh the bills
 				# list.  A compoment of a bill is its datestamp, which we
 				# will convert into MMDDYY format. 
-				for x in mbts
+				for o in data
+					mbts = o.mbts
+					mvr = o.mvr
+					note = if mbts.xact_type is 'circulation' then "'#{mvr.title}' by #{mvr.author}" else mbts.last_billing_note
 					@append tpl_bill
-						bill_id: x.id
-						owed: x.balance_owed
-						type: x.last_billing_type
-						date: mmddyy x.last_billing_ts
-						note: x.last_billing_note
+						bill_id: mbts.id
+						owed: mbts.balance_owed
+						type: mbts.last_billing_type
+						date: mmddyy mbts.last_billing_ts
+						note: note
 				# After adding all list items, we trigger the top container
 				# to ensure that all jQM plugins contained within are
 				# triggered.
