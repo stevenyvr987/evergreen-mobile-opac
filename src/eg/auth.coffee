@@ -38,7 +38,7 @@ define [
 					clicked_in_time = true
 					eg.openils 'auth.session.retrieve'
 				return false
-			$().publish 'prompt', ['Your login session', 'will timeout in 1 minute unless there is activity.', sessionTO * 1000, relogin]
+			$().publish 'prompt', ['Your login session', "will timeout in #{sessionTO} seconds unless there is activity.", sessionTO * 1000, relogin]
 
 	auth.reset_timeout = ->
 		s = auth.session
