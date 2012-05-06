@@ -77,7 +77,7 @@ all : deploy docs doc
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	$(CStoJS) -w -o $(dirApp)/js $(dirSrc)
+	$(CStoJS) -w -o $(dirApp)/js $(dirSrc) > /dev/null
 
 # Make main design document.
 doc : $(dirDoc)/design.html
