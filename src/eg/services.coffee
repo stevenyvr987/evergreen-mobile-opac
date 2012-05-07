@@ -60,7 +60,7 @@ define [
 			s: true
 
 		'actor.container.item.create':
-			i: (item) -> [auth.session.id, 'biblio', fm.mapfield {cbrebi:item}]
+			i: (item) -> [auth.session.id, 'biblio', fm.mapfield cbrebi: item]
 			t: 'number'
 			s: true
 
@@ -70,7 +70,7 @@ define [
 			s: true
 
 		'actor.container.update':
-			i: (cbreb) -> [auth.session.id, 'biblio', fm.mapfield {cbreb:cbreb}]
+			i: (cbreb) -> [auth.session.id, 'biblio', fm.mapfield cbreb: cbreb]
 			t: 'number'
 			s: true
 
@@ -102,7 +102,7 @@ define [
 			s: true
 
 		'actor.note.retrieve.all':
-			i: (id) -> [auth.session.id, { patronid: id or auth.session.user.id, pub: 1 }]
+			i: (id) -> [auth.session.id, patronid: id or auth.session.user.id, pub: 1]
 			s: true
 
 		'actor.ou_setting.ancestor_default':
@@ -328,17 +328,17 @@ define [
 
 		'circ.holds.create':
 			i: (ahr) ->
-				a = $.extend {
+				a = $.extend
 					requestor: auth.session.user.id
 					usr: auth.session.user.id
 					hold_type: 'T'
-				}, ahr
-				[auth.session.id, fm.mapfield {ahr:a}]
+				, ahr
+				[auth.session.id, fm.mapfield ahr: a]
 			t: 'number'
 			s: true
 
 		'circ.hold.update':
-			i: (ahr) -> [auth.session.id, fm.mapfield {ahr:ahr}]
+			i: (ahr) -> [auth.session.id, fm.mapfield ahr: ahr]
 			t: 'number'
 			s: true
 
@@ -349,13 +349,12 @@ define [
 
 		'circ.title_hold.is_possible':
 			i: (x) ->
-				obj = {
+				obj =
 					titleid: 0
 					hold_type: 'T'
 					patronid: auth.session.user.id
 					depth: 0
 					pickup_lib: 1
-				}
 				$.extend obj, x # input x does not need to extend hold_type nor patronid
 				[auth.session.id, obj]
 			s: true
@@ -377,11 +376,11 @@ define [
 
 		'circ.renew':
 			i: (copy) ->
-				[auth.session.id, {
+				[auth.session.id,
 					patron: auth.session.user.id
 					copyid: copy
 					opac_renewal: 1
-				}]
+				]
 			o: (result) ->
 				result = result.payload[0]
 				if result.textcode is 'SUCCESS'
@@ -465,19 +464,16 @@ define [
 			c: 5
 
 		'search.biblio.marc':
-			i: (search) ->
-				[
-					{
-						"searches": search.search
-						"limit": 200
-						"org_unit": search.org_unit or 1
-						"depth": search.depth or 0
-						"sort": search.sort
-						"sort_dir": search.sort_dir
-					}
-					search.limit
-					search.offset
-				]
+			i: (search) -> [
+				searches: search.search
+				limit: 200
+				org_unit: search.org_unit or 1
+				depth: search.depth or 0
+				sort: search.sort
+				sort_dir: search.sort_dir
+				search.limit
+				search.offset
+			]
 			t: 'search'
 			c: 5
 
@@ -595,12 +591,11 @@ define [
 				x = o1 data
 				y = {}
 				$.each x, (i, xi) ->
-					y[i] = {
+					y[i] =
 						available: xi.available
 						count: xi.count
 						depth: xi.depth
 						org_unit: xi.org_unit
-					}
 				return y
 			c: 5
 
@@ -657,7 +652,7 @@ define [
 			c: 24 * 60
 
 		'search.metabib.record_to_descriptors':
-			i: (id) -> [{'record': id}]
+			i: (id) -> [record: id]
 			o: (data) ->
 				x = o1 data
 				x.descriptors = fm.fieldmap x.descriptors
@@ -672,17 +667,17 @@ define [
 				switch search.type
 					when 'advanced'
 						method = 'search.biblio.multiclass.query'
-						request = $.extend({
+						request = $.extend(
 							offset: 0
 							limit: limit
-						}, search)
+						, search)
 					when 'lccn'
 						method = 'search.biblio.marc'
 						request =
-							search: [{
+							search: [
 								term: search.term
-								restrict: [{'tag': '010', 'subfield': '_'}]
-							}]
+								restrict: [tag: '010', subfield: '_']
+							]
 							offset: 0
 							limit: limit
 					when 'marc'
