@@ -276,6 +276,7 @@ define [
 
 		'circ.open_non_cataloged_circulation.user':
 			i: i3
+			s: true
 
 		'circ.holds.id_list.retrieve.authoritative':
 			i: i3
