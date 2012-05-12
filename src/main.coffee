@@ -61,4 +61,17 @@ require [
 			$('.account_summary').each -> $(@).trigger toggle
 			return # need to bubble up click event for jQM
 
+		# Upon showing a page, we focus on a specific element that depends on
+		# the context.
+		$.fn.collapsed = -> @closest('.ui-collapsible').is('.ui-collapsible-collapsed')
+		$('body').on 'pageshow', (e) ->
+			t = e.target
+			switch t.id
+				when 'login_window' then $('form input:eq(0)', t).focus()
+				when 'edit_hold' then $('a.reset', t).focus()
+				when 'main'
+					$sb = $('#search_bar')
+					$('form input:eq(0)', $sb).focus() unless $sb.collapsed()
+					$sr = $('#search_result')
+					$('a.title:eq(0)', $sr).focus() unless $sr.collapsed()
 		return
