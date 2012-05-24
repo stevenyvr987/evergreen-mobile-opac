@@ -7,10 +7,9 @@
 define [
 	'jquery'
 	'eg/eg_api'
-	'template'
-	'plugin'
 	'opac/ou_tree'
-], ($, eg, _) ->
+	'plugin'
+], ($, eg, OU) ->
 
 	$.fn.hold_details = ->
 
@@ -37,6 +36,9 @@ define [
 
 		# Define a function to handle the submit event.
 		place_hold = ->
+			$plugin = @closest '.plugin'
+			ou_tree = $plugin.data 'ou_tree'
+			ou_types = $plugin.data 'ou_types'
 
 			# Prepare the hold request based on
 			# data read from the hold screen
@@ -47,18 +49,10 @@ define [
 			$.extend hold, o
 
 			# Calculate the selection depth for hold targeting
-			if window.query?.ol?
-				$plugin = @closest '.plugin'
-				ou_tree = $plugin.data 'ou_tree'
-				ou_types = $plugin.data 'ou_types'
-				ol = window.query.ol.toUpperCase()
-				for id, ou of ou_tree when ou.shortname is ol
-					hold.selection_depth = ou_types[ou.ou_type].depth
-					break
+			hold.selection_depth = OU.depth window.query.ol, ou_tree, ou_types if window.query?.ol?
 
 			# Request to update or create a hold.
 			# >FIXME: need better success message.
-			$plugin = @closest '.plugin'
 			if hold.id
 				eg.openils 'circ.hold.update', hold, (result) =>
 					if ok = typeof result isnt 'object'

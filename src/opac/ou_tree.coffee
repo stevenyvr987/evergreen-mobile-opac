@@ -21,6 +21,29 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 		# Should the selector have focus?
 		focus: false
 
+
+	# Define a helper function to convert a given ol into an org unit ID.  The
+	# ID is either the ol value converted into a number or we go through the
+	# given ouTree and find the org unit ID that corresponds to the ol as a
+	# shortname
+	ouID = (ol, ouTree) ->
+		return id unless isNaN (id = Number ol)
+		ol = ol.toUpperCase()
+		return Number id for id, ou of ouTree when ou.shortname is ol
+
+
+	# Define a helper function to convert a given ol into an org unit depth.
+	# Whether the ol value is an org unit ID or an org unit shortname, we go
+	# through the given ou tree, find the selected node and then use its org
+	# unit type to look up the depth value from the given ou types.
+	ouDepth = (ol, ou_tree, ou_types) ->
+		if isNaN (ol_id = Number ol)
+			ol = ol.toUpperCase()
+			return ou_types[ou.ou_type].depth for id, ou of ou_tree when ou.shortname is ol
+		else
+			return ou_types[ou.ou_type].depth for id, ou of ou_tree when ou.id is ol_id
+
+
 	$.fn.ou_tree = (o) ->
 
 		# We determine the runtime configuration by extending the default by a given options object.
@@ -29,11 +52,7 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 		# We will first get the whole ou tree
 		# in order to determine which sub-tree the selector should list options for.
 		eg.openils 'actor.org_tree.retrieve', (ouTree) =>
-			if window.query?.ol?
-				OL = window.query.ol.toUpperCase()
-				for ou_id, ou of ouTree when ou.shortname is OL
-					ou_id = Number ou_id
-					break
+			ou_id = ouID window.query.ol, ouTree if window.query?.ol?
 
 			# We will make another service call to get the descendant nodes of the sub-tree.
 			# We will also get the tree of ou types where depth levels can be determined.
@@ -100,5 +119,9 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 				# We append the selector to this container and trigger the parent jQuery Mobile page.
 				@append $select
 				$select.parent().trigger 'create'
-
+			return
 		return @
+	return {
+		id: ouID
+		depth: ouDepth
+	}
