@@ -101,3 +101,6 @@ dd {
 .search_bar .ui-slider-switch {
 	width: 12em;
 }
+div[data-role="page"] {
+	visibility: hidden;
+}

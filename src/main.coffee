@@ -74,4 +74,7 @@ require [
 					$('form input:eq(0)', $sb).focus() unless $sb.collapsed()
 					$sr = $('#search_result')
 					$('a.title:eq(0)', $sr).focus() unless $sr.collapsed()
+
+		# Uncover the pages that were invisibile during the initial loading phase
+		$('div[data-role="page"]').css(visibility: 'visible')
 		return
