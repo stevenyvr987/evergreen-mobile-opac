@@ -1,7 +1,7 @@
 
 ({
 	appDir: '../app',
-	dir: '../build',
+	dir: '../mobile',
 	baseUrl: 'js',
 	modules: [
 		  { name: 'main' }

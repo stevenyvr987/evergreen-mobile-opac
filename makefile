@@ -29,7 +29,7 @@ dirSrc = src
 dirApp = app
 # Directory containing all application files,
 # including compressed javascript and css files for deployment
-dirBuild = build
+dirBuild = mobile
 # Directory containing main design document
 dirDoc = doc
 # Directory containing source code documents
@@ -101,6 +101,7 @@ deploy : $(dirDev)/build_date.js
 	node $< < $(dirApp)/index.html > $(dirBuild)/index.html
 	-rm -rf $(dirBuild)/js/dojo
 	-ln -s ../../../../js/dojo $(dirBuild)/js
+	-tar -czf $(dirBuild).tgz $(dirBuild)
 clean-build :
 	-rm -rf $(dirBuild)
 
