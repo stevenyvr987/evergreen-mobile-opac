@@ -374,7 +374,7 @@ define [
 		@subscribe 'opac.ou', (ou) ->
 
 			# * Cache the new scope parameters
-			$.pushState { library: JSON.stringify [ou.id, ou.name, ou.depth, ou.type] }
+			$.pushState library: JSON.stringify [ou.id, ou.name, ou.depth, ou.type]
 			current_location = ou.id
 			current_name     = ou.name
 			current_depth    = ou.depth
