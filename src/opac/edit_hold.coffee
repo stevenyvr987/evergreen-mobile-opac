@@ -37,8 +37,8 @@ define [
 		'''
 
 		# We build the nav bar with count and total initialized to zero.
-		count = 0
-		total = 0
+		count = total = 0
+		title_id = 0
 
 		$('.nav_bar', @).html(nav_bar count: 0, total: 0)
 
@@ -47,7 +47,6 @@ define [
 		# We will also ensure that the count is properly adjusted
 		# and that it will stop adjusting if it reaches the bottom or top boundary.
 		.on 'click', 'div', (e) =>
-			title_id = @closest('.plugin').data('hold').titleid
 			$target = $(e.currentTarget)
 
 			count = Number $('.count', @).text()
@@ -76,46 +75,29 @@ define [
 
 		# Define a function to show content.
 		show_content = (hold, search_ou, search_depth, $img) ->
+			$('.title_details', @).title_details(hold.titleid, $img).cover_art()
+			$('.hold_details', @).hold_details(hold)
 
-			# We cache function arguments as data objects attached to the plugin
-			# so that child plugins can access them.
-			@data('hold', hold)
-			.data('search_ou', search_ou)
-			.data('search_depth', search_depth)
-
-			# We try to get more cacheable data objects (asynchronously and in parallel)
-			# that will be needed by child plugins.
-			parallel(
-				ouTypes:         eg.openils 'actor.org_types.retrieve'
-				ouTree:          eg.openils 'actor.org_tree.retrieve'
-				copy_status_map: eg.openils 'search.config.copy_status.retrieve.all'
-			).next (x) =>
-				@data('ou_tree', x.ouTree)
-				.data('ou_types', x.ouTypes)
-				.data('status_names', x.copy_status_map)
-
-				# Upon success, we will show the content by applying the three child plugins.
-				$('.title_details', @).title_details(hold.titleid, $img).cover_art()
-				$('.holding_details', @).holding_details()
-				$('.hold_details', @).hold_details()
+			eg.openils 'search.config.copy_status.retrieve.all', (status_names) =>
+				$('.holding_details', @).holding_details(hold, search_ou, search_depth, status_names)
 			# >FIXME:
 			#
 			# * We should get these objects once per browser session.
-			# * We should also rethink the notion of using data objects as a caching mechanism.
 
 		# We prepare this container as a plugin.
 		@plugin('edit_hold')
 
 		# Upon receiving a potential request on *hold_create* channel
-		.subscribe 'opac.hold_create', (title_id, search_ou, search_depth, $img, titles_total, titles_count) =>
+		.subscribe 'opac.hold_create', (titleid, search_ou, search_depth, $img, titles_total, titles_count) =>
+			title_id = titleid
 
 			# We will build a title-level hold request
 			# and set the default pickup library
 			# to the user's home ou if it is defined
 			# (implies user has logged in).
 			hold =
-				target: title_id # version 1.6 software
-				titleid: title_id # version 2.0 software
+				target: titleid # version 1.6 software
+				titleid: titleid # version 2.0 software
 				hold_type: 'T' # default type is 'title-level'
 				selection_depth: 0
 				pickup_lib: Number auth.session.user.home_ou

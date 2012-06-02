@@ -11,10 +11,7 @@ define [
 	'plugin'
 ], ($, eg, OU) ->
 
-	$.fn.hold_details = ->
-
-		# We get the possible hold target from the parent plugin's *hold* data object.
-		hold = @parent().closest('.plugin').data('hold')
+	$.fn.hold_details = (hold) ->
 
 		# The content for the plugin is a form to enable the user
 		# to place a title-level hold on the current item.
@@ -36,9 +33,6 @@ define [
 
 		# Define a function to handle the submit event.
 		place_hold = ->
-			$plugin = @closest '.plugin'
-			ou_tree = $plugin.data 'ou_tree'
-			ou_types = $plugin.data 'ou_types'
 
 			# Prepare the hold request based on
 			# data read from the hold screen
@@ -49,7 +43,7 @@ define [
 			$.extend hold, o
 
 			# Calculate the selection depth for hold targeting
-			hold.selection_depth = OU.depth window.query.ol, ou_tree, ou_types if window.query?.ol?
+			hold.selection_depth = OU.id_depth window.query.ol if window.query?.ol?
 
 			# Request to update or create a hold.
 			# >FIXME: need better success message.
@@ -57,11 +51,11 @@ define [
 				eg.openils 'circ.hold.update', hold, (result) =>
 					if ok = typeof result isnt 'object'
 						# Publish notice of successful hold update to user
-						$plugin.publish 'notice', ['Hold updated']
+						@publish 'notice', ['Hold updated']
 						# and to other plugins.
-						$plugin.publish 'account.holds_summary', [hold.id]
+						@publish 'account.holds_summary', [hold.id]
 					else
-						$plugin.publish 'prompt', ['Hold update failed', "#{result[0].desc}"]
+						@publish 'prompt', ['Hold update failed', "#{result[0].desc}"]
 
 			else
 				eg.openils 'circ.title_hold.is_possible', hold, (possible) =>
@@ -69,16 +63,16 @@ define [
 						eg.openils 'circ.holds.create', hold, (result) =>
 							if ok = typeof result isnt 'object'
 								# Publish notice of successful hold creation to user
-								$plugin.publish 'notice', ['Hold created']
+								@publish 'notice', ['Hold created']
 								# and to other plugins.
-								$plugin.publish 'account.holds_summary', [hold]
+								@publish 'account.holds_summary', [hold]
 							else
-								$plugin.publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
+								@publish 'prompt', ['Hold request failed', "#{result[0].desc}"]
 					else
 						if possible?.last_event?.desc
-							$plugin.publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
+							@publish 'prompt', ['Hold request failed', "#{possible.last_event.desc}"]
 						else
-							$plugin.publish 'prompt', [
+							@publish 'prompt', [
 								'This title is not eligible for a hold.'
 								'Please ask your friendly library staff for assistance.'
 							]

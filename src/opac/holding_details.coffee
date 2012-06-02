@@ -6,18 +6,11 @@ define [
 	'eg/eg_api'
 	'eg/auth'
 	'template'
+	'opac/ou_tree'
 	'plugin'
-], ($, eg, auth, _) ->
+], ($, eg, auth, _, OU) ->
 
-	$.fn.holding_details = ->
-
-		$plugin      = @closest '.plugin'
-		hold         = $plugin.data 'hold'
-		search_ou    = $plugin.data 'search_ou'
-		search_depth = $plugin.data 'search_depth'
-		ou_tree      = $plugin.data 'ou_tree'
-		ou_types     = $plugin.data 'ou_types'
-		status_names = $plugin.data 'status_names'
+	$.fn.holding_details = (hold, search_ou, search_depth, status_names) ->
 
 		# Define a template and its accompanying function
 		# to show details of a holding in a jQuery Mobile listview.
@@ -113,13 +106,13 @@ define [
 
 				# We will only show this *copy*
 				# if its depth is within scope of the search depth
-				copy_depth = ou_types[ou_tree[copy.org_id].ou_type].depth
+				copy_depth = OU.id_depth copy.org_id
 				continue unless search_depth <= copy_depth
 
 				# * We need to remap some values of this *copy* to displayable names:
 				#   * Map org id to org name
 				#   * Map status number to status name
-				copy.org_name = ou_tree[copy.org_id].name
+				copy.org_name = OU.id_name copy.org_id
 				copy[status_names[id].name] = n for id, n of copy.available
 
 				# * We calculate a unique identifier for this holding

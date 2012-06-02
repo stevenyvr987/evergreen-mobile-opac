@@ -21,27 +21,36 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 		# Should the selector have focus?
 		focus: false
 
+	OU_tree = {}
+	OU_tree_desc = {}
+	OU_types = {}
 
-	# Define a helper function to convert a given ol into an org unit ID.  The
-	# ID is either the ol value converted into a number or we go through the
-	# given ouTree and find the org unit ID that corresponds to the ol as a
-	# shortname
-	ouID = (ol, ouTree) ->
-		return id unless isNaN (id = Number ol)
-		ol = ol.toUpperCase()
-		return Number id for id, ou of ouTree when ou.shortname is ol
+	# Convert an org unit ID to its short name
+	id_name = (ou_id) -> OU_tree[ou_id].name
 
+	# Convert an org unit short name to an org unit object
+	name_ou = (ou_name) ->
+		ou_name = ou_name.toUpperCase()
+		return ou for id, ou of OU_tree when ou.shortname is ou_name
 
-	# Define a helper function to convert a given ol into an org unit depth.
-	# Whether the ol value is an org unit ID or an org unit shortname, we go
-	# through the given ou tree, find the selected node and then use its org
-	# unit type to look up the depth value from the given ou types.
-	ouDepth = (ol, ou_tree, ou_types) ->
-		if isNaN (ol_id = Number ol)
-			ol = ol.toUpperCase()
-			return ou_types[ou.ou_type].depth for id, ou of ou_tree when ou.shortname is ol
+	# Convert an org unit object to its depth in the org unit tree
+	ou_depth = (ou) -> OU_types[ou.ou_type].depth
+
+	# Convert an ol text string into an org unit ID.  The ol value is either
+	# already an org unit ID or an org unit shortname.
+	ol_id = (ol) ->
+		unless isNaN (id = Number ol)
+			id
 		else
-			return ou_types[ou.ou_type].depth for id, ou of ou_tree when ou.id is ol_id
+			(name_ou ol).id
+
+	# Convert an ol text string into an org unit depth.  The ol value is either
+	# an org unit ID or an org unit shortname.
+	ol_depth = (ol) ->
+		unless isNaN (id = Number ol)
+			ou_depth OU_tree[id]
+		else
+			ou_depth name_ou ol
 
 
 	$.fn.ou_tree = (o) ->
@@ -52,7 +61,8 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 		# We will first get the whole ou tree
 		# in order to determine which sub-tree the selector should list options for.
 		eg.openils 'actor.org_tree.retrieve', (ouTree) =>
-			ou_id = ouID window.query.ol, ouTree if window.query?.ol?
+			OU_tree = ouTree
+			ou_id = ol_id window.query.ol if window.query?.ol?
 
 			# We will make another service call to get the descendant nodes of the sub-tree.
 			# We will also get the tree of ou types where depth levels can be determined.
@@ -60,6 +70,9 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 				ouTree:  eg.openils 'actor.org_tree.descendants.retrieve', ou_id
 				ouTypes: eg.openils 'actor.org_types.retrieve'
 			, (x) ->
+				OU_tree_desc = x.ouTree
+				OU_types = x.ouTypes
+
 				# Using the ou tree and ou types, we build a list of select options.
 				options = []
 				for ou in x.ouTree
@@ -122,6 +135,7 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 			return
 		return @
 	return {
-		id: ouID
-		depth: ouDepth
+		id: ol_id
+		id_depth: ol_depth
+		id_name: id_name
 	}
