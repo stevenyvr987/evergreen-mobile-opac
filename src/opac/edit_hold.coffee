@@ -4,7 +4,7 @@
 # The plugin will refresh its content
 #
 # * If a potential request is received on *hold_create* channel
-# * If the user presses next or previous links on the nav bar
+# * If the user presses next or previous links on the title bar
 
 define [
 	'jquery'
@@ -24,9 +24,9 @@ define [
 		# One of the responsibility of the master plugin
 		# is to define a navigation bar to allow the user
 		# to incrementally scroll through the search result list.
-		# The nav bar will also show the current number of the title displayed
+		# The title bar will also show the current number of the title displayed
 		# and the total nunmber of titles in the result list.
-		nav_bar = _.template '''
+		title_bar = _.template '''
 		<h3>
 			Title <span class="count"><%= count %></span> of <span class="total"><%= total %></span>
 		</h3>
@@ -36,13 +36,13 @@ define [
 		</div>
 		'''
 
-		# We build the nav bar with count and total initialized to zero.
+		# We build the title bar with count and total initialized to zero.
 		count = total = 0
 		title_id = 0
 
-		$('.nav_bar', @).html(nav_bar count: 0, total: 0)
+		$('.title_bar', @).html(title_bar count: 0, total: 0)
 
-		# Upon the user clicking the prev or next button in the nav bar,
+		# Upon the user clicking the prev or next button in the title bar,
 		# we will publish the current *title_id* and a step indicator (+1 or -1) on *title* channel.
 		# We will also ensure that the count is properly adjusted
 		# and that it will stop adjusting if it reaches the bottom or top boundary.
@@ -105,7 +105,7 @@ define [
 			# We will show content based on the hold request.
 			show_content.call @, hold, search_ou, search_depth, $img
 
-			# We will update total and count numbers in the nav bar.
+			# We will update total and count numbers in the title bar.
 			$('.total', @).text total = titles_total
 			$('.count', @).text count = titles_count
 
