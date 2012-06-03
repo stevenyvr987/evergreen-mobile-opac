@@ -88,7 +88,7 @@ define [
 		@plugin('edit_hold')
 
 		# Upon receiving a potential request on *hold_create* channel
-		.subscribe 'opac.hold_create', (titleid, search_ou, search_depth, $img, titles_total, titles_count) =>
+		.subscribe 'opac.hold_create', (titles_total, titles_count, titleid, search_ou, search_depth, $img) =>
 			title_id = titleid
 
 			# We will build a title-level hold request

@@ -279,10 +279,9 @@ define [
 				count = 1 + Number(request.offset) + $('li').index $li
 				if id and request
 					$this.publish 'opac.hold_create', [
-						id
+						x.result.count, count, id
 						request.org_unit, request.depth
 						$('img', $li).clone()
-						x.result.count, count
 					]
 				return false
 
@@ -310,7 +309,11 @@ define [
 				require ['login_window', 'opac/edit_hold'], ->
 					$('#edit_hold').edit_hold()
 					$('#login_window').login_window()
-					$this.publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total, count]
+					$this.publish 'opac.hold_create', [
+						total, count, id,
+						request.org_unit, request.depth,
+						$('img', $li).clone()
+					]
 			return false
 
 		# Upon the plugin receiving an ID (and a possible direction) on *title*
@@ -345,7 +348,11 @@ define [
 
 			if $li and (id = get_id $li) and request
 				count = offset + 1 + $('li').index $li
-				@publish 'opac.hold_create', [id, request.org_unit, request.depth, $('img', $li).clone(), total], count
+				@publish 'opac.hold_create', [
+					total, count, id,
+					request.org_unit, request.depth,
+					$('img', $li).clone()
+				]
 			return false
 
 		# Upon the user clicking an author link,
