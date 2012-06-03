@@ -17,10 +17,11 @@ define [
 	'eg/eg_api'
 	'template'
 	'settings'
+	'opac/ou_tree'
 	'plugin'
 	'opac/cover_art'
 	'opac/page_bar'
-], ($, eg, _, rc) ->
+], ($, eg, _, rc, OU) ->
 
 	# ***
 	# Define the plugin content, a list view of title summaries.
@@ -95,7 +96,7 @@ define [
 	# Define a function to show the call number of a title.
 	# We will format a call number as 'ou name / copy location / callnumber'.
 	# There are some provisos to the format, as follows.
-	show_callnumber = (cns, ou) ->
+	show_callnumber = (cns) ->
 		$cn = $('.callnumber', @)
 		if (cns).length
 			first = cns[0]
@@ -107,8 +108,8 @@ define [
 
 			# * If all ou names do not match the first ou name,
 			# we will not show an ou name.
-			ou_name = ou[first.org_id].name
-			for cn in cns when ou[cn.org_id].name isnt ou_name
+			ou_name = OU.id_name first.org_id
+			for cn in cns when OU.id_name(cn.org_id) isnt ou_name
 				return $cn.text "#{first.copylocation} / #{first.callnumber}"
 				# >FIXME: Unfortunately,
 				# if the request ou ID corresponds to a leaf of the ou tree,
@@ -178,34 +179,30 @@ define [
 			$this = @html(content)
 
 			# We now try searching the public catalogue with the new request.
-			@parallel 'search results',
-				result: eg.openils('search', request)
-				ou_tree: eg.openils 'actor.org_tree.retrieve'
-			, (x) ->
+			@openils 'search results', 'search', request, (result) ->
 
 				# Upon success or not,
 				# we will cache the result object and publish it to other plugins.
-				@data 'result', x.result
-				@publish 'opac.result', [x.result]
+				@data 'result', result
+				@publish 'opac.result', [result]
 
 				# If there are no results,
 				# we will show a *zero_hits* message and an optional *search_tips* message.
-				if x.result.count is 0
-					@append tpl_zero_hits query: x.result.query
+				if result.count is 0
+					@append tpl_zero_hits query: result.query
 					@append rc.search_tips if rc.search_tips
 					return
 
 				# Otherwise, we will build page bars to indicate the length of the result list.
-				$('#top_page_bar, #bottom_page_bar', @).page_bar {
+				$('#top_page_bar, #bottom_page_bar', @).page_bar
 					request: request
-					result:  x.result
-				}
+					result: result
 
 				# Finally, we will build the result list.
 				$result_list = $('.result_list', @).listview()
 				ou_id = Number request.org_unit
 				n = 0
-				for title_id in x.result.ids
+				for title_id in result.ids
 
 					# Record the maximum tab index.
 					maxTab = n if maxTab < ++n
@@ -262,7 +259,7 @@ define [
 						, (y) ->
 							show_summary_info.call @, y.mvr if y.mvr
 							show_copy_counts.call @, y.nc, request.depth if y.nc
-							show_callnumber.call @, y.cns, x.ou_tree if y.cns
+							show_callnumber.call @, y.cns if y.cns
 							$result_list.listview 'refresh'
 
 				# We will focus the user on the first list element.
@@ -279,7 +276,7 @@ define [
 				count = 1 + Number(request.offset) + $('li').index $li
 				if id and request
 					$this.publish 'opac.hold_create', [
-						x.result.count, count, id
+						result.count, count, id
 						request.org_unit, request.depth
 						$('img', $li).clone()
 					]
@@ -292,8 +289,9 @@ define [
 				when 13 then $(@).click()
 			return false
 
-		# Upon the user clicking a title summary area,
-		# we will publish a request to create a hold.
+		# Upon the user clicking a title summary area, we will publish the
+		# informaiton to show details of the title and to prepare for a
+		# possible request to create a hold of the title.
 		@on 'click', 'li`', (e) =>
 			$this = $(@)
 			request = $this.data 'request'
@@ -305,7 +303,8 @@ define [
 
 			if $li and (id = get_id $li) and request
 				count = offset + 1 + $('li').index $li
-				# >FIXME: it would be better for the main js file to load the required modules.
+				# >FIXME: would it be better for the main js file to load the
+				# required modules?
 				require ['login_window', 'opac/edit_hold'], ->
 					$('#edit_hold').edit_hold()
 					$('#login_window').login_window()
