@@ -12,6 +12,11 @@ define [
 
 	$.fn.holding_details = (hold, search_ou, search_depth, status_names) ->
 
+		holding_details = '''
+		<h3>Copies available for this title</h3>
+		<ul data-role="listview" data-inset="true"></ul>
+		'''
+
 		# Define a template and its accompanying function
 		# to show details of a holding in a jQuery Mobile listview.
 		# and to remove the empty parts of the template.
@@ -93,7 +98,10 @@ define [
 
 		# We try to build the view of holdings of a possible hold target.
 		# If a holding is checked out, we will try to get its due date.
-		@empty().openils "holding details ##{hold.target}", 'search.biblio.copy_location_counts.summary.retrieve',
+		@html(holding_details)
+		.trigger('create')
+		.find('[data-role="listview"]')
+		.openils "holding details ##{hold.target}", 'search.biblio.copy_location_counts.summary.retrieve',
 			id: hold.target
 			org_id: search_ou
 			depth: search_depth
@@ -131,3 +139,4 @@ define [
 						, (ids) ->
 							for copy_id in ids
 								$holding.openils "due dates ##{copy_id}", 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
+		return @

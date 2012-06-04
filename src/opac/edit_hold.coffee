@@ -67,8 +67,7 @@ define [
 		# Define the container for the three main areas of content.
 		content = '''
 		<ul class="title_details" data-role="listview" data-inset="true"></ul>
-		<h3>Copies available for this title</h3>
-		<ul class="holding_details" data-role="listview" data-inset="true"></ul>
+		<div class="holding_details"></div>
 		<div class="hold_details"></div>
 		'''
 		$('.content', @).html(content)
