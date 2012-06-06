@@ -18,6 +18,13 @@ define [
 	'opac/hold_details'
 ], ($, eg, auth, _) ->
 
+	# Define the container for the content areas.
+	content = '''
+	<div class="title_details"></div>
+	<div class="holding_details"></div>
+	<div class="hold_details"></div>
+	'''
+
 	$.fn.edit_hold = ->
 		return @ if @plugin()
 
@@ -63,55 +70,33 @@ define [
 				@publish 'opac.title', [title_id, +1]
 			return false
 
-
-		# Define the container for the three main areas of content.
-		content = '''
-		<ul class="title_details" data-role="listview" data-inset="true"></ul>
-		<div class="holding_details"></div>
-		<div class="hold_details"></div>
-		'''
-		$('.content', @).html(content)
-
-		# Define a function to show content.
-		show_content = (hold, search_ou, search_depth, $img) ->
-			$('.title_details', @).title_details(hold.titleid, $img).cover_art()
-			$('.hold_details', @).hold_details(hold)
-
-			eg.openils 'search.config.copy_status.retrieve.all', (status_names) =>
-				$('.holding_details', @).holding_details(hold, search_ou, search_depth, status_names)
-			# >FIXME:
-			#
-			# * We should get these objects once per browser session.
-
 		# We prepare this container as a plugin.
 		@plugin('edit_hold')
 
-		# Upon receiving a potential request on *hold_create* channel
-		.subscribe 'opac.hold_create', (titles_total, titles_count, titleid, search_ou, search_depth, $img) =>
+		.subscribe 'opac.title_details', (titles_total, titles_count, titleid, $img) =>
 			title_id = titleid
 
-			# We will build a title-level hold request
-			# and set the default pickup library
-			# to the user's home ou if it is defined
-			# (implies user has logged in).
-			hold =
-				target: titleid # version 1.6 software
-				titleid: titleid # version 2.0 software
-				hold_type: 'T' # default type is 'title-level'
-				selection_depth: 0
-				pickup_lib: Number auth.session.user.home_ou
-
-			# We will show content based on the hold request.
-			show_content.call @, hold, search_ou, search_depth, $img
+			$('.content', @).html(content)
+			# We will change to this page unless it is already active.
+			$.mobile.changePage @page() unless @ is $.mobile.activePage
 
 			# We will update total and count numbers in the title bar.
 			$('.total', @).text total = titles_total
 			$('.count', @).text count = titles_count
 
-			# We will change to this page unless it is already active.
-			$.mobile.changePage @page() unless @ is $.mobile.activePage
+			$('.title_details', @).title_details(titleid, $img).cover_art()
 
-		# Upon receiving a potential request on *hold_update* channel,
-		# we will show its content, but currently the plugin doesn't have controls to update holds.
-		.subscribe 'opac.hold_update', (hold) =>
-			show_content.call @, hold
+		.subscribe 'opac.title_holdings', (titleid, search_ou, search_depth) =>
+			eg.openils 'search.config.copy_status.retrieve.all', (status_names) =>
+				$('.holding_details', @).holding_details(titleid, search_ou, search_depth, status_names)
+
+		.subscribe 'opac.title_hold', (titleid) =>
+			# We will prepare a title-level hold request.  We set the
+			# default pickup library to the user's home ou if it is defined
+			# (implies user has logged in).
+			$('.hold_details', @).hold_details
+				target: titleid # version 1.6 software
+				titleid: titleid # version 2.0 software
+				hold_type: 'T' # default type is 'title-level'
+				selection_depth: 0
+				pickup_lib: Number auth.session.user.home_ou

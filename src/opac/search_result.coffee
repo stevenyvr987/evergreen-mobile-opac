@@ -123,14 +123,17 @@ define [
 
 
 	# ***
-	# Define a function to find the title ID of a given jQuery object or its closest ancestor.
-	get_id = ($el) ->
-		while $el.length > 0
-			for c in ($el.prop('id') or '').split(' ')
-				m = c.match /^title_id_(\d+)/
-				return Number m[1] if m
-			$el = $el.parent()
-		return
+	# Define a helper to get title details from a given list element.  Details
+	# include its position in the list, the title ID, the number of copies, and
+	# a clone of the cover art.
+	title_details = (el) ->
+		for c in (el.id or '').split(' ') when m = c.match /^title_id_(\d+)/
+			return [
+				Number m[1]
+				Number $('.counts_total', el).text()
+				$('img', el).clone()
+				1 + $('li').index el
+			]
 
 
 	$.fn.search_result = ->
@@ -272,14 +275,12 @@ define [
 					when +1 then $this.find('li').first()
 					when -1 then $this.find('li').last()
 					else $()
-				id = get_id $li
-				count = 1 + Number(request.offset) + $('li').index $li
+				[id, copy_count, $img, posn] = title_details $li.get(0)
 				if id and request
-					$this.publish 'opac.hold_create', [
-						result.count, count, id
-						request.org_unit, request.depth
-						$('img', $li).clone()
-					]
+					posn += Number(request.offset)
+					$this.publish 'opac.title_details', [result.count, posn, id, $img]
+					$this.publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
+					$this.publish 'opac.title_hold', [id] if copy_count
 				return false
 
 		# Handle keyups for title or author links.
@@ -293,26 +294,19 @@ define [
 		# informaiton to show details of the title and to prepare for a
 		# possible request to create a hold of the title.
 		@on 'click', 'li`', (e) =>
-			$this = $(@)
-			request = $this.data 'request'
-			result = $this.data 'result'
-			total =  result.count
-			offset = Number request.offset
-
-			$li = $(e.currentTarget)
-
-			if $li and (id = get_id $li) and request
-				count = offset + 1 + $('li').index $li
-				# >FIXME: would it be better for the main js file to load the
-				# required modules?
-				require ['login_window', 'opac/edit_hold'], ->
+			request = @data 'request'
+			result = @data 'result'
+			[id, copy_count, $img, posn] = title_details e.currentTarget
+			if id and request
+				# >FIXME: could the main js file load the required modules?
+				require ['login_window', 'opac/edit_hold'], =>
 					$('#edit_hold').edit_hold()
 					$('#login_window').login_window()
-					$this.publish 'opac.hold_create', [
-						total, count, id,
-						request.org_unit, request.depth,
-						$('img', $li).clone()
-					]
+
+					posn += Number(request.offset)
+					@publish 'opac.title_details', [result.count, posn, id, $img]
+					@publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
+					@publish 'opac.title_hold', [id] if copy_count
 			return false
 
 		# Upon the plugin receiving an ID (and a possible direction) on *title*
@@ -345,21 +339,19 @@ define [
 				else
 					$()
 
-			if $li and (id = get_id $li) and request
-				count = offset + 1 + $('li').index $li
-				@publish 'opac.hold_create', [
-					total, count, id,
-					request.org_unit, request.depth,
-					$('img', $li).clone()
-				]
+			[id, copy_count, $img, posn] = title_details $li.get(0)
+			if $li and id and request
+				posn += offset
+				@publish 'opac.title_details', [result.count, posn, id, $img]
+				@publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
+				@publish 'opac.title_hold', [id] if copy_count
 			return false
 
 		# Upon the user clicking an author link,
 		# we will extend the recent request with an author search term at zero page offset.
 		# We will publish it and try searching the public catalogue with it.
 		@on 'click', 'a.author', (e) =>
-			$this = $(@)
-			request = $this.data 'request'
+			request = @data 'request'
 			author = $('div.author', $(e.currentTarget).closest('li')).text()
 
 			if author and request
@@ -369,8 +361,8 @@ define [
 					offset: '0'
 					type: 'advanced'
 
-				$this.publish 'opac.search', [request]
-				trySearching.call $this, request
+				@publish 'opac.search', [request]
+				trySearching.call @, request
 			return false
 
 		# Upon receiving a *search* object, we will try searching the public catalogue.

@@ -10,7 +10,7 @@ define [
 	'plugin'
 ], ($, eg, auth, _, OU) ->
 
-	$.fn.holding_details = (hold, search_ou, search_depth, status_names) ->
+	$.fn.holding_details = (title_id, search_ou, search_depth, status_names) ->
 
 		holding_details = '''
 		<h3>Copies available for this title</h3>
@@ -101,12 +101,18 @@ define [
 		@html(holding_details)
 		.trigger('create')
 		.find('[data-role="listview"]')
-		.openils "holding details ##{hold.target}", 'search.biblio.copy_location_counts.summary.retrieve',
-			id: hold.target
+		.openils "holding details ##{title_id}", 'search.biblio.copy_location_counts.summary.retrieve',
+			id: title_id
 			org_id: search_ou
 			depth: search_depth
 		, (copy_location) ->
 			if copy_location instanceof Error then return @failed 'holding details' else @succeeded()
+
+			# We don't show the holding list if there are no holdings as
+			# indicated by an empty copy_location list.
+			if copy_location.length is 0
+				@parent().empty()
+				return
 
 			# Upon successfully receving a list of *copy* objects from the server
 			# >FIXME: we should show available copies first.
@@ -124,7 +130,7 @@ define [
 				copy[status_names[id].name] = n for id, n of copy.available
 
 				# * We calculate a unique identifier for this holding
-				holding_id = ("#{copy.org_id} #{hold.target} #{copy.callnumber}").replace /\s+|\.+/g, '_'
+				holding_id = ("#{copy.org_id} #{title_id} #{copy.callnumber}").replace /\s+|\.+/g, '_'
 
 				# * We show this holding using details from this *copy*
 				show_holding.call @, holding_id, copy
@@ -133,7 +139,7 @@ define [
 				if copy['Checked out']
 					do (holding_id, copy) ->
 						$holding = $("##{holding_id}").openils 'due dates', 'search.asset.copy.retrieve_by_cn_label',
-							id:     hold.target
+							id:     title_id
 							cn:     copy.callnumber
 							org_id: copy.org_id
 						, (ids) ->

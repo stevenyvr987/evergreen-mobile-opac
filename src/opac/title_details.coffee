@@ -9,6 +9,10 @@ define [
 
 	$.fn.title_details = (title_id, $img) ->
 
+		list = '''
+		<ul data-role="listview" data-inset="true"></ul>
+		'''
+
 		# We will format title details as a jQuery Mobile list view of one list element.
 		tpl_content = _.template '''
 		<li id="title_id_<%= title_id %>">
@@ -78,10 +82,12 @@ define [
 			return tags2text
 
 		# Empty out any previous title details
-		@empty()
+		@html(list)
+		.trigger('create')
+		.find('[data-role="listview"]')
 
 		# We try to get the MARC HTML record of a title ID.
-		@openils "title details ##{title_id}", 'search.biblio.record.html', title_id, (htmlmarc) ->
+		.openils "title details ##{title_id}", 'search.biblio.record.html', title_id, (htmlmarc) ->
 
 			# Upon success, we will fill in the content template with data from the MARC object,
 			# and remove the empty parts of the template.
