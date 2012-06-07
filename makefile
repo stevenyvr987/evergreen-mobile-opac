@@ -13,7 +13,7 @@
 # make build
 #
 # ...for rebuilding minimized software for installing remotely
-# make deply
+# make tag='1.2.3' deploy
 #
 # ...for rebuilding source-level HTML documentation
 # make clean-docs docs
@@ -21,7 +21,8 @@
 # ...for updating remote source-code repository
 # make mirror push
 
-
+# Version tag
+tag =
 # Directory containing coffeescript files
 dirSrc = src
 # Directory containing application files, including html, css, images, and
@@ -30,6 +31,8 @@ dirApp = app
 # Directory containing all application files,
 # including compressed javascript and css files for deployment
 dirBuild = mobile
+# Build directory for deployment; name is appended with a version tag
+dirDeploy = $(dirBuild)_$(tag)
 # Directory containing main design document
 dirDoc = doc
 # Directory containing source code documents
@@ -98,12 +101,13 @@ build : $(dirDev)/build_date.js
 # Optimize .js files and .css files in the build directory for deployment
 deploy : $(dirDev)/build_date.js
 	$(Build) -o $(dirDev)/app.build.js
-	node $< < $(dirApp)/index.html > $(dirBuild)/index.html
-	-rm -rf $(dirBuild)/js/dojo
-	-ln -s ../../../../js/dojo $(dirBuild)/js
-	-tar -czf $(dirBuild).tgz $(dirBuild)
+	-mv $(dirBuild) $(dirDeploy)
+	node $< < $(dirApp)/index.html > $(dirDeploy)/index.html
+	-rm -rf $(dirDeploy)/js/dojo
+	-ln -s ../../../../js/dojo $(dirDeploy)/js
+	-tar -czf $(dirDeploy).tgz $(dirDeploy)
 clean-build :
-	-rm -rf $(dirBuild)
+	-rm -rf $(dirBuild) $(dirDeploy) *.tgz
 
 # Remove compiled files in the various target directories.
 clean : clean-build clean-docs
