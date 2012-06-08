@@ -612,10 +612,15 @@ define [
 				# where statusn is asset.copy.status which is an FK to config.copy_status
 				# and copy_status is opac_visible
 				$.each data, (n) ->
-					data[n] =
+					data[n] = if @length is 3 then {
 						org_id: Number @[0]
 						callnumber: @[1]
 						available: @[2]
+					} else { # EG version 2.2+
+						org_id: Number @[0]
+						callnumber: $.trim "#{@[1]} #{@[2]} #{@[3]}"
+						available: @[4]
+					}
 				return data
 			c: 5
 
@@ -624,12 +629,20 @@ define [
 			o: (data) ->
 				data = o1 data
 				# [ [org_id, callnumber_label, copy_location, {status1=>count1, status2=>count2}], ]
+				# or (EG version 2.2+)
+				# [ [org_id, callnumber_prefix, callnumber_label, callnumber_suffix, copy_location, {status1=>count1, status2=>count2}], ]
 				$.each data, (n) ->
-					data[n] =
+					data[n] = if @length is 4 then {
 						org_id: Number @[0]
 						callnumber: @[1]
 						copylocation: @[2]
 						available: @[3]
+					} else { # EG version 2.2+
+						org_id: Number @[0]
+						callnumber: $.trim "#{@[1]} #{@[2]} #{@[3]}"
+						copylocation: @[4]
+						available: @[5]
+					}
 				return data
 			c: 5
 
