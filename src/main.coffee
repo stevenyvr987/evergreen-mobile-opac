@@ -77,4 +77,7 @@ require [
 
 		# Uncover the pages that were invisibile during the initial loading phase
 		$('div[data-role="page"]').css(visibility: 'visible')
+
+		# Do not show again the default message that was shown during initial loading
+		$('#messages').empty()
 		return
