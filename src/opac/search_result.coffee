@@ -96,21 +96,27 @@ define [
 	# Define a function to show the call number of a title.
 	# We will format a call number as 'ou name / copy location / callnumber'.
 	# There are some provisos to the format, as follows.
+	
+	format_callnumber = (cn) -> $.trim "#{cn[0]} #{cn[1]} #{cn[2]}"
+
 	show_callnumber = (cns) ->
 		$cn = $('.callnumber', @)
 		if (cns).length
 			first = cns[0]
 
+			# Convert 3 components into a single text string
+			first_callnumber = format_callnumber first.callnumber
+
 			# * If all callnumbers do not match the first callnumber,
 			# we will not show a callnumber.
-			for cn in cns when cn.callnumber isnt first.callnumber
+			for cn in cns when format_callnumber(cn.callnumber) isnt first_callnumber
 				return $cn.text 'Multiple locations and call numbers'
 
 			# * If all ou names do not match the first ou name,
 			# we will not show an ou name.
 			ou_name = OU.id_name first.org_id
 			for cn in cns when OU.id_name(cn.org_id) isnt ou_name
-				return $cn.text "#{first.copylocation} / #{first.callnumber}"
+				return $cn.text "#{first.copylocation} / #{first_callnumber}"
 				# >FIXME: Unfortunately,
 				# if the request ou ID corresponds to a leaf of the ou tree,
 				# we will not show an ou name.
@@ -118,8 +124,8 @@ define [
 			# * If all copy locations do not match the first copy location,
 			# we will not show a copy location.
 			for cn in cns when cn.copylocation isnt first.copylocation
-				return $cn.text "#{first.callnumber}"
-			$cn.text "#{ou_name} / #{first.copylocation} / #{first.callnumber}"
+				return $cn.text "#{first_callnumber}"
+			$cn.text "#{ou_name} / #{first.copylocation} / #{first_callnumber}"
 
 
 	# ***

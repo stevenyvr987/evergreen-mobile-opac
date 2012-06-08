@@ -27,6 +27,8 @@ define [
 	o6 = (x) -> fm.flatten_tree o3 x
 	o5 = (x) -> a2o o6 x
 
+	# FIXME: this is a hack to remember what possible version of the API we are using
+	api_version = '2.0'
 
 	# Registry of Evergreen or openils services
 	$.extend true, services,
@@ -406,7 +408,12 @@ define [
 			c: 5
 
 		'search.asset.copy.retrieve_by_cn_label':
-			i: (o) -> [o.id, o.cn, o.org_id]
+			i: (o) ->
+				# If we are using an earlier version of the API, then we need
+				# to submit only callnumber label instead of a list of prefix,
+				# label, and suffix.
+				o.cn = o.cn[1] if api_version is '2.0'
+				[o.id, o.cn, o.org_id]
 			c: 5
 
 		'search.asset.copy.fleshed2.find_by_barcode':
@@ -612,13 +619,14 @@ define [
 				# where statusn is asset.copy.status which is an FK to config.copy_status
 				# and copy_status is opac_visible
 				$.each data, (n) ->
+					api_version = if @length is 3 then '2.0' else '2.2'
 					data[n] = if @length is 3 then {
 						org_id: Number @[0]
-						callnumber: @[1]
+						callnumber: [ '', @[1], '' ]
 						available: @[2]
 					} else { # EG version 2.2+
 						org_id: Number @[0]
-						callnumber: $.trim "#{@[1]} #{@[2]} #{@[3]}"
+						callnumber: [ @[1], @[2], @[3] ]
 						available: @[4]
 					}
 				return data
@@ -632,14 +640,15 @@ define [
 				# or (EG version 2.2+)
 				# [ [org_id, callnumber_prefix, callnumber_label, callnumber_suffix, copy_location, {status1=>count1, status2=>count2}], ]
 				$.each data, (n) ->
+					api_version = if @length is 3 then '2.0' else '2.2'
 					data[n] = if @length is 4 then {
 						org_id: Number @[0]
-						callnumber: @[1]
+						callnumber: [ '', @[1], '' ]
 						copylocation: @[2]
 						available: @[3]
 					} else { # EG version 2.2+
 						org_id: Number @[0]
-						callnumber: $.trim "#{@[1]} #{@[2]} #{@[3]}"
+						callnumber: [ @[1], @[2], @[3] ]
 						copylocation: @[4]
 						available: @[5]
 					}

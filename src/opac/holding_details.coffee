@@ -10,6 +10,8 @@ define [
 	'plugin'
 ], ($, eg, auth, _, OU) ->
 
+	format_callnumber = (cn) -> $.trim "#{cn[0]} #{cn[1]} #{cn[2]}"
+
 	$.fn.holding_details = (title_id, search_ou, search_depth, status_names) ->
 
 		holding_details = '''
@@ -26,7 +28,7 @@ define [
 			<div>
 				<span><span title="Circulating branch or library" class="value"><%= h.org_name %></span></span>
 				<span> / <span title="Name of collection" class="value"><%= h.copylocation %></span></span>
-				<span> / <span title="Call number" class="value"><%= h.callnumber %></span></span>
+				<span> / <span title="Call number" class="value"><%= callnumber %></span></span>
 			</div>
 			<span title="Copy status" class="copy_status">
 				<span class="value"><%= h.Available %></span> available
@@ -67,6 +69,7 @@ define [
 			@append(tpl_holding_details
 				holding_id: holding_id
 				h:              copy
+				callnumber:     format_callnumber copy.callnumber
 				checked_out:    copy['Checked out']
 				in_process:     copy['In process']
 				in_transit:     copy['In transit']
@@ -130,7 +133,7 @@ define [
 				copy[status_names[id].name] = n for id, n of copy.available
 
 				# * We calculate a unique identifier for this holding
-				holding_id = ("#{copy.org_id} #{title_id} #{copy.callnumber}").replace /\s+|\.+/g, '_'
+				holding_id = ("#{copy.org_id} #{title_id} #{format_callnumber copy.callnumber}").replace /\s+|\.+/g, '_'
 
 				# * We show this holding using details from this *copy*
 				show_holding.call @, holding_id, copy
