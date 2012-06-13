@@ -132,14 +132,16 @@ define [
 	# Define a helper to get title details from a given list element.  Details
 	# include its position in the list, the title ID, the number of copies, and
 	# a clone of the cover art.
-	title_details = (el) ->
-		for c in (el.id or '').split(' ') when m = c.match /^title_id_(\d+)/
-			return [
-				Number m[1]
-				Number $('.counts_total', el).text()
-				$('img', el).clone()
-				1 + $('li').index el
-			]
+	title_details = ($el) ->
+		while $el.length > 0
+			for c in ($el.prop('id') or '').split(' ') when m = c.match /^title_id_(\d+)/
+				return [
+					Number m[1]
+					$('img', $el).clone()
+					1 + $('li').index $el
+				]
+			$el = $el.parent()
+		return [null, null, null]
 
 
 	$.fn.search_result = ->
@@ -281,12 +283,11 @@ define [
 					when +1 then $this.find('li').first()
 					when -1 then $this.find('li').last()
 					else $()
-				[id, copy_count, $img, posn] = title_details $li.get(0)
+				[id, $img, posn] = title_details $li
 				if id and request
 					posn += Number(request.offset)
 					$this.publish 'opac.title_details', [result.count, posn, id, $img]
-					$this.publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
-					$this.publish 'opac.title_hold', [id] if copy_count
+					$this.publish 'opac.title_holdings', [id, request.org_unit, request.depth]
 				return false
 
 		# Handle keyups for title or author links.
@@ -302,7 +303,7 @@ define [
 		@on 'click', 'li`', (e) =>
 			request = @data 'request'
 			result = @data 'result'
-			[id, copy_count, $img, posn] = title_details e.currentTarget
+			[id, $img, posn] = title_details $(e.currentTarget)
 			if id and request
 				# >FIXME: could the main js file load the required modules?
 				require ['login_window', 'opac/edit_hold'], =>
@@ -311,8 +312,7 @@ define [
 
 					posn += Number(request.offset)
 					@publish 'opac.title_details', [result.count, posn, id, $img]
-					@publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
-					@publish 'opac.title_hold', [id] if copy_count
+					@publish 'opac.title_holdings', [id, request.org_unit, request.depth]
 			return false
 
 		# Upon the plugin receiving an ID (and a possible direction) on *title*
@@ -327,7 +327,7 @@ define [
 			$this_title = $("#title_id_#{title_id}", @)
 			return false unless $this_title
 
-			$li = switch direction
+			$this_title = switch direction
 				when +1
 					# Unless there is no next title on this page
 					unless ($li = $this_title.next()).length
@@ -345,12 +345,11 @@ define [
 				else
 					$()
 
-			[id, copy_count, $img, posn] = title_details $li.get(0)
-			if $li and id and request
+			[id, $img, posn] = title_details $this_title
+			if id and request
 				posn += offset
 				@publish 'opac.title_details', [result.count, posn, id, $img]
-				@publish 'opac.title_holdings', [id, request.org_unit, request.depth] if copy_count
-				@publish 'opac.title_hold', [id] if copy_count
+				@publish 'opac.title_holdings', [id, request.org_unit, request.depth]
 			return false
 
 		# Upon the user clicking an author link,

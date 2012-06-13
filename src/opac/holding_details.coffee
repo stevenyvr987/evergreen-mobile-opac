@@ -117,6 +117,8 @@ define [
 				@parent().empty()
 				return
 
+			@publish 'opac.title_hold', [title_id]
+
 			# Upon successfully receving a list of *copy* objects from the server
 			# >FIXME: we should show available copies first.
 			for copy in copy_location
