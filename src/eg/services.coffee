@@ -165,9 +165,16 @@ define [
 			o: o3
 			s: true
 
+		# Where there are zero fines for certain types of patrons, it's
+		# possible for the server response to be a null object instead of an
+		# mous data object, in which case, we replace the response with an mous
+		# containing zero fines.
 		'actor.user.fines.summary.authoritative':
 			i: i3
-			o: o3
+			o: (x) -> # should be o3 if all was well
+				ox = o1 x
+				ox = { __c: 'mous', __p: ['0.0', '0.0', '0.0', 0] } unless ox
+				fm.fieldmap ox
 			s: true
 
 		'actor.user.transactions.have_charge.fleshed':
