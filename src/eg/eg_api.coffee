@@ -124,7 +124,7 @@ define [
 					cb_data = if lookup.o then lookup.o data else data.payload[0]
 					cb_data = fm.ret_types[lookup.t](cb_data) if lookup.t
 				catch e
-					console.log e if e.type
+					#console.log e if e.type
 					$().publish 'prompt', ['Client error', e.debug] if e.status and e.status isnt 200
 					cb_data = e
 				finally
