@@ -39,7 +39,8 @@ dirDoc = doc
 dirDocs = docs
 # Directory containing locally installed development tools
 dirDev = dev
-
+# Path to remote repository
+pathRepo = https://code.google.com/p/evergreen-mobile-opac/
 
 # Compile coffeescript to javascript using the coffee compiler.
 CStoJS = node $(dirDev)/node_modules/coffee-script/bin/coffee -bc
@@ -116,6 +117,7 @@ clean : clean-build clean-docs
 mirror :
 	dev/git_mirror.sh
 
-# Push local git repository to Google Project Hosting site
+# Push local commits and tags to remote repository
 push :
-	git push https://code.google.com/p/evergreen-mobile-opac/
+	git push $(pathRepo)
+	git push --tags $(pathRepo)
