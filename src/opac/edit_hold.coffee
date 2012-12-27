@@ -37,9 +37,9 @@ define [
 		<h3>
 			Title <span class="count"><%= count %></span> of <span class="total"><%= total %></span>
 		</h3>
-		<div class="ui-btn-right">
-			<div data-role="button" data-icon="arrow-u" class="prev"></div>
-			<div data-role="button" data-icon="arrow-d" class="next"></div>
+		<div data-role="controlgroup" data-type="horizontal" class="ui-btn-right">
+			<div data-role="button" data-icon="arrow-u" data-mini="false" class="prev"></div>
+			<div data-role="button" data-icon="arrow-d" data-mini="false" class="next"></div>
 		</div>
 		'''
 
