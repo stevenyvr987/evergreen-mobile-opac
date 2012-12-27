@@ -123,34 +123,38 @@ define [
 	# >FIXME: item_type names are displayed in the search form,
 	# but in the result list, a different set of names is used; confusing.
 	defaults =
-		default_class:
-			keyword: 'Keyword'
-			title:   'Title'
-			author:  'Author'
-			subject: 'Subject'
-			series:  'Series'
+		default_class: [
+			{ keyword: 'Keyword' }
+			{ title:   'Title' }
+			{ author:  'Author' }
+			{ subject: 'Subject' }
+			{ series:  'Series' }
+		]
 
-		search_term_verb:
-			' ': 'Contains'
-			'-': 'Does not contain'
-			'=': 'Matches exactly'
+		search_term_verb: [
+			{ ' ': 'Contains' }
+			{ '-': 'Does not contain' }
+			{ '=': 'Matches exactly' }
+		]
 
-		pub_year_verb:
-			'is': 'Is'
-			before: 'Before'
-			after: 'After'
-			between: 'Between'
+		pub_year_verb: [
+			{ 'is': 'Is' }
+			{ before: 'Before' }
+			{ after: 'After' }
+			{ between: 'Between' }
+		]
 
-		sort:
-			'': 'Relevance'
-			'pubdate asc' : 'Publication date: ascending'
-			'pubdate desc': 'Publication date: descending'
-			'title asc' : 'Title: ascending'
-			'title desc': 'Title: descending'
-			'author asc' : 'Author: ascending'
-			'author desc': 'Author: descending'
+		sort: [
+			{ '': 'Relevance' }
+			{ 'pubdate asc' : 'Publication date: ascending' }
+			{ 'pubdate desc': 'Publication date: descending' }
+			{ 'title asc' : 'Title: ascending' }
+			{ 'title desc': 'Title: descending' }
+			{ 'author asc' : 'Author: ascending' }
+			{ 'author desc': 'Author: descending' }
+		]
 
-		refresh: ''
+		refresh: []
 
 
 	# ***
@@ -161,8 +165,9 @@ define [
 		return if $('option', @).length
 		# * Any options list is specified in the *settings* object by selector name.
 		$sor = $(@)
-		for v, n of settings[ $sor.prop 'name' ]
-			$sor.append $("<option value=\"#{v}\">#{n}</option>")
+		if x = settings[$sor.prop 'name']
+			for s in x
+				$sor.append $("<option value=\"#{v}\">#{n}</option>") for v, n of s
 		# * If there is one, the first entry becomes the selected option.
 		# Otherwise, the selector is removed.
 		$options = $('option', @)
