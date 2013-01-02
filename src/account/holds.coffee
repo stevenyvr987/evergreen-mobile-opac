@@ -162,30 +162,27 @@ define [
 		@refresh ->
 			@html(content).trigger 'create'
 
-			# We will hide buttons until they are needed.
-			$cancel_some = $('.cancel.some', @).hide()
-			$cancel_all = $('.cancel.all"', @).hide()
-			$suspend_some = $('.suspend.some', @).hide()
-			$suspend_all = $('.suspend.all', @).hide()
-			$resume_some = $('.resume.some', @).hide()
-			$resume_all = $('.resume.all', @).hide()
+			# Hide buttons until needed. Buttons are classified according to
+			# the type of hold operation.
+			$cancel = $('.cancel', @).hide()
+			$suspend = $('.suspend', @).hide()
+			$resume = $('.resume', @).hide()
 
-			# Define a function to show the buttons as needed.
+			# Each type of hold operation is associated with a pair of buttons to
+			# perform the operation for all and for selected holds. The All
+			# button will always show; the Selected button will show if there
+			# are two or more items in the holds list.
+			show_buttons_for = ($s) ->
+				$some = $s.filter '.some'
+				$all = $s.filter '.all'
+				(if $all.css('display') is 'none' then $all else $some).show()
+
+			# Show buttons for an item in the holds list. If the item has been
+			# suspended by the user, then show the resume buttons, and vice
+			# versa. Cancel buttons are always shown for an item.
 			show_buttons = (frozen) ->
-				if $cancel_all.is ':visible'
-					$cancel_some.show()
-				else
-					$cancel_all.show()
-				if frozen
-					if $resume_all.is ':visible'
-						$resume_some.show()
-					else
-						$resume_all.show()
-				else
-					if $suspend_all.is ':visible'
-						$suspend_some.show()
-					else
-						$suspend_all.show()
+				show_buttons_for if frozen then $resume else $suspend
+				show_buttons_for $cancel
 				return
 
 			# We will make the relevant set of service calls to try to get hold request information.
