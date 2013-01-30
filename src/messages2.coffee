@@ -23,13 +23,19 @@ define [
 			when msg.desc? then msg.desc # a text string contained in a 'desc' property,
 			else JSON.stringify msg # or an object that needs to be converted to JSON format.
 
-	# Define the basic behaviour of the message box. Content panel is blank
-	# until filled in by message text. Message box will be positioned at the
-	# top of current page and will take 80% of the available width.
-	sd_behaviour =
+	# Define the behaviour of the prompt box. Content panel is blank until
+	# filled in by message text. Message box will be positioned at the top of
+	# current page and will take 80% of the available width.
+	promptly =
 		mode: 'blank'
 		top: true
 		width: '80%'
+
+	# Define the additional behaviour of the notice box.  There is a close
+	# button in the header, and the box does not animate.
+	notably =
+		headerClose: true
+		animate: false
 
 	$.fn.messages = ->
 		@plugin('messages')
@@ -39,17 +45,15 @@ define [
 			setTimeout((-> $.mobile.sdCurrentDialog.close()), 2000)
 			(xs = [xs]) unless $.isArray xs
 			for x in xs
-				$('<div>').simpledialog2 $.extend {}, sd_behaviour,
+				$('<div>').simpledialog2 $.extend {}, promptly,
 					blankContent: "<h3 class='message'>#{the_message x}</h3>"
 			return false
 
-		# Upon receiving a prompt, show any messages until the user clicks the button.
+		# Upon receiving a prompt, show any messages until the user clicks the close button.
 		.subscribe 'prompt', (type, xs) ->
 			(xs = [xs]) unless $.isArray xs
 			for x in xs
-				$('<div>').simpledialog2 $.extend {}, sd_behaviour,
+				$('<div>').simpledialog2 $.extend {}, promptly, notably,
 					headerText: type
-					headerClose: true
 					blankContent: "<h3 class='message'>#{the_message x}</h3>"
-					animate: false
 			return false
