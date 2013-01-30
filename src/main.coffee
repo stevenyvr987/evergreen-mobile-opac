@@ -54,10 +54,10 @@ require [
 		# even though it is not located inside the container
 		# that defines the summary bars as a collapsible set.
 		toggle = if $(@).is(':visible') then 'collapse' else 'expand'
-		$('.account_summary').click ->
+		$('.account_summary .ui-collapsible-heading').on 'click', ->
 			$('#opac_search').trigger toggle
 			return # need to bubble up click event for jQM
-		$('#opac_search').click ->
+		$('#opac_search').on 'click', ->
 			$('.account_summary').each -> $(@).trigger toggle
 			return # need to bubble up click event for jQM
 
