@@ -135,19 +135,18 @@ define [
 
 		# Upon the user expanding/collapsing a summary line,
 		# we will refresh/empty its inner plugins.
-		# FIXME: even though 'live' is deprecated in favour of 'on', using 'on'
-		# doesn't collapse.
-		$('.account_summary', @).live
+		$(@).on
 			expand: ->
 				$('.plugin', @).refresh()
 				# When expanding, the summary line itself should be refreshed,
 				# by having the inner plugin publish on a topic name that is
 				# determined by the h3 element id.
 				.publish "account.#{$('h3', @).prop 'id'}"
-				return false
+				return
 			collapse: ->
 				$('.plugin', @).empty()
-				return false
+				return
+			, '.account_summary'
 
 		# Upon the user logging in,
 		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
