@@ -66,4 +66,21 @@ define ['jquery'], ($) ->
 		.error =>
 			@failed usage unless @failed() # Show failure message, but only once.
 
+
+	# ### Define a jQuery method of _serializeObject()_
+	# The method is similar to the _serializeArray()_ method.  Whereas
+	# _serializeArray()_ will yield an array of name: value objects, and
+	# keeping the original order of the elements, _serializeObject()_ will
+	# yield an object of name: value or name: [values] pairs, and losing order.
+	$.fn.serializeObject = ->
+		o = {}
+		for x in @serializeArray()
+			unless o[x.name]?
+				o[x.name] = x.value
+			else
+				unless $.isArray o[x.name]
+					o[x.name] = [o[x.name]]
+				o[x.name].push x.value
+		return o
+
 	return @

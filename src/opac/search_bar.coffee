@@ -285,26 +285,16 @@ define [
 
 			# We validate that at least one input term contains non-whitespace.
 			ok = false
-			$('input[name=term]', @).each ->
+			$('input[name=term]', $this).each ->
 				if @value
 					ok = true
 					return false
 			return false unless ok
 
-			# After validation, we build an object from the input and select values of the search form.
-			# For a property name into an array, eg, name:[1, 2],
-			# we cast them into multiple values.
-			o = {}
-			for x in $this.children('form').serializeArray()
-				unless o[x.name]?
-					o[x.name] = x.value
-				else
-					unless $.isArray o[x.name]
-						o[x.name] = [o[x.name]]
-					o[x.name].push x.value
-
-			# We calculate the search depth from the indentation of the selected ou name.
-			o.depth = $('select[name=org_unit]', @).find(':selected').text().match(/\_ /g)?.length or 0
+			# After validation, we serialize the search form input values into an object.
+			o = $this.children('form').serializeObject()
+			# The search depth is calculated from the indentation of the selected ou name.
+			o.depth = $('select[name=org_unit]', $this).find(':selected').text().match(/\_ /g)?.length or 0
 
 			$this.publish 'opac.search', [o]
 			return false

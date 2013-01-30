@@ -34,13 +34,9 @@ define [
 		# Define a function to handle the submit event.
 		place_hold = ->
 
-			# Prepare the hold request based on
-			# data read from the hold screen
-			# and data read from the place hold form.
-			o = {}
-			for x in $('form.place_hold', @).serializeArray()
-				o[x.name] = x.value
-			$.extend hold, o
+			# Prepare the hold request based on data read from the hold screen
+			# and the place hold form.
+			$.extend hold, $('form.place_hold', @).serializeObject()
 
 			# Calculate the selection depth for hold targeting
 			hold.selection_depth = OU.id_depth window.query.ol if window.query?.ol?
