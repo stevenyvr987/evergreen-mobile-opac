@@ -14,7 +14,7 @@ require.config
 	priority: ['jquery', 'base']
 
 require [
-	'jquery', 'base'
+	'jquery', 'base', 'jqm'
 	'messages2', 'load_spinner', 'login_bar'
 ], ($) ->
 
