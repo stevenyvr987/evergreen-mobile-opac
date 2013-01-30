@@ -387,5 +387,9 @@ var fm_datatypes = {
 		"xact_finish": 'date',
 		"xact_start": 'date',
 		"xact_type": 'string'
+	},
+	"mp": {
+		"payment_ts": 'date',
+		"amount": 'number'
 	}
 };

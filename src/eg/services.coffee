@@ -165,6 +165,13 @@ define [
 			o: o3
 			s: true
 
+		'actor.user.payments.retrieve':
+			i: (obj) -> [auth.session.id, auth.session.user.id, obj]
+			o: (o) ->
+				x.mp = fm.fieldmap x.mp for x in o.payload
+				o.payload
+			s: true
+
 		# Where there are zero fines for certain types of patrons, it's
 		# possible for the server response to be a null object instead of an
 		# mous data object, in which case, we replace the response with an mous
@@ -371,6 +378,27 @@ define [
 		'circ.money.billing.retrieve.all':
 			i: i2
 			o: o3
+			s: true
+
+		'circ.money.payment':
+			i: (x) ->
+				obj = userid: auth.session.user.id
+				$.extend obj, x
+				[auth.session.id, obj, auth.session.user.last_xact_id]
+			o: o1
+			s: true
+
+		'circ.money.payment_receipt.email':
+			i: i2
+			o: o1
+			s: true
+
+		'circ.money.payment_receipt.print':
+			i: i2
+			o: (atev) ->
+				atev = fm.fieldmap o1 atev
+				atev.template_output = fm.fieldmap atev.template_output
+				atev
 			s: true
 
 		'circ.retrieve':
