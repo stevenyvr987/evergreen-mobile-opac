@@ -68,12 +68,16 @@ require [
 			t = e.target
 			switch t.id
 				when 'login_window' then $('form input:eq(0)', t).focus()
-				when 'edit_hold' then $('a.reset', t).focus()
-				when 'main'
-					$sb = $('#search_bar')
-					$('form input:eq(0)', $sb).focus() unless $sb.collapsed()
-					$sr = $('#search_result')
-					$('a.title:eq(0)', $sr).focus() unless $sr.collapsed()
+# FIXME: the rest of the focussing logic is flawed
+# if the search bar is displayed or redisplayed, the search term input should
+# be focussed.  If there is a list of results shown, the first result should be
+# focussed.
+#				when 'main'
+#					unless ($sb = $('#search_bar')).collapsed()
+#						$('form input:eq(0)', $sb).focus()
+#					unless ($sr = $('#search_result')).collapsed()
+#						$('a.title:eq(0)', $sr).focus()
+			return
 
 		# Uncover the pages that were invisibile during the initial loading phase
 		$('div[data-role="page"]').css(visibility: 'visible')
