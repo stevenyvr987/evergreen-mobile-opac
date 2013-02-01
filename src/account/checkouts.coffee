@@ -147,7 +147,9 @@ define [
 							circ_type: type
 
 						do (type, $item) ->
-							$('.status_line', $item).openils "checkout status for ##{circ_id}", 'circ.retrieve.authoritative', circ_id, (circ) ->
+							$('.status_line', $item).openils "checkout status for ##{circ_id}",
+								'circ.retrieve.authoritative', circ_id
+							, (circ) ->
 								show_status_line.call $item, circ
 								$('.info_line', $item).openils "title info for ##{circ.target_copy}", 'search.biblio.mods_from_copy', circ.target_copy, (mvr) ->
 									show_info_line.call $item, mvr
