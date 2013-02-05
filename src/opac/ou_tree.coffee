@@ -112,7 +112,7 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 						value: ou.id
 
 				# Using the options list, we build a selector.
-				$select = $('<select>').prop 'name', rc.name
+				$select = $('<select data-native-menu="false">').prop 'name', rc.name
 				$select.append x for x in options
 
 				# For the default option,
