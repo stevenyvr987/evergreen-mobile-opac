@@ -237,16 +237,23 @@ define [
 		# Combine authenticate.init and authenticate.complete
 		'auth.session.create':
 			action: (method, o, d) ->
+
+				# Abort the action if username or password is empty.
+				un = o.username
+				return false unless un and (un.replace /\s+/, "").length
+				pw = o.password
+				return false unless pw and (pw.replace /\s+/, "").length
+
 				parallel(
-					cryptkey: eg.openils 'auth.authenticate.init', o.username
+					cryptkey: eg.openils 'auth.authenticate.init', un
 					regex: eg.openils 'actor.ou_setting.ancestor_default', 'opac.barcode_regex'
 				).next (x) ->
 					# If username is a barcode then convert username property to barcode property.
 					# Barcode is determined by a regex defined by local sys admin
 					# or by usernames beginning with a number.
 					barcode = new RegExp if x.regex?.value then "^#{x.regex.value}$" else '^\\d+'
-					if o.username.match barcode
-						o.barcode = o.username
+					if un.match barcode
+						o.barcode = un
 						delete o.username
 
 					eg.openils 'auth.authenticate.complete', o, (resp) ->

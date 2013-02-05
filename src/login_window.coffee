@@ -58,26 +58,21 @@ define [
 		# Upon the user submitting the form,
 		# ie, clicking the submit button or pressing the enter key in input boxes,
 		.submit submit = ->
-			# we first validate the credentials,
-			$f = $(@).find('form')
-			xs = $f.serializeArray()
-			un = xs[0].value
-			return false unless un and (un.replace /\s+/, "").length
-			pw = xs[1].value
-			return false unless pw and (pw.replace /\s+/, "").length
 
-			# and then make a service call with the credentials to try to create a session.
+			# The login form provides username and password credentials.
+			credentials = ($f = $('form', @)).serializeArray()
+
+			# Try to make a service call with the credentials to try to create a session.
+			# The attempt aborts if the credentials are not valid (eg, blank text)
 			eg.openils 'auth.session.create',
-				username: un
-				password: pw
+				username: un = credentials[0].value
+				password: pw = credentials[1].value
 				type: 'opac'
 				org: 1 # TODO: remove hardcode
 			, (resp) ->
-				# Upon success, we close the login page and empty its content.
+				# Upon success, we close the login page and empty its input fields.
 				history.back()
-				$f
-				.find('input[name=username]').val('').end()
-				.find('input[name=password]').val('').end()
+				$('input', $f).val('').end()
 
 				# We should also call any deferred service callbacks.
 				while deferreds.length > 0
