@@ -23,37 +23,44 @@ define [
 			when msg.desc? then msg.desc # a text string contained in a 'desc' property,
 			else JSON.stringify msg # or an object that needs to be converted to JSON format.
 
-	# Define the behaviour of the prompt box. Content panel is blank until
+	# Define the behaviour of the notice box. Content panel is blank until
 	# filled in by message text. Message box will be positioned at the top of
 	# current page and will take 80% of the available width.
-	promptly =
+	notably =
 		mode: 'blank'
 		top: true
 		width: '80%'
 
-	# Define the additional behaviour of the notice box.  There is a close
+	open_notice = (text) ->
+		$('<div>').simpledialog2 $.extend {}, notably,
+			blankContent: "<h3 class='message'>#{text}</h3>"
+
+	close_notice = -> $.mobile.sdCurrentDialog.close()
+
+	# Define the additional behaviour of the prompt box.  There is a close
 	# button in the header, and the box does not animate.
-	notably =
+	promptly =
 		headerClose: true
 		animate: false
+
+	open_prompt = (type, text) ->
+		$('<div>').simpledialog2 $.extend {}, notably, promptly,
+			headerText: type
+			blankContent: "<h3 class='message'>#{text}</h3>"
+
 
 	$.fn.messages = ->
 		@plugin('messages')
 
-		# Upon receving a notice, show any messages for a brief time.
+		# Upon receving a notice, show any messages and hide them after a brief time.
 		.subscribe 'notice', (xs) ->
-			setTimeout((-> $.mobile.sdCurrentDialog.close()), 2000)
 			(xs = [xs]) unless $.isArray xs
-			for x in xs
-				$('<div>').simpledialog2 $.extend {}, promptly,
-					blankContent: "<h3 class='message'>#{the_message x}</h3>"
+			(open_notice the_message x) for x in xs
+			setTimeout close_notice, 2000
 			return false
 
-		# Upon receiving a prompt, show any messages until the user clicks the close button.
+		# Upon receiving a prompt, show any messages until the user hides them.
 		.subscribe 'prompt', (type, xs) ->
 			(xs = [xs]) unless $.isArray xs
-			for x in xs
-				$('<div>').simpledialog2 $.extend {}, promptly, notably,
-					headerText: type
-					blankContent: "<h3 class='message'>#{the_message x}</h3>"
+			(open_prompt type, the_message x) for x in xs
 			return false
