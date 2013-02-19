@@ -3,9 +3,9 @@ define ['jquery'], ($) ->
 	# Define a private publish/subscribe/unsubscribe mechanism based on jQuery
 	# trigger/on/off event methods.
 	ps = $({})
-	publish = -> ps.trigger.apply ps, arguments
-	subscribe = -> ps.on.apply ps, arguments
-	unsubscribe = -> ps.off.apply ps, arguments
+	publish     = -> ps.trigger.apply ps, arguments
+	subscribe   = -> ps.on     .apply ps, arguments
+	unsubscribe = -> ps.off    .apply ps, arguments
 
 
 	# ### Define a jQuery _publish_ method
