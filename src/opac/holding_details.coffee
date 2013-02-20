@@ -15,8 +15,10 @@ define [
 	$.fn.holding_details = (title_id, search_ou, search_depth, status_names) ->
 
 		holding_details = '''
-		<h3>Copies available for this title</h3>
-		<ul data-role="listview" data-inset="true"></ul>
+		<div data-role="collapsible" data-collapsed="false" data-inset="false">
+			<h3>Copies available for this title</h3>
+			<ul data-role="listview" data-inset="false"></ul>
+		</div>
 		'''
 
 		# Define a template and its accompanying function

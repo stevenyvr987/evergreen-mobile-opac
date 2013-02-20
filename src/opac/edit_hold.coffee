@@ -71,12 +71,14 @@ define [
 			return false
 
 		# We prepare this container as a plugin.
-		@plugin('edit_hold')
+		$plugin = @plugin('edit_hold')
+			.find('.content')
+			.html(content).trigger('create')
+			.end()
 
 		.subscribe 'opac.title_details', (titles_total, titles_count, titleid, $img) =>
 			title_id = titleid
 
-			$('.content', @).html(content)
 			# We will change to this page unless it is already active.
 			$.mobile.changePage @page() unless @ is $.mobile.activePage
 
@@ -85,10 +87,12 @@ define [
 			$('.count', @).text count = titles_count
 
 			$('.title_details', @).title_details(titleid, $img).cover_art()
+				.trigger 'create'
 
 		.subscribe 'opac.title_holdings', (titleid, search_ou, search_depth) =>
 			eg.openils 'search.config.copy_status.retrieve.all', (status_names) =>
 				$('.holding_details', @).holding_details(titleid, search_ou, search_depth, status_names)
+					.trigger 'create'
 
 		.subscribe 'opac.title_hold', (titleid) =>
 			# We will prepare a title-level hold request.  We set the

@@ -10,7 +10,10 @@ define [
 	$.fn.title_details = (title_id, $img) ->
 
 		list = '''
-		<ul data-role="listview" data-inset="true"></ul>
+		<div data-role="collapsible" data-collapsed="false" data-inset="false">
+			<h3>Title Details</h3>
+			<ul data-role="listview" data-inset="false"></ul>
+		</div>
 		'''
 
 		# We will format title details as a jQuery Mobile list view of one list element.
