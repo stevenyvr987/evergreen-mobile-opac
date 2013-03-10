@@ -5,11 +5,10 @@
 # >FIXME: would be good to mark these circ_ou's in the ou selection list.
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'opac/ou_tree'
 	'plugin'
-], ($, eg, OU) ->
+], (eg, OU) -> (($) ->
 
 	$.fn.hold_details = (hold) ->
 
@@ -109,3 +108,4 @@ define [
 						when $target.is '[type=reset]' then hide_form.call @
 						when $target.is '[type=submit]' then place_hold.call @
 			return false
+)(jQuery)

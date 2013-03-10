@@ -1,14 +1,13 @@
 # Dictionary of ajax calls keyed by name of Evergreen service method
 
 define [
-	'jquery'
 	'eg/fieldmapper'
 	'eg/date'
 	'eg/eg_api'
 	'eg/auth'
 	'exports'
 	'md5'
-], ($, fm, date, eg, auth, services) ->
+], (fm, date, eg, auth, services) -> (($) ->
 
 	# common I/O signatures for eg_services
 	i0 = -> [auth.session.id]
@@ -795,3 +794,4 @@ define [
 
 		'': {} # terminates the object
 	return
+)(jQuery)

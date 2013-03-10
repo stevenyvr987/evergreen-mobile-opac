@@ -13,11 +13,10 @@
 # * Receive an object and modify the search form accordingly
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'plugin'
 	'opac/ou_tree'
-], ($, eg) ->
+], (eg) -> (($) ->
 	# ***
 	# Define the search form.
 	# The form contains input and selector elements that are named after request parameters.
@@ -324,3 +323,4 @@ define [
 			$('input[type="checkbox"]', @).each -> $(@).checkboxradio 'refresh'
 			return
 ###
+)(jQuery)

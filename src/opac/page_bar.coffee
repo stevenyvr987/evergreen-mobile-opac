@@ -1,10 +1,9 @@
 # We define a custom jQuery plugin to navigate between pages of search results.
 
 define [
-	'jquery'
 	'template'
 	'plugin'
-], ($, _) ->
+], ( _) -> (($) ->
 
 	nav_start = '<span data-role="button" data-icon="arrow-l" data-inline="true" class="start">Start</span>'
 	nav_prev =  '<span data-role="button" data-icon="arrow-u" data-inline="true" class="prev">Previous</span>'
@@ -69,3 +68,4 @@ define [
 		# Group all buttons on page bar horizontally.
 		@plugin('page_bar')
 		.wrapInner('<div data-role="controlgroup" data-type="horizontal"></div>').trigger 'create'
+)(jQuery)

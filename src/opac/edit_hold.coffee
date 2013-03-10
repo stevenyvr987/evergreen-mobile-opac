@@ -7,7 +7,6 @@
 # * If the user presses next or previous links on the title bar
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'eg/auth'
 	'template'
@@ -16,7 +15,7 @@ define [
 	'opac/title_details'
 	'opac/holding_details'
 	'opac/hold_details'
-], ($, eg, auth, _) ->
+], (eg, auth, _) -> (($) ->
 
 	# Define the container for the content areas.
 	content = '''
@@ -104,3 +103,4 @@ define [
 				hold_type: 'T' # default type is 'title-level'
 				selection_depth: 0
 				pickup_lib: Number auth.session.user.home_ou
+)(jQuery)

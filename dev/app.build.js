@@ -11,8 +11,6 @@
 		, { name: 'account/summary', exclude: ['base', 'eg/eg_api'] }
 	],
 	paths: {
-		jquery: 'empty:',
-		jqm: 'empty:',
 		json2: 'empty:',
 		jsd: 'lib/jsdeferred',
 		md5: 'lib/md5',

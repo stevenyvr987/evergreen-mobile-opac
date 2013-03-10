@@ -22,7 +22,6 @@
 # If the plugin receives *refresh*, it will refresh all summary lines.
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'eg/auth'
 	'template'
@@ -30,7 +29,7 @@ define [
 	'account/fines'
 	'account/checkouts'
 	'account/holds'
-], ($, eg, auth, _) ->
+], (eg, auth, _) -> (($) ->
 
 	# ***
 	# Each summary line is implemented by a template,
@@ -161,3 +160,4 @@ define [
 			return false
 
 		return @
+)(jQuery)

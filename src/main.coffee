@@ -2,8 +2,6 @@ require.config
 	waitSeconds: 60
 
 	paths:
-		jquery: '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min'
-		jqm:	'//ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min'
 		json2:  '//ajax.cdnjs.com/ajax/libs/json2/20110223/json2'
 		jsd:    'lib/jsdeferred'
 		md5:    'lib/md5'
@@ -11,12 +9,12 @@ require.config
 		fmall:  'dojo/fieldmapper/fmall'
 		fmd:    'eg/fm_datatypes'
 
-	priority: ['jquery', 'base']
-
 require [
-	'jquery', 'base', 'jqm'
-	'messages2', 'load_spinner', 'login_bar'
-], ($) ->
+	'base'
+	'messages2'
+	'load_spinner'
+	'login_bar'
+], -> (($) ->
 
 	$(document).bind 'pageinit', ->
 
@@ -86,3 +84,4 @@ require [
 		# Do not show again the default message that was shown during initial loading
 		$('#startup').empty()
 		return
+)(jQuery)

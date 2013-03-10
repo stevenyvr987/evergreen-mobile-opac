@@ -13,7 +13,6 @@
 # upon the plugin receiving an ID value and a plus or minus step indicator on *title*
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'template'
 	'settings'
@@ -21,7 +20,7 @@ define [
 	'plugin'
 	'opac/cover_art'
 	'opac/page_bar'
-], ($, eg, _, rc, OU) ->
+], (eg, _, rc, OU) -> (($) ->
 
 	# ***
 	# Define the plugin content, a list view of title summaries.
@@ -404,4 +403,4 @@ define [
 		# Upon receiving *refresh*, we simply consume it;
 		# the content will not change because it is static.
 		@refresh -> return false
-
+)(jQuery)

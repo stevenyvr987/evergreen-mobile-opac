@@ -2,7 +2,7 @@
 # The module defines a variety of custom jQuery methods
 # that can be applied to custom-defined plugins.
 
-define ['jquery'], ($) ->
+define -> (($) ->
 
 	# ### Define a _plugin_ method
 	# Use the method to label custom plugins with a given classname
@@ -84,3 +84,4 @@ define ['jquery'], ($) ->
 		return o
 
 	return @
+)(jQuery)

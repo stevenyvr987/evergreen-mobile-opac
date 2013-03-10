@@ -8,11 +8,10 @@
 # * Publish *checkouts_summary* to synchronize its summary line
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'template'
 	'plugin'
-], ($, eg, _) ->
+], (eg, _) -> (($) ->
 
 
 	# ***
@@ -190,3 +189,4 @@ define [
 			else
 				$(@).publish 'notice', ['Nothing was done because no items can be renewed.']
 			return false
+)(jQuery)

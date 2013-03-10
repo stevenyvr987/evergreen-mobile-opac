@@ -2,13 +2,12 @@
 # The plugin will not react to any user events.
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'eg/auth'
 	'template'
 	'opac/ou_tree'
 	'plugin'
-], ($, eg, auth, _, OU) ->
+], (eg, auth, _, OU) -> (($) ->
 
 	format_callnumber = (cn) -> $.trim "#{cn[0]} #{cn[1]} #{cn[2]}"
 
@@ -153,3 +152,4 @@ define [
 							for copy_id in ids
 								$holding.openils "due dates ##{copy_id}", 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
 		return @
+)(jQuery)

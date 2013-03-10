@@ -3,16 +3,16 @@
 # will be customized by values found in the _settings_ module.
 
 define [
-	'jquery'
 	'settings'
 	'opac/search_bar'
 	'opac/search_result'
 	'opac/cover_art'
 	'plugin'
-], ($, rc) ->
+], (rc) -> (($) ->
 	$.fn.opac_search = ->
 		return @ if @plugin()
 		@plugin 'opac_search'
 		$('#search_bar').search_bar(rc.settings)
 		$('#search_result').search_result().cover_art()
 		return @
+)(jQuery)

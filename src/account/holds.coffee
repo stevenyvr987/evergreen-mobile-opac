@@ -7,11 +7,10 @@
 # * Publish *holds_summary* to synchronize its summary line
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'template'
 	'plugin'
-], ($, eg, _) ->
+], (eg, _) -> (($) ->
 
 
 	# ***
@@ -280,3 +279,4 @@ define [
 				$(@).publish 'notice', if suspend then ['Nothing was done because no active holds were found to suspend.'] else ['Nothing was done because no suspended holds were found to activate.']
 			return false
 		@on 'click', '.resume.all', update_all
+)(jQuery)

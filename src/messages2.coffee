@@ -10,10 +10,9 @@
 # that will stay until the user confirms the message.
 # Prompts are primarily used for showing error messages.
 define [
-	'jquery'
 	'jqm_sd'
 	'plugin'
-], ($) ->
+], -> (($) ->
 
 	# Define a helper function to convert the type of message to be displayed into a text string.
 	the_message = (msg) ->
@@ -74,3 +73,4 @@ define [
 			(xs = [xs]) unless $.isArray xs
 			(open_prompt type, the_message x) for x in xs
 			return false
+)(jQuery)

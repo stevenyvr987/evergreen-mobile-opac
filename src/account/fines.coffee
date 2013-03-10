@@ -4,11 +4,10 @@
 # Currently, the plugin will not enable the user to interactively select bills and pay them.
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'template'
 	'plugin'
-], ($, eg, _) ->
+], (eg, _) -> (($) ->
 
 	# ***
 	# Define the outer container of the list of bills.
@@ -164,3 +163,4 @@ define [
 						return
 			return false
 		return @
+)(jQuery)

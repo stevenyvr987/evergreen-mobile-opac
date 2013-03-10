@@ -3,7 +3,7 @@
 # If an originating library system has been chosen by the query string,
 # we will narrow the option list to the system branches.
 
-define ['jquery', 'eg/eg_api'], ($, eg) ->
+define ['eg/eg_api'], (eg) -> (($) ->
 
 	# We define a default configuration for the plugin.
 	defaults =
@@ -139,3 +139,4 @@ define ['jquery', 'eg/eg_api'], ($, eg) ->
 		id_depth: ol_depth
 		id_name: id_name
 	}
+)(jQuery)

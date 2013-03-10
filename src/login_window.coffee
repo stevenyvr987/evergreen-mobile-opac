@@ -12,10 +12,9 @@
 # *session.login*.
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'plugin'
-], ($, eg) ->
+], (eg) -> (($) ->
 
 	# ---
 	# Define the content of the form for inputting user credentials,
@@ -106,3 +105,4 @@ define [
 			# We should also add any deferred service callback to our list.
 			deferreds.push d
 			return false
+)(jQuery)

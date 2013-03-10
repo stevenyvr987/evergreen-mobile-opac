@@ -1,5 +1,5 @@
 # We define a module called 'load_spinner'.
-define ['jquery', 'jqm', 'plugin'], ($) ->
+define ['plugin'], -> (($) ->
 
 	# The module defines a jQuery plugin to show or hide a spinner graphic.
 	# It is actually a wrapper to use jQuery Mobile's 'page loading message' as the graphic.
@@ -23,3 +23,4 @@ define ['jquery', 'jqm', 'plugin'], ($) ->
 
 	# > FIXME: if the user presses the esc key to force loading to stop,
 	# we ought to hide the spinner.
+)(jQuery)

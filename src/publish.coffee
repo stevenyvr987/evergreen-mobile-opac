@@ -1,4 +1,4 @@
-define ['jquery'], ($) ->
+define -> (($) ->
 
 	# Define a private publish/subscribe/unsubscribe mechanism based on jQuery
 	# trigger/on/off event methods.
@@ -50,3 +50,4 @@ define ['jquery'], ($) ->
 	$.fn.unsubscribe = (topics) ->
 		unsubscribe topics
 		return @
+)(jQuery)

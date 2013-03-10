@@ -1,11 +1,10 @@
 # Define a custom jQuery plugin to show details of a title.
 
 define [
-	'jquery'
 	'template'
 	'eg/eg_api'
 	'plugin'
-], ($, _) ->
+], (_) -> (($) ->
 
 	$.fn.title_details = (title_id, $img) ->
 
@@ -106,3 +105,4 @@ define [
 
 			@listview 'refresh'
 			return
+)(jQuery)

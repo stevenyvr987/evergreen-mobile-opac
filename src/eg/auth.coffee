@@ -2,10 +2,9 @@
 # including the user object provided by a service call to auth.session.retrieve
 
 define [
-	'jquery'
 	'eg/eg_api'
 	'eg/date'
-], ($, eg, date) ->
+], (eg, date) -> (($) ->
 
 	sessionTO = 60 # seconds
 	auth = {}
@@ -57,3 +56,4 @@ define [
 		return false
 
 	return auth
+)(jQuery)

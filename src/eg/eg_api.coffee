@@ -1,14 +1,13 @@
 # Dictionary of ajax calls keyed by name of Evergreen service method
 
 define [
-	'jquery'
 	'eg/fieldmapper'
 	'eg/date'
 	'eg/services'
 	'eg/cache'
 	'eg/auth'
 	'exports'
-], ($, fm, date, services, cache, auth, eg) ->
+], (fm, date, services, cache, auth, eg) -> (($) ->
 
 	ajaxOptions =
 		url: '/osrf-gateway-v1'
@@ -203,3 +202,4 @@ define [
 		default_action: default_action
 		openils: openils
 	return
+)(jQuery)

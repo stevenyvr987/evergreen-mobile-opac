@@ -10,7 +10,7 @@
 # $.ga 'UA-12345678-9', ['_trackPageview', 'url'], ['_trackEvent', 'name', value]
 
 _gaq = []
-define ['jquery'], ($) ->
+define -> (($) ->
 	$.ga = (uid, commands...) ->
 		protocol = if document.location.protocol is 'https:' then 'https://ssl' else 'http://www'
 		$.ajax
@@ -26,3 +26,4 @@ define ['jquery'], ($) ->
 				commands.push ['_trackPageview'] if len is 1
 				_gaq.push commands
 				return
+)(jQuery)

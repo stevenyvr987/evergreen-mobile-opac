@@ -1,7 +1,7 @@
 # We define a module to contain a pair of jQuery plugins to show cover art, one
 # to show a thunmbnail version, the other to show a larger version.
 
-define ['jquery', 'jqm'], ($) ->
+define -> (($) ->
 
 	# Define the location where large or small versions of jacket cover art can
 	# be downloaded keyed on an ISBN
@@ -40,3 +40,4 @@ define ['jquery', 'jqm'], ($) ->
 			$page.refresh
 			return false
 
+)(jQuery)

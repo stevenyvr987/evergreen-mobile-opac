@@ -5,8 +5,8 @@
  * https://github.com/jtsage/jquery-mobile-simpledialog
  */
  
-define(['jquery', 'jqm'], function(jQuery) {
-(function($, undefined ) {
+define(function() {
+(function($) {
   $.widget( "mobile.simpledialog2", $.mobile.widget, {
 	options: {
 		version: '1.0.1-2012022700', // jQueryMobile-YrMoDaySerial
