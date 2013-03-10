@@ -47,7 +47,17 @@ define [
 		$('<div>').simpledialog2 $.extend {}, notably, promptly,
 			headerText: type
 			blankContent: "<h3 class='message'>#{text}</h3>"
+		return
 
+	###
+	open_notice = (text) ->
+		$('#messages').html("<h3 class='message'>#{text}</h3>").trigger 'create'
+		$.mobile.changePage '#messages', transition: 'pop', role: 'dialog'
+	open_prompt = (type, text) ->
+		$('#messages').html("<h3 class='message'>#{type}</h3>").trigger 'create'
+		$.mobile.changePage '#messages', transition: 'pop', role: 'dialog'
+	close_notice = -> $('#messages').dialog 'close'
+	###
 
 	$.fn.messages = ->
 		@plugin('messages')

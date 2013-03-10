@@ -84,5 +84,5 @@ require [
 		$('div[data-role="page"]').css(visibility: 'visible')
 
 		# Do not show again the default message that was shown during initial loading
-		$('#messages').empty()
+		$('#startup').empty()
 		return
