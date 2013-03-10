@@ -13,17 +13,6 @@ define [
 	# We will prepare Google Analytics tracking if an account ID is specified.
 	require(['jquery_ga'], -> $.ga rc.ga_uid) if rc.ga_uid?
 
-	# The mobile OPAC uses _jQuery Mobile_.
-	# We define a handler to customize some jQM options.
-	# FIXME: mobileinit event is not triggering!
-	$(document).bind 'mobileinit', ->
-		$.extend $.mobile,
-			# Do not inset collapsible content to maximize the use of screen width
-			'collapsible.prototype.options.inset': false
-			'selectmenu.prototype.options.hidePlaceholderMenuItems': false
-			# We disable jQM's ajax mechanism since we are using the one in jQuery.
-			'ajaxEnabled': false
-
 	# The mobile OPAC uses _JSDeferred_ to manage deferrments.
 	# We initialize the service for use.
 	Deferred.define()
