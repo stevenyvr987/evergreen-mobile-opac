@@ -154,7 +154,7 @@ define [
 		maxTab = 0
 
 		@plugin('search_settings')
-		.data 'settings',
+		.jqmData 'settings',
 			default_class: 'keyword'
 			term: ''
 			item_type: ''
@@ -171,7 +171,7 @@ define [
 		# Define a function to try searching the public catalogue given a request object.
 		trySearching = (request, direction) ->
 
-			#request = $.extend {}, $('.search_settings').data('settings'), request
+			#request = $.extend {}, $('.search_settings').jqmData('settings'), request
 			#FIXME: the following object is empty and overrides default settings.
 			#{
 			#depth:    current_depth
@@ -184,8 +184,8 @@ define [
 			# and proceed only if they differ.
 			# Our method of comparison is to first stringify the objects into JSON format
 			# and then check if the text strings are equal.
-			return if @length and JSON.stringify(request) is JSON.stringify(@data 'request')
-			@data 'request', request
+			return if @length and JSON.stringify(request) is JSON.stringify(@jqmData 'request')
+			@jqmData 'request', request
 
 			$this = @html(content)
 
@@ -194,7 +194,7 @@ define [
 
 				# Upon success or not,
 				# we will cache the result object and publish it to other plugins.
-				@data 'result', result
+				@jqmData 'result', result
 				@publish 'opac.result', [result]
 
 				# If there are no results,
@@ -301,8 +301,8 @@ define [
 		# informaiton to show details of the title and to prepare for a
 		# possible request to create a hold of the title.
 		@on 'click', 'li`', (e) =>
-			request = @data 'request'
-			result = @data 'result'
+			request = @jqmData 'request'
+			result = @jqmData 'result'
 			[id, $img, posn] = title_details $(e.currentTarget)
 			if id and request
 				# >FIXME: could the main js file load the required modules?
@@ -317,8 +317,8 @@ define [
 
 		# Upon the plugin receiving an ID (and a possible direction) on *title*
 		@subscribe 'opac.title', (title_id, direction) ->
-			request = @data 'request'
-			result = @data 'result'
+			request = @jqmData 'request'
+			result = @jqmData 'result'
 			total =  result.count
 			actual = result.ids.length
 			offset = Number request.offset
@@ -356,7 +356,7 @@ define [
 		# we will extend the recent request with an author search term at zero page offset.
 		# We will publish it and try searching the public catalogue with it.
 		@on 'click', 'a.author', (e) =>
-			request = @data 'request'
+			request = @jqmData 'request'
 			author = $('div.author', $(e.currentTarget).closest('li')).text()
 
 			if author and request
@@ -388,7 +388,7 @@ define [
 
 			# * Otherwise, extend the current request object with a new scope
 			# and publish it on *search*
-			if request = @data 'request'
+			if request = @jqmData 'request'
 				request = $.extend {}, request,
 					org_unit: ou.id
 					org_name: ou.name
