@@ -15,8 +15,8 @@ require [
 	'load_spinner'
 	'login_bar'
 ], -> (($) ->
-
-	$(document).bind 'pageinit', ->
+	
+	$ ->
 
 		# We will apply a load spinner to the body.  The load spinner will
 		# indicate that data is being transferred across the network.
