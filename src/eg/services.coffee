@@ -349,13 +349,32 @@ define [
 			s: true
 
 		'circ.holds.create':
-			i: (ahr) ->
-				a = $.extend
-					requestor: auth.session.user.id
-					usr: auth.session.user.id
+
+			i: (x) ->
+
+				user = auth.session.user
+				cfg = auth.session.settings
+
+				ahr = $.extend
 					hold_type: 'T'
-				, ahr
-				[auth.session.id, fm.mapfield ahr: a]
+					usr: user.id
+					pickup_lib: cfg?['opac.default_pickup_location'] or user.home_ou
+				, x
+
+				# If there are default configurations, we transfer them over to
+				# the hold request.
+				if cfg
+					if (/email/i).test cfg['opac.hold_notify']
+						ahr.email_notify = true
+					if (/phone/i).test cfg['opac.hold_notify']
+						ahr.phone_notify =
+							cfg['opac.default_phone'] or user.day_phone or user.evening_phone or user.other_phone
+					if (/sms/i).test cfg['opac.hold_notify']
+						ahr.sms_notify = cfg['opac.default_sms_notify']
+						ahr.sms_carrier = cfg['opac.default_sms_carrier']
+
+				[auth.session.id, fm.mapfield ahr: ahr]
+
 			t: 'number'
 			s: true
 
@@ -371,13 +390,10 @@ define [
 
 		'circ.title_hold.is_possible':
 			i: (x) ->
-				obj =
-					titleid: 0
-					hold_type: 'T'
+				obj = $.extend
 					patronid: auth.session.user.id
-					depth: 0
-					pickup_lib: 1
-				$.extend obj, x # input x does not need to extend hold_type nor patronid
+					pickup_lib: auth.session.settings['opac.default_pickup_location'] or auth.session.user.home_ou
+				, x
 				[auth.session.id, obj]
 			s: true
 
