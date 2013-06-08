@@ -8,14 +8,13 @@
 
 define [
 	'eg/eg_api'
-	'eg/auth'
 	'template'
 	'plugin'
 	'opac/cover_art'
 	'opac/title_details'
 	'opac/holding_details'
 	'opac/hold_details'
-], (eg, auth, _) -> (($) ->
+], (eg, _) -> (($) ->
 
 	# Define the container for the content areas.
 	content = '''
@@ -100,7 +99,4 @@ define [
 			$('.hold_details', @).hold_details
 				target: titleid # version 1.6 software
 				titleid: titleid # version 2.0 software
-				hold_type: 'T' # default type is 'title-level'
-				selection_depth: 0
-				pickup_lib: Number auth.session.user.home_ou
 )(jQuery)
