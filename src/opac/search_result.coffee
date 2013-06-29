@@ -217,7 +217,7 @@ define [
 					# Record the maximum tab index.
 					maxTab = n if maxTab < ++n
 
-					$result_list.append($(tpl_summary_info title_id: title_id))
+					$result_list.append tpl_summary_info title_id: title_id
 
 					do (title_id, n) ->
 						$x = $("#title_id_#{title_id}")
@@ -299,7 +299,7 @@ define [
 		# Upon the user clicking a title summary area, we will publish the
 		# informaiton to show details of the title and to prepare for a
 		# possible request to create a hold of the title.
-		@on 'click', 'li`', (e) =>
+		@on 'click', 'li', (e) =>
 			request = @jqmData 'request'
 			result = @jqmData 'result'
 			[id, $img, posn] = title_details $(e.currentTarget)
