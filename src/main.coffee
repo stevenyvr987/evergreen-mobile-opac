@@ -52,12 +52,11 @@ require [
 		# This means the search bar acts as part of the collapsible set of summary bars,
 		# even though it is not located inside the container
 		# that defines the summary bars as a collapsible set.
-		toggle = if $(@).is(':visible') then 'collapse' else 'expand'
 		$('.account_summary .ui-collapsible-heading').on 'click', ->
-			$('#opac_search').trigger toggle
+			$('#opac_search').trigger 'collapse'
 			return # need to bubble up click event for jQM
 		$('#opac_search').on 'click', ->
-			$('.account_summary').each -> $(@).trigger toggle
+			$('.account_summary').each -> $(@).trigger 'collapse'
 			return # need to bubble up click event for jQM
 
 		# Upon showing a page, we focus on a specific element that depends on
