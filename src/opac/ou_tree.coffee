@@ -25,8 +25,8 @@ define ['eg/eg_api'], (eg) -> (($) ->
 	OU_tree_desc = {}
 	OU_types = {}
 
-	# Convert an org unit ID to its short name
-	id_name = (ou_id) -> OU_tree[ou_id].name
+	# Convert an org unit ID to its short name or an empty string
+	id_name = (ou_id) -> OU_tree[ou_id]?.name or ''
 
 	# Convert an org unit short name to an org unit object
 	name_ou = (ou_name) ->
@@ -38,11 +38,12 @@ define ['eg/eg_api'], (eg) -> (($) ->
 
 	# Convert an ol text string into an org unit ID.  The ol value is either
 	# already an org unit ID or an org unit shortname.
+	# If the ou shortname or ou ID does not exist, return ID 1.
 	ol_id = (ol) ->
 		unless isNaN (id = Number ol)
-			id
+			if id_name id then id else 1
 		else
-			(name_ou ol).id
+			(name_ou ol)?.id or 1
 
 	# Convert an ol text string into an org unit depth.  The ol value is either
 	# an org unit ID or an org unit shortname.
