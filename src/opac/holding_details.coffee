@@ -102,8 +102,7 @@ define [
 
 		# We try to build the view of holdings of a possible hold target.
 		# If a holding is checked out, we will try to get its due date.
-		@html(holding_details)
-		.trigger('create')
+		($plugin = @html(holding_details).trigger('create'))
 		.find('[data-role="listview"]')
 		.openils "holding details ##{title_id}", 'search.biblio.copy_location_counts.summary.retrieve',
 			id: title_id
@@ -115,7 +114,7 @@ define [
 			# We don't show the holding list if there are no holdings as
 			# indicated by an empty copy_location list.
 			if copy_location.length is 0
-				@parent().empty()
+				$plugin.empty().trigger 'create'
 				return
 
 			@publish 'opac.title_hold', [title_id]
@@ -124,16 +123,15 @@ define [
 			# >FIXME: we should show available copies first.
 			for copy in copy_location
 
-				# We will only show this *copy*
-				# if its depth is within scope of the search depth
-				copy_depth = OU.id_depth copy.org_id
-				continue unless search_depth <= copy_depth
-
 				# * We need to remap some values of this *copy* to displayable names:
 				#   * Map org id to org name
 				#   * Map status number to status name
 				copy.org_name = OU.id_name copy.org_id
 				copy[status_names[id].name] = n for id, n of copy.available
+
+				# We will only show this *copy*
+				# if its depth is within scope of the search depth
+				continue unless search_depth <= OU.id_depth copy.org_id
 
 				# * We calculate a unique identifier for this holding
 				holding_id = ("#{copy.org_id} #{title_id} #{format_callnumber copy.callnumber}").replace /\s+|\.+/g, '_'
@@ -151,5 +149,12 @@ define [
 						, (ids) ->
 							for copy_id in ids
 								$holding.openils "due dates ##{copy_id}", 'search.asset.copy.fleshed2.retrieve', copy_id, show_due_date
+
+			# We don't show the holding list if there are no relevant holdings
+			$plugin.empty().trigger('create') if @children().length is 0
+
+			return
+
 		return @
+
 )(jQuery)
